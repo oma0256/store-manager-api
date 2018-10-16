@@ -95,3 +95,5 @@ app.add_url_rule('/api/v1/store-owner/register',
                  view_func=StoreOwnerRegister.as_view('store_owner_register'))
 app.add_url_rule('/api/v1/store-owner/login',
                  view_func=StoreOwnerLogin.as_view('store_owner_login'))
+# app.add_url_rule('/api/v1/products',
+#                  view_func=ProductsView.as_view('products_view'))
