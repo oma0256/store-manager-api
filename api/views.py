@@ -98,8 +98,15 @@ class ProductView(MethodView):
         name = data.get("name")
         price = data.get("price")
         quantity = data.get("quantity")
-        product_id = len(products) + 1
 
+        if not name:
+            return jsonify({"error": "Product name is required"}), 400
+        if not price:
+            return jsonify({"error": "Product price is required"}), 400
+        if not quantity:
+            return jsonify({"error": "Product quantity is required"}), 400
+
+        product_id = len(products) + 1
         new_product = Product(product_id, name, price, quantity)
         return jsonify({
             "message": "Product created successfully",

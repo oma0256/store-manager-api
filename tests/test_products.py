@@ -44,3 +44,21 @@ class TestProductView(unittest.TestCase):
         }
         self.assertEqual(res.status_code, 201)
         self.assertEqual(res_data, expected_output)
+
+    def test_create_product_with_missing_fields(self):
+        self.app.post("/api/v1/store-owner/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        self.app.post("/api/v1/store-owner/login",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.login_data))
+        self.product["name"] = ""
+        res = self.app.post("/api/v1/products",
+                            headers={"Content-Type": "application/json"},
+                            data=json.dumps(self.product))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Product name is required"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, expected_output)
