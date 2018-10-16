@@ -268,3 +268,20 @@ class TestSoreAttendantauth(unittest.TestCase):
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
+
+    def test_login_valid_data(self):
+        """
+        Test login with valid data
+        """
+        self.app.post("/api/v1/store-attendant/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        res = self.app.post("/api/v1/store-attendant/login",
+                            headers={"Content-Type": "application/json"},
+                            data=json.dumps(self.login_data))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "message": "Store attendant logged in successfully"
+        }
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res_data, expected_output)

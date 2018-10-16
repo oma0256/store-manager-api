@@ -159,6 +159,25 @@ class StoreAttendantRegister(MethodView):
         store_attendants.append(new_user)
         return jsonify({"message": "Store attendant successfully registered"}), 201
 
+class StoreAttendantLogin(MethodView):
+    """
+    Class to login store attendant
+    """
+    def post(self):
+        """
+        Method to perform login of store attendant
+        """
+        data = request.get_json()
+
+        # Get fields which were sent
+        email = data.get("email")
+        password = data.get("password")
+
+        return jsonify({
+                        "message": "Store attendant logged in successfully"
+                        })
+
+
 
 class ProductView(MethodView):
     """
@@ -209,5 +228,7 @@ app.add_url_rule('/api/v1/store-owner/login',
                  view_func=StoreOwnerLogin.as_view('store_owner_login'))
 app.add_url_rule('/api/v1/store-attendant/register',
                  view_func=StoreAttendantRegister.as_view('store_attendant_register'))
+app.add_url_rule('/api/v1/store-attendant/login',
+                 view_func=StoreAttendantLogin.as_view('store_attendant_login'))
 app.add_url_rule('/api/v1/products',
                  view_func=ProductView.as_view('product_view'))
