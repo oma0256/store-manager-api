@@ -14,6 +14,20 @@ def is_store_owner(f):
         if "store_owner" in session:
             return f(*args, **kwargs)
         return jsonify({
-            "error": "Please login as a store owner to create a product"
+            "error": "Please login as a store owner"
+            }), 401
+    return decorated
+
+
+def is_store_owner_or_attendant(f):
+    """
+    Authenticates if store attendant is logged in
+    """
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if "store_owner" in session or "store_attendant" in session:
+            return f(*args, **kwargs)
+        return jsonify({
+            "error": "Please login as a store owner or attendant"
             }), 401
     return decorated

@@ -107,7 +107,7 @@ class TestProductView(unittest.TestCase):
                             data=json.dumps(self.product))
         res_data = json.loads(res.data)
         expected_output = {
-            "error": "Please login as a store owner to create a product"
+            "error": "Please login as a store owner"
         }
         self.assertEqual(res.status_code, 401)
         self.assertEqual(res_data, expected_output)
@@ -163,3 +163,15 @@ class TestProductView(unittest.TestCase):
         }
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res_data, exepected_output)
+
+    def test_get_products_unauthenticated_user(self):
+        """
+        Test get products for unauthenticated user
+        """
+        res = self.app.get("/api/v1/products")
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Please login as a store owner or attendant"
+        }
+        self.assertEqual(res.status_code, 401)
+        self.assertEqual(res_data, expected_output)

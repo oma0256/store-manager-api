@@ -7,7 +7,7 @@ from validate_email import validate_email
 from werkzeug.security import generate_password_hash, check_password_hash
 from api.models import User, Product
 from api.__init__ import app
-from api.utilities.decorators import is_store_owner
+from api.utilities.decorators import is_store_owner, is_store_owner_or_attendant
 
 # Holds store owners
 store_owners = []
@@ -235,6 +235,7 @@ class ProductView(MethodView):
             "product": new_product.__dict__
             }), 201
 
+    @is_store_owner_or_attendant
     def get(self):
         """
         Get all products
