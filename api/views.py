@@ -1,21 +1,35 @@
+"""
+File to handle application views
+"""
 from flask import jsonify, request
 from flask.views import MethodView
-from werkzeug.security import generate_password_hash, check_password_hash
+from validate_email import validate_email
+from werkzeug.security import generate_password_hash
 from api.models import User
 from api.__init__ import app
 
+# Holds store owners
 store_owners = []
+
+
 class StoreOwnerRegister(MethodView):
+    """
+    Class to register store owner
+    """
     def post(self):
+        """
+        Method that registers store owner
+        """
         data = request.get_json()
 
+        # Get each field which was sent
         first_name = data.get("first_name")
         last_name = data.get("last_name")
         email = data.get("email")
         password = data.get("password")
         confirm_password = data.get("confirm_password")
-        user_id = len(store_owners) + 1
 
+        # Check for empty fields
         if not first_name:
             return jsonify({"error": "First name field is required"}), 400
         if not last_name:
@@ -27,11 +41,32 @@ class StoreOwnerRegister(MethodView):
         if not confirm_password:
             return jsonify({"error": "Confirm password field is required"}), 400
 
-        password = generate_password_hash(password)
-        new_user = User(user_id, first_name, last_name, email, password, True)
-        store_owners.append(new_user)
+        # Validate email
+        is_valid = validate_email(email)
+        if not is_valid:
+            return jsonify({"error": "Please enter a valid email"}), 400
 
+        # Check if passwords match
+        if password != confirm_password:
+            return jsonify({"error": "The passwords must match"}), 400
+
+        # Check if user already exists
+        for store_owner in store_owners:
+            if store_owner.email == email:
+                return jsonify({
+                    "error": "User with this email address already exists"
+                    }), 400
+
+        # Encrypt password
+        password = generate_password_hash(password)
+        user_id = len(store_owners) + 1
+        new_user = User(user_id, first_name, last_name, email, password, True)
+
+        # Add user to list
+        store_owners.append(new_user)
         return jsonify({"message": "Store owner successfully registered"}), 201
 
 
-app.add_url_rule('/api/v1/store-owner/register', view_func=StoreOwnerRegister.as_view('users'))
+# Map url to class
+app.add_url_rule('/api/v1/store-owner/register',
+                 view_func=StoreOwnerRegister.as_view('store_owner_register'))
