@@ -190,6 +190,7 @@ class StoreAttendantLogin(MethodView):
                         "message": "Store attendant logged in successfully"
                         })
                 return jsonify({"error": "Invalid email or password"}), 401
+        return jsonify({"error": "Please register to login"}), 401
 
 
 class ProductView(MethodView):
