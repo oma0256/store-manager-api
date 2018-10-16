@@ -87,6 +87,7 @@ class StoreOwnerLogin(MethodView):
                         "message": "Store owner logged in successfully"
                         })
                 return jsonify({"error": "Invalid email or password"}), 401
+        return jsonify({"error": "Please register to login"}), 401
 
 
 # Map url to class
