@@ -132,3 +132,18 @@ class TestStoreOwnerAuth(unittest.TestCase):
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
+
+    def test_login_invalid_password(self):
+        self.login_data["password"] = "kjsdvjj"
+        self.app.post("/api/v1/store-owner/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        res = self.app.post("/api/v1/store-owner/login",
+                            headers={"Content-Type": "application/json"},
+                            data=json.dumps(self.login_data))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Invalid email or password"
+        }
+        self.assertEqual(res.status_code, 401)
+        self.assertEqual(res_data, expected_output)

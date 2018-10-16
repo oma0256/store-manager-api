@@ -4,7 +4,7 @@ File to handle application views
 from flask import jsonify, request, session
 from flask.views import MethodView
 from validate_email import validate_email
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from api.models import User
 from api.__init__ import app
 
@@ -79,8 +79,14 @@ class StoreOwnerLogin(MethodView):
         if not password:
             return jsonify({"error": "Password field is required"}), 400
 
-        session["store_owner"] = email
-        return jsonify({"message": "Store owner logged in successfully"})
+        for store_owner in store_owners:
+            if store_owner.email == email:
+                if check_password_hash(store_owner.password, password):
+                    session["store_owner"] = email
+                    return jsonify({
+                        "message": "Store owner logged in successfully"
+                        })
+                return jsonify({"error": "Invalid email or password"}), 401
 
 
 # Map url to class
