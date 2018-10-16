@@ -20,6 +20,10 @@ class TestStoreOwnerAuth(unittest.TestCase):
             "password": "pass1234",
             "confirm_password": "pass1234"
         }
+        self.login_data = {
+            "email": "joe@email.com",
+            "password": "pass1234"
+        }
 
     def tearDown(self):
         views.store_owners = []
@@ -98,4 +102,18 @@ class TestStoreOwnerAuth(unittest.TestCase):
             "error": "User with this email address already exists"
         }
         self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, expected_output)
+
+    def test_login_valid_data(self):
+        self.app.post("/api/v1/store-owner/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        res = self.app.post("/api/v1/store-owner/login",
+                            headers={"Content-Type": "application/json"},
+                            data=json.dumps(self.login_data))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "message": "Store owner logged in successfully"
+        }
+        self.assertEqual(res.status_code, 200)
         self.assertEqual(res_data, expected_output)

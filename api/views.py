@@ -1,7 +1,7 @@
 """
 File to handle application views
 """
-from flask import jsonify, request
+from flask import jsonify, request, session
 from flask.views import MethodView
 from validate_email import validate_email
 from werkzeug.security import generate_password_hash
@@ -67,6 +67,19 @@ class StoreOwnerRegister(MethodView):
         return jsonify({"message": "Store owner successfully registered"}), 201
 
 
+class StoreOwnerLogin(MethodView):
+    def post(self):
+        data = request.get_json()
+
+        email = data.get("email")
+        password = data.get("password")
+
+        session["store_owner"] = email
+        return jsonify({"message": "Store owner logged in successfully"})
+
+
 # Map url to class
 app.add_url_rule('/api/v1/store-owner/register',
                  view_func=StoreOwnerRegister.as_view('store_owner_register'))
+app.add_url_rule('/api/v1/store-owner/login',
+                 view_func=StoreOwnerLogin.as_view('store_owner_login'))
