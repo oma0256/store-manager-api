@@ -159,6 +159,7 @@ class StoreAttendantRegister(MethodView):
         store_attendants.append(new_user)
         return jsonify({"message": "Store attendant successfully registered"}), 201
 
+
 class StoreAttendantLogin(MethodView):
     """
     Class to login store attendant
@@ -172,6 +173,12 @@ class StoreAttendantLogin(MethodView):
         # Get fields which were sent
         email = data.get("email")
         password = data.get("password")
+
+         # Check if any field is empty
+        if not email:
+            return jsonify({"error": "Email field is required"}), 400
+        if not password:
+            return jsonify({"error": "Password field is required"}), 400
 
         return jsonify({
                         "message": "Store attendant logged in successfully"
