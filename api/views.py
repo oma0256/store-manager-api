@@ -11,6 +11,8 @@ from api.utilities.decorators import is_store_owner
 
 # Holds store owners
 store_owners = []
+# Hold store attendants
+store_attendants = []
 # Store products
 products = []
 
@@ -103,6 +105,33 @@ class StoreOwnerLogin(MethodView):
         return jsonify({"error": "Please register to login"}), 401
 
 
+class StoreAttendantRegister(MethodView):
+    """
+    Class to register store attendant
+    """
+    def post(self):
+        """
+        Method that registers store attendant
+        """
+        data = request.get_json()
+
+        # Get each field which was sent
+        first_name = data.get("first_name")
+        last_name = data.get("last_name")
+        email = data.get("email")
+        password = data.get("password")
+        confirm_password = data.get("confirm_password")
+
+        # Encrypt password
+        password = generate_password_hash(password)
+        user_id = len(store_owners) + 1
+        new_user = User(user_id, first_name, last_name, email, password, True)
+
+        # Add user to list
+        store_owners.append(new_user)
+        return jsonify({"message": "Store attendant successfully registered"}), 201
+
+
 class ProductView(MethodView):
     """
     Class to perform http methods on products
@@ -150,5 +179,7 @@ app.add_url_rule('/api/v1/store-owner/register',
                  view_func=StoreOwnerRegister.as_view('store_owner_register'))
 app.add_url_rule('/api/v1/store-owner/login',
                  view_func=StoreOwnerLogin.as_view('store_owner_login'))
+app.add_url_rule('/api/v1/store-attendant/register',
+                 view_func=StoreAttendantRegister.as_view('store_attendant_register'))
 app.add_url_rule('/api/v1/products',
                  view_func=ProductView.as_view('product_view'))
