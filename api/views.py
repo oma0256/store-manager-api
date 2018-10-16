@@ -74,6 +74,11 @@ class StoreOwnerLogin(MethodView):
         email = data.get("email")
         password = data.get("password")
 
+        if not email:
+            return jsonify({"error": "Email field is required"}), 400
+        if not password:
+            return jsonify({"error": "Password field is required"}), 400
+
         session["store_owner"] = email
         return jsonify({"message": "Store owner logged in successfully"})
 

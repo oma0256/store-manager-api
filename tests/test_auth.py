@@ -117,3 +117,18 @@ class TestStoreOwnerAuth(unittest.TestCase):
         }
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res_data, expected_output)
+
+    def test_login_with_missing_fields(self):
+        self.login_data["password"] = ""
+        self.app.post("/api/v1/store-owner/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        res = self.app.post("/api/v1/store-owner/login",
+                            headers={"Content-Type": "application/json"},
+                            data=json.dumps(self.login_data))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Password field is required"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, expected_output)
