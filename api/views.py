@@ -106,6 +106,15 @@ class ProductView(MethodView):
         if not quantity:
             return jsonify({"error": "Product quantity is required"}), 400
 
+        if not isinstance(price, int):
+            return jsonify({
+                "error": "Product price is invalid please an integer"
+                }), 400
+        if not isinstance(quantity, int):
+            return jsonify({
+                "error": "Product quantity is invalid please an integer"
+                }), 400
+
         product_id = len(products) + 1
         new_product = Product(product_id, name, price, quantity)
         return jsonify({
