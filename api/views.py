@@ -93,34 +93,38 @@ class StoreOwnerLogin(MethodView):
 
 class ProductView(MethodView):
     def post(self):
-        data = request.get_json()
+        if "store_owner" in session:
+            data = request.get_json()
 
-        name = data.get("name")
-        price = data.get("price")
-        quantity = data.get("quantity")
+            name = data.get("name")
+            price = data.get("price")
+            quantity = data.get("quantity")
 
-        if not name:
-            return jsonify({"error": "Product name is required"}), 400
-        if not price:
-            return jsonify({"error": "Product price is required"}), 400
-        if not quantity:
-            return jsonify({"error": "Product quantity is required"}), 400
+            if not name:
+                return jsonify({"error": "Product name is required"}), 400
+            if not price:
+                return jsonify({"error": "Product price is required"}), 400
+            if not quantity:
+                return jsonify({"error": "Product quantity is required"}), 400
 
-        if not isinstance(price, int):
+            if not isinstance(price, int):
+                return jsonify({
+                    "error": "Product price is invalid please an integer"
+                    }), 400
+            if not isinstance(quantity, int):
+                return jsonify({
+                    "error": "Product quantity is invalid please an integer"
+                    }), 400
+
+            product_id = len(products) + 1
+            new_product = Product(product_id, name, price, quantity)
             return jsonify({
-                "error": "Product price is invalid please an integer"
-                }), 400
-        if not isinstance(quantity, int):
-            return jsonify({
-                "error": "Product quantity is invalid please an integer"
-                }), 400
-
-        product_id = len(products) + 1
-        new_product = Product(product_id, name, price, quantity)
+                "message": "Product created successfully",
+                "product": new_product.__dict__
+                }), 201
         return jsonify({
-            "message": "Product created successfully",
-            "product": new_product.__dict__
-            }), 201
+            "error": "Please login as a store owner to create a product"
+            }), 401
 
 
 # Map url to class

@@ -80,3 +80,14 @@ class TestProductView(unittest.TestCase):
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
+
+    def test_create_product_with_unauthenticated_user(self):
+        res = self.app.post("/api/v1/products",
+                            headers={"Content-Type": "application/json"},
+                            data=json.dumps(self.product))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Please login as a store owner to create a product"
+        }
+        self.assertEqual(res.status_code, 401)
+        self.assertEqual(res_data, expected_output)
