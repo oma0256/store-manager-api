@@ -143,13 +143,20 @@ class StoreAttendantRegister(MethodView):
         if password != confirm_password:
             return jsonify({"error": "The passwords must match"}), 400
 
+        # Check if user already exists
+        for store_attendant in store_attendants:
+            if store_attendant.email == email:
+                return jsonify({
+                    "error": "User with this email address already exists"
+                    }), 400
+
         # Encrypt password
         password = generate_password_hash(password)
-        user_id = len(store_owners) + 1
+        user_id = len(store_attendants) + 1
         new_user = User(user_id, first_name, last_name, email, password, True)
 
         # Add user to list
-        store_owners.append(new_user)
+        store_attendants.append(new_user)
         return jsonify({"message": "Store attendant successfully registered"}), 201
 
 

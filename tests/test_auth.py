@@ -251,3 +251,20 @@ class TestSoreAttendantauth(unittest.TestCase):
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
+
+    def test_register_duplicate_user(self):
+        """
+        Test register already registered store attendant
+        """
+        self.app.post("/api/v1/store-attendant/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        res = self.app.post("/api/v1/store-attendant/register",
+                            headers={"Content-Type": "application/json"},
+                            data=json.dumps(self.reg_data))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "User with this email address already exists"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, expected_output)
