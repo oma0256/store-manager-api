@@ -105,6 +105,9 @@ class TestStoreOwnerAuth(unittest.TestCase):
         self.assertEqual(res_data, expected_output)
 
     def test_login_valid_data(self):
+        """
+        Test login with valid data
+        """
         self.app.post("/api/v1/store-owner/register",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.reg_data))
@@ -119,6 +122,9 @@ class TestStoreOwnerAuth(unittest.TestCase):
         self.assertEqual(res_data, expected_output)
 
     def test_login_with_missing_fields(self):
+        """
+        Test login with some missing fields
+        """
         self.login_data["password"] = ""
         self.app.post("/api/v1/store-owner/register",
                       headers={"Content-Type": "application/json"},
@@ -134,6 +140,9 @@ class TestStoreOwnerAuth(unittest.TestCase):
         self.assertEqual(res_data, expected_output)
 
     def test_login_invalid_password(self):
+        """
+        Test login with invalid password
+        """
         self.login_data["password"] = "kjsdvjj"
         self.app.post("/api/v1/store-owner/register",
                       headers={"Content-Type": "application/json"},
@@ -149,6 +158,9 @@ class TestStoreOwnerAuth(unittest.TestCase):
         self.assertEqual(res_data, expected_output)
 
     def test_login_unregistered_store_owner(self):
+        """
+        Test login with unregistered user
+        """
         res = self.app.post("/api/v1/store-owner/login",
                             headers={"Content-Type": "application/json"},
                             data=json.dumps(self.login_data))

@@ -7,9 +7,11 @@ from validate_email import validate_email
 from werkzeug.security import generate_password_hash, check_password_hash
 from api.models import User, Product
 from api.__init__ import app
+from api.utilities.decorators import is_store_owner
 
 # Holds store owners
 store_owners = []
+# Store products
 products = []
 
 
@@ -69,19 +71,29 @@ class StoreOwnerRegister(MethodView):
 
 
 class StoreOwnerLogin(MethodView):
+    """
+    Class to login store owner
+    """
     def post(self):
+        """
+        Method to perform login of store owner
+        """
         data = request.get_json()
 
+        # Get fields which were sent
         email = data.get("email")
         password = data.get("password")
 
+        # Check if any field is empty
         if not email:
             return jsonify({"error": "Email field is required"}), 400
         if not password:
             return jsonify({"error": "Password field is required"}), 400
 
         for store_owner in store_owners:
+            # Check if the user is registered
             if store_owner.email == email:
+                # Check if they input the correct password
                 if check_password_hash(store_owner.password, password):
                     session["store_owner"] = email
                     return jsonify({
@@ -92,42 +104,48 @@ class StoreOwnerLogin(MethodView):
 
 
 class ProductView(MethodView):
+    """
+    Class to perform http methods on products
+    """
+    @is_store_owner
     def post(self):
-        if "store_owner" in session:
-            data = request.get_json()
+        """
+        Handles creating of a product
+        """
+        data = request.get_json()
 
-            name = data.get("name")
-            price = data.get("price")
-            quantity = data.get("quantity")
+        # Get the fields which were sent
+        name = data.get("name")
+        price = data.get("price")
+        quantity = data.get("quantity")
 
-            if not name:
-                return jsonify({"error": "Product name is required"}), 400
-            if not price:
-                return jsonify({"error": "Product price is required"}), 400
-            if not quantity:
-                return jsonify({"error": "Product quantity is required"}), 400
+        # Check if fields are empty
+        if not name:
+            return jsonify({"error": "Product name is required"}), 400
+        if not price:
+            return jsonify({"error": "Product price is required"}), 400
+        if not quantity:
+            return jsonify({"error": "Product quantity is required"}), 400
 
-            if not isinstance(price, int):
-                return jsonify({
-                    "error": "Product price is invalid please an integer"
-                    }), 400
-            if not isinstance(quantity, int):
-                return jsonify({
-                    "error": "Product quantity is invalid please an integer"
-                    }), 400
-
-            product_id = len(products) + 1
-            new_product = Product(product_id, name, price, quantity)
+        # Checks if price and quantity are integers
+        if not isinstance(price, int):
             return jsonify({
-                "message": "Product created successfully",
-                "product": new_product.__dict__
-                }), 201
+                "error": "Product price is invalid please an integer"
+                }), 400
+        if not isinstance(quantity, int):
+            return jsonify({
+                "error": "Product quantity is invalid please an integer"
+                }), 400
+
+        product_id = len(products) + 1
+        new_product = Product(product_id, name, price, quantity)
         return jsonify({
-            "error": "Please login as a store owner to create a product"
-            }), 401
+            "message": "Product created successfully",
+            "product": new_product.__dict__
+            }), 201
 
 
-# Map url to class
+# Map urls to view classes
 app.add_url_rule('/api/v1/store-owner/register',
                  view_func=StoreOwnerRegister.as_view('store_owner_register'))
 app.add_url_rule('/api/v1/store-owner/login',
