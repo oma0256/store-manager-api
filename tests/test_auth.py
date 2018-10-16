@@ -221,3 +221,18 @@ class TestSoreAttendantauth(unittest.TestCase):
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
+
+    def test_register_invalid_data(self):
+        """
+        Test registration with invalid email
+        """
+        self.reg_data["email"] = "okay"
+        res = self.app.post("/api/v1/store-attendant/register",
+                            headers={"Content-Type": "application/json"},
+                            data=json.dumps(self.reg_data))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Please enter a valid email"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, expected_output)
