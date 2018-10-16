@@ -1,9 +1,17 @@
+"""
+File to test product view
+"""
+
 import unittest
 import json
 from api import views
 from api.__init__ import app
 
+
 class TestProductView(unittest.TestCase):
+    """
+    Class to test product view
+    """
     def setUp(self):
         self.app = app.test_client()
         self.reg_data = {
@@ -27,6 +35,9 @@ class TestProductView(unittest.TestCase):
         views.products = []
 
     def test_create_product_with_valid_fields(self):
+        """
+        Test to create product with valid fields
+        """
         self.app.post("/api/v1/store-owner/register",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.reg_data))
@@ -46,6 +57,9 @@ class TestProductView(unittest.TestCase):
         self.assertEqual(res_data, expected_output)
 
     def test_create_product_with_missing_fields(self):
+        """
+        Test to create product with missing fields
+        """
         self.app.post("/api/v1/store-owner/register",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.reg_data))
@@ -63,7 +77,10 @@ class TestProductView(unittest.TestCase):
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
 
-    def test_create_product_with_invalid_fields(self):
+    def test_create_product_with_invalid_data(self):
+        """
+        Test to create a product with invalid data
+        """
         self.app.post("/api/v1/store-owner/register",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.reg_data))
@@ -82,6 +99,9 @@ class TestProductView(unittest.TestCase):
         self.assertEqual(res_data, expected_output)
 
     def test_create_product_with_unauthenticated_user(self):
+        """
+        Test to create a without logging in as store owner
+        """
         res = self.app.post("/api/v1/products",
                             headers={"Content-Type": "application/json"},
                             data=json.dumps(self.product))
@@ -91,3 +111,55 @@ class TestProductView(unittest.TestCase):
         }
         self.assertEqual(res.status_code, 401)
         self.assertEqual(res_data, expected_output)
+
+    def test_get_all_products_authenticated_as_store_owner(self):
+        """
+        Test getting all products logged in as store owner
+        """
+        self.app.post("/api/v1/store-owner/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        self.app.post("/api/v1/store-owner/login",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.login_data))
+        self.app.post("/api/v1/products",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.product))
+        res = self.app.get("/api/v1/products")
+        res_data = json.loads(res.data)
+        self.product["product_id"] = 1
+        exepected_output = {
+            "message": "Products returned successfully",
+            "products": [self.product]
+        }
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res_data, exepected_output)
+
+    def test_get_all_products_authenticated_as_store_attendant(self):
+        """
+        Test getting all products logged in as store attendant
+        """
+        self.app.post("/api/v1/store-owner/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        self.app.post("/api/v1/store-owner/login",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.login_data))
+        self.app.post("/api/v1/products",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.product))
+        self.app.post("/api/v1/store-attendant/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        self.app.post("/api/v1/store-attendant/login",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.login_data))
+        res = self.app.get("/api/v1/products")
+        res_data = json.loads(res.data)
+        self.product["product_id"] = 1
+        exepected_output = {
+            "message": "Products returned successfully",
+            "products": [self.product]
+        }
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res_data, exepected_output)

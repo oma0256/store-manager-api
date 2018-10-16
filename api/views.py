@@ -229,10 +229,20 @@ class ProductView(MethodView):
 
         product_id = len(products) + 1
         new_product = Product(product_id, name, price, quantity)
+        products.append(new_product)
         return jsonify({
             "message": "Product created successfully",
             "product": new_product.__dict__
             }), 201
+
+    def get(self):
+        """
+        Get all products
+        """
+        return jsonify({
+            "message": "Products returned successfully",
+            "products": [product.__dict__ for product in products]
+        })
 
 
 # Map urls to view classes
