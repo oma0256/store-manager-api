@@ -174,16 +174,22 @@ class StoreAttendantLogin(MethodView):
         email = data.get("email")
         password = data.get("password")
 
-         # Check if any field is empty
+        # Check if any field is empty
         if not email:
             return jsonify({"error": "Email field is required"}), 400
         if not password:
             return jsonify({"error": "Password field is required"}), 400
 
-        return jsonify({
+        for store_attendant in store_attendants:
+            # Check if the user is registered
+            if store_attendant.email == email:
+                # Check if they input the correct password
+                if check_password_hash(store_attendant.password, password):
+                    session["store_attendant"] = email
+                    return jsonify({
                         "message": "Store attendant logged in successfully"
                         })
-
+                return jsonify({"error": "Invalid email or password"}), 401
 
 
 class ProductView(MethodView):
