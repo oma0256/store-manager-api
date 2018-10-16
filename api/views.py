@@ -139,6 +139,10 @@ class StoreAttendantRegister(MethodView):
         if not is_valid:
             return jsonify({"error": "Please enter a valid email"}), 400
 
+        # Check if passwords match
+        if password != confirm_password:
+            return jsonify({"error": "The passwords must match"}), 400
+
         # Encrypt password
         password = generate_password_hash(password)
         user_id = len(store_owners) + 1
