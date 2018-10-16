@@ -5,11 +5,12 @@ from flask import jsonify, request, session
 from flask.views import MethodView
 from validate_email import validate_email
 from werkzeug.security import generate_password_hash, check_password_hash
-from api.models import User
+from api.models import User, Product
 from api.__init__ import app
 
 # Holds store owners
 store_owners = []
+products = []
 
 
 class StoreOwnerRegister(MethodView):
@@ -90,10 +91,26 @@ class StoreOwnerLogin(MethodView):
         return jsonify({"error": "Please register to login"}), 401
 
 
+class ProductView(MethodView):
+    def post(self):
+        data = request.get_json()
+
+        name = data.get("name")
+        price = data.get("price")
+        quantity = data.get("quantity")
+        product_id = len(products) + 1
+
+        new_product = Product(product_id, name, price, quantity)
+        return jsonify({
+            "message": "Product created successfully",
+            "product": new_product.__dict__
+            }), 201
+
+
 # Map url to class
 app.add_url_rule('/api/v1/store-owner/register',
                  view_func=StoreOwnerRegister.as_view('store_owner_register'))
 app.add_url_rule('/api/v1/store-owner/login',
                  view_func=StoreOwnerLogin.as_view('store_owner_login'))
-# app.add_url_rule('/api/v1/products',
-#                  view_func=ProductsView.as_view('products_view'))
+app.add_url_rule('/api/v1/products',
+                 view_func=ProductView.as_view('product_view'))

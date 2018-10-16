@@ -15,6 +15,7 @@ class User:
         self.password = password
         self.is_admin = is_admin
 
+
 class Product:
     """
     Define user structure
