@@ -206,3 +206,18 @@ class TestSoreAttendantauth(unittest.TestCase):
         }
         self.assertEqual(res.status_code, 201)
         self.assertEqual(res_data, expected_output)
+
+    def test_register_missing_fields(self):
+        """
+        Test registration with missing fields
+        """
+        self.reg_data["email"] = ""
+        res = self.app.post("/api/v1/store-attendant/register",
+                            headers={"Content-Type": "application/json"},
+                            data=json.dumps(self.reg_data))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Email field is required"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, expected_output)

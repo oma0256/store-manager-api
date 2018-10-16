@@ -122,6 +122,18 @@ class StoreAttendantRegister(MethodView):
         password = data.get("password")
         confirm_password = data.get("confirm_password")
 
+        # Check for empty fields
+        if not first_name:
+            return jsonify({"error": "First name field is required"}), 400
+        if not last_name:
+            return jsonify({"error": "Last name field is required"}), 400
+        if not email:
+            return jsonify({"error": "Email field is required"}), 400
+        if not password:
+            return jsonify({"error": "Password field is required"}), 400
+        if not confirm_password:
+            return jsonify({"error": "Confirm password field is required"}), 400
+
         # Encrypt password
         password = generate_password_hash(password)
         user_id = len(store_owners) + 1
