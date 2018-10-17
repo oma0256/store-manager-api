@@ -19,6 +19,20 @@ def is_store_owner(f):
     return decorated
 
 
+def is_store_attendant(f):
+    """
+    Authenticates if store attendant is logged in
+    """
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if "store_attendant" in session:
+            return f(*args, **kwargs)
+        return jsonify({
+            "error": "Please login as a store attendant"
+            }), 401
+    return decorated
+
+
 def is_store_owner_or_attendant(f):
     """
     Authenticates if store attendant is logged in

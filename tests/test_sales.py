@@ -8,7 +8,7 @@ from api import views
 from api.__init__ import app
 
 
-class TestSaletView(unittest.TestCase):
+class TestSaleView(unittest.TestCase):
     """
     Class to test sale view
     """
