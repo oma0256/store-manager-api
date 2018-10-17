@@ -33,6 +33,8 @@ class TestProductView(unittest.TestCase):
 
     def tearDown(self):
         views.products = []
+        views.store_attendants = []
+        views.store_owners = []
 
     def test_create_product_with_valid_fields(self):
         """

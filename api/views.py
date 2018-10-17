@@ -256,6 +256,18 @@ class ProductView(MethodView):
         })
 
 
+class SaleView(MethodView):
+    """
+    Class to perform http methods on sales
+    """
+    def post(self):
+        """
+        Methode to create a sale record
+        """
+        if "store_attendant" not in session:
+            return jsonify({"error": "Please login as a store attendant"}), 401
+
+
 # Map urls to view classes
 app.add_url_rule('/api/v1/store-owner/register',
                  view_func=StoreOwnerRegister.as_view('store_owner_register'))
@@ -269,3 +281,7 @@ app.add_url_rule('/api/v1/products',
                  view_func=ProductView.as_view('product_view'), methods=["GET","POST"])
 app.add_url_rule('/api/v1/products/<product_id>',
                  view_func=ProductView.as_view('product_view1'), methods=["GET"])
+app.add_url_rule('/api/v1/sales',
+                 view_func=SaleView.as_view('sale_view'), methods=["GET","POST"])
+app.add_url_rule('/api/v1/sales/<sale_id>',
+                 view_func=SaleView.as_view('sale_view1'), methods=["GET"])
