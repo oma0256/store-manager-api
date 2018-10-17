@@ -303,10 +303,18 @@ class SaleView(MethodView):
                     }), 201
         return jsonify({"error": "Please login as a store attendant"}), 401
 
-    def get(self):
+    def get(self, sale_id=None):
         """
         Perform GET on sale records
         """
+        if sale_id:
+            if "store_owner" in session:
+                for sale_record in sale_records:
+                    if sale_record.sale_id == int(sale_id):
+                        return jsonify({
+                            "message": "Sale record returned successfully",
+                            "sale": sale_record.__dict__
+                        })
         if "store_owner" in session:
             return jsonify({
                 "message": "Sale records returned successfully",
