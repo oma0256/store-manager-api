@@ -3,13 +3,12 @@ File to handle application views
 """
 from flask import jsonify, request, session
 from flask.views import MethodView
-from validate_email import validate_email
-from werkzeug.security import generate_password_hash, check_password_hash
-from api.models import User, Product, Sale
+from api.models import Product, Sale
 from api.__init__ import app
 from api.utilities.decorators import (is_store_owner,
                                       is_store_owner_or_attendant)
 from api.utilities.auth_functions import register_user, login_user
+from api.utilities.validators import validate_product
 
 # Holds store owners
 store_owners = []
@@ -83,29 +82,14 @@ class ProductView(MethodView):
         Handles creating of a product
         """
         data = request.get_json()
-
         # Get the fields which were sent
         name = data.get("name")
         price = data.get("price")
         quantity = data.get("quantity")
 
-        # Check if fields are empty
-        if not name:
-            return jsonify({"error": "Product name is required"}), 400
-        if not price:
-            return jsonify({"error": "Product price is required"}), 400
-        if not quantity:
-            return jsonify({"error": "Product quantity is required"}), 400
-
-        # Checks if price and quantity are integers
-        if not isinstance(price, int):
-            return jsonify({
-                "error": "Product price is invalid please an integer"
-                }), 400
-        if not isinstance(quantity, int):
-            return jsonify({
-                "error": "Product quantity is invalid please an integer"
-                }), 400
+        res = validate_product(name, price, quantity)
+        if res:
+            return res
 
         product_id = len(products) + 1
         new_product = Product(product_id, name, price, quantity)
@@ -152,20 +136,9 @@ class SaleView(MethodView):
                 name = cart_item.get("name")
                 price = cart_item.get("price")
                 quantity = cart_item.get("quantity")
-                if not name:
-                    return jsonify({"error": "Product name is required"}), 400
-                if not quantity:
-                    return jsonify({"error": "Product quantity is required"}), 400
-                if not price:
-                    return jsonify({"error": "Product price is required"}), 400
-                if not isinstance(price, int):
-                    return jsonify({
-                        "error": "Product price is invalid please an integer"
-                        }), 400
-                if not isinstance(quantity, int):
-                    return jsonify({
-                        "error": "Product quantity is invalid please an integer"
-                        }), 400
+                res = validate_product(name, price, quantity)
+                if res:
+                    return res
                 total += price
             sale_id = len(sale_records) + 1
             attendant_name = ""
