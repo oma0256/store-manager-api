@@ -303,6 +303,16 @@ class SaleView(MethodView):
                     }), 201
         return jsonify({"error": "Please login as a store attendant"}), 401
 
+    def get(self):
+        """
+        Perform GET on sale records
+        """
+        if "store_owner" in session:
+            return jsonify({
+                "message": "Sale records returned successfully",
+                "sales": [sale_record.__dict__ for sale_record in sale_records]
+            })
+
 
 # Map urls to view classes
 app.add_url_rule('/api/v1/store-owner/register',
