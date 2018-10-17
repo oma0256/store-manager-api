@@ -312,6 +312,7 @@ class SaleView(MethodView):
                 "message": "Sale records returned successfully",
                 "sales": [sale_record.__dict__ for sale_record in sale_records]
             })
+        return jsonify({"error": "Please login as a store owner"}), 401
 
 
 # Map urls to view classes

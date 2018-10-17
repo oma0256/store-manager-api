@@ -158,3 +158,15 @@ class TestSaletView(unittest.TestCase):
         }
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res_data, exepected_output)
+
+    def test_get_all_sale_records_unauthenticated_as_store_owner(self):
+        """
+        Test getting all sale records logged in as store owner
+        """
+        res = self.app.get("/api/v1/sales")
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "error": "Please login as a store owner"
+        }
+        self.assertEqual(res.status_code, 401)
+        self.assertEqual(res_data, exepected_output)
