@@ -7,7 +7,9 @@ from validate_email import validate_email
 from werkzeug.security import generate_password_hash, check_password_hash
 from api.models import User, Product, Sale
 from api.__init__ import app
-from api.utilities.decorators import is_store_owner, is_store_owner_or_attendant
+from api.utilities.decorators import (is_store_owner,
+                                      is_store_owner_or_attendant)
+from api.utilities.auth_functions import register_user, login_user
 
 # Holds store owners
 store_owners = []
@@ -28,50 +30,8 @@ class StoreOwnerRegister(MethodView):
         Method that registers store owner
         """
         data = request.get_json()
-
-        # Get each field which was sent
-        first_name = data.get("first_name")
-        last_name = data.get("last_name")
-        email = data.get("email")
-        password = data.get("password")
-        confirm_password = data.get("confirm_password")
-
-        # Check for empty fields
-        if not first_name:
-            return jsonify({"error": "First name field is required"}), 400
-        if not last_name:
-            return jsonify({"error": "Last name field is required"}), 400
-        if not email:
-            return jsonify({"error": "Email field is required"}), 400
-        if not password:
-            return jsonify({"error": "Password field is required"}), 400
-        if not confirm_password:
-            return jsonify({"error": "Confirm password field is required"}), 400
-
-        # Validate email
-        is_valid = validate_email(email)
-        if not is_valid:
-            return jsonify({"error": "Please enter a valid email"}), 400
-
-        # Check if passwords match
-        if password != confirm_password:
-            return jsonify({"error": "The passwords must match"}), 400
-
-        # Check if user already exists
-        for store_owner in store_owners:
-            if store_owner.email == email:
-                return jsonify({
-                    "error": "User with this email address already exists"
-                    }), 400
-
-        # Encrypt password
-        password = generate_password_hash(password)
-        user_id = len(store_owners) + 1
-        new_user = User(user_id, first_name, last_name, email, password, True)
-
-        # Add user to list
-        store_owners.append(new_user)
-        return jsonify({"message": "Store owner successfully registered"}), 201
+        res = register_user(data, store_owners, True)
+        return res
 
 
 class StoreOwnerLogin(MethodView):
@@ -83,28 +43,8 @@ class StoreOwnerLogin(MethodView):
         Method to perform login of store owner
         """
         data = request.get_json()
-
-        # Get fields which were sent
-        email = data.get("email")
-        password = data.get("password")
-
-        # Check if any field is empty
-        if not email:
-            return jsonify({"error": "Email field is required"}), 400
-        if not password:
-            return jsonify({"error": "Password field is required"}), 400
-
-        for store_owner in store_owners:
-            # Check if the user is registered
-            if store_owner.email == email:
-                # Check if they input the correct password
-                if check_password_hash(store_owner.password, password):
-                    session["store_owner"] = email
-                    return jsonify({
-                        "message": "Store owner logged in successfully"
-                        })
-                return jsonify({"error": "Invalid email or password"}), 401
-        return jsonify({"error": "Please register to login"}), 401
+        res = login_user(data, store_owners, True)
+        return res
 
 
 class StoreAttendantRegister(MethodView):
@@ -116,50 +56,8 @@ class StoreAttendantRegister(MethodView):
         Method that registers store attendant
         """
         data = request.get_json()
-
-        # Get each field which was sent
-        first_name = data.get("first_name")
-        last_name = data.get("last_name")
-        email = data.get("email")
-        password = data.get("password")
-        confirm_password = data.get("confirm_password")
-
-        # Check for empty fields
-        if not first_name:
-            return jsonify({"error": "First name field is required"}), 400
-        if not last_name:
-            return jsonify({"error": "Last name field is required"}), 400
-        if not email:
-            return jsonify({"error": "Email field is required"}), 400
-        if not password:
-            return jsonify({"error": "Password field is required"}), 400
-        if not confirm_password:
-            return jsonify({"error": "Confirm password field is required"}), 400
-
-        # Validate email
-        is_valid = validate_email(email)
-        if not is_valid:
-            return jsonify({"error": "Please enter a valid email"}), 400
-
-        # Check if passwords match
-        if password != confirm_password:
-            return jsonify({"error": "The passwords must match"}), 400
-
-        # Check if user already exists
-        for store_attendant in store_attendants:
-            if store_attendant.email == email:
-                return jsonify({
-                    "error": "User with this email address already exists"
-                    }), 400
-
-        # Encrypt password
-        password = generate_password_hash(password)
-        user_id = len(store_attendants) + 1
-        new_user = User(user_id, first_name, last_name, email, password, True)
-
-        # Add user to list
-        store_attendants.append(new_user)
-        return jsonify({"message": "Store attendant successfully registered"}), 201
+        res = register_user(data, store_attendants, False)
+        return res
 
 
 class StoreAttendantLogin(MethodView):
@@ -171,28 +69,8 @@ class StoreAttendantLogin(MethodView):
         Method to perform login of store attendant
         """
         data = request.get_json()
-
-        # Get fields which were sent
-        email = data.get("email")
-        password = data.get("password")
-
-        # Check if any field is empty
-        if not email:
-            return jsonify({"error": "Email field is required"}), 400
-        if not password:
-            return jsonify({"error": "Password field is required"}), 400
-
-        for store_attendant in store_attendants:
-            # Check if the user is registered
-            if store_attendant.email == email:
-                # Check if they input the correct password
-                if check_password_hash(store_attendant.password, password):
-                    session["store_attendant"] = email
-                    return jsonify({
-                        "message": "Store attendant logged in successfully"
-                        })
-                return jsonify({"error": "Invalid email or password"}), 401
-        return jsonify({"error": "Please register to login"}), 401
+        res = login_user(data, store_attendants, False)
+        return res
 
 
 class ProductView(MethodView):
