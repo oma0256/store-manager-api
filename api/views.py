@@ -5,7 +5,7 @@ from flask import jsonify, request, session
 from flask.views import MethodView
 from validate_email import validate_email
 from werkzeug.security import generate_password_hash, check_password_hash
-from api.models import User, Product
+from api.models import User, Product, Sale
 from api.__init__ import app
 from api.utilities.decorators import is_store_owner, is_store_owner_or_attendant
 
@@ -15,6 +15,8 @@ store_owners = []
 store_attendants = []
 # Store products
 products = []
+# Store sales
+sale_records = []
 
 
 class StoreOwnerRegister(MethodView):
@@ -267,6 +269,7 @@ class SaleView(MethodView):
         if "store_attendant" in session:
             data = request.get_json()
             cart_items = data.get("products")
+            total = 0
             for cart_item in cart_items:
                 name = cart_item.get("name")
                 price = cart_item.get("price")
@@ -285,7 +288,19 @@ class SaleView(MethodView):
                     return jsonify({
                         "error": "Product quantity is invalid please an integer"
                         }), 400
-
+                total += price
+            sale_id = len(sale_records) + 1
+            attendant_name = ""
+            for store_attendant in store_attendants:
+                if store_attendant.email == session["store_attendant"]:
+                    attendant_name = store_attendant.first_name + " " + store_attendant.last_name
+                    attendant_email = session["store_attendant"]
+                    sale = Sale(sale_id, cart_items, attendant_name, attendant_email, total)
+                    sale_records.append(sale)
+                    return jsonify({
+                        "message": "Sale created successfully",
+                        "sale": sale.__dict__
+                    }), 201
         return jsonify({"error": "Please login as a store attendant"}), 401
 
 

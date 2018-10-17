@@ -97,3 +97,30 @@ class TestSaletView(unittest.TestCase):
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
+
+    def test_create_sale_with_valid_data(self):
+        """
+        Test creating sale with valid data
+        """
+        self.app.post("/api/v1/store-attendant/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        self.app.post("/api/v1/store-attendant/login",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.login_data))
+        res = self.app.post("/api/v1/sales",
+                            headers={"Content-Type": "application/json"},
+                            data=json.dumps(self.sale))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "message": "Sale created successfully",
+            "sale": {
+                "sale_id": 1,
+                "products": [self.product],
+                "attendant_name": "joe doe",
+                "attendant_email": "joe@email.com",
+                "total": 10000
+            }
+        }
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res_data, expected_output)
