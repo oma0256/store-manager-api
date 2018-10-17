@@ -236,10 +236,17 @@ class ProductView(MethodView):
             }), 201
 
     @is_store_owner_or_attendant
-    def get(self):
+    def get(self, product_id=None):
         """
         Get all products
         """
+        if product_id:
+            for product in products:
+                if product.product_id == int(product_id):
+                    return jsonify({
+                        "message": "Product returned successfully",
+                        "products": product.__dict__
+                    })
         return jsonify({
             "message": "Products returned successfully",
             "products": [product.__dict__ for product in products]
@@ -256,4 +263,6 @@ app.add_url_rule('/api/v1/store-attendant/register',
 app.add_url_rule('/api/v1/store-attendant/login',
                  view_func=StoreAttendantLogin.as_view('store_attendant_login'))
 app.add_url_rule('/api/v1/products',
-                 view_func=ProductView.as_view('product_view'))
+                 view_func=ProductView.as_view('product_view'), methods=["GET","POST"])
+app.add_url_rule('/api/v1/products/<product_id>',
+                 view_func=ProductView.as_view('product_view1'), methods=["GET"])
