@@ -315,6 +315,17 @@ class SaleView(MethodView):
                             "message": "Sale record returned successfully",
                             "sale": sale_record.__dict__
                         })
+            elif "store_attendant" in session:
+                for sale_record in sale_records:
+                    if sale_record.sale_id == int(sale_id):
+                        if sale_record.attendant_email == session["store_attendant"]:
+                            return jsonify({
+                                "message": "Sale record returned successfully",
+                                "sale": sale_record.__dict__
+                            })
+                        return jsonify({
+                            "error": "You didn't make this sale"
+                        }), 403
         if "store_owner" in session:
             return jsonify({
                 "message": "Sale records returned successfully",
