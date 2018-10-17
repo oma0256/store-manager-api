@@ -264,8 +264,20 @@ class SaleView(MethodView):
         """
         Methode to create a sale record
         """
-        if "store_attendant" not in session:
-            return jsonify({"error": "Please login as a store attendant"}), 401
+        if "store_attendant" in session:
+            data = request.get_json()
+            cart_items = data.get("products")
+            for cart_item in cart_items:
+                name = cart_item.get("name")
+                price = cart_item.get("price")
+                quantity = cart_item.get("quantity")
+                if not name:
+                    return jsonify({"error": "Product name is required"}), 400
+                if not quantity:
+                    return jsonify({"error": "Product quantity is required"}), 400
+                if not price:
+                    return jsonify({"error": "Product price is required"}), 400
+        return jsonify({"error": "Please login as a store attendant"}), 401
 
 
 # Map urls to view classes
