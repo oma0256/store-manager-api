@@ -250,3 +250,27 @@ class TestSaletView(unittest.TestCase):
         }
         self.assertEqual(res.status_code, 401)
         self.assertEqual(res_data, expected_output)
+
+    def test_get_sale_record_that_does_not_exist(self):
+        """
+        Test getting a sale record that doesn't exist
+        """
+        self.app.post("/api/v1/store-owner/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        self.app.post("/api/v1/store-owner/login",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.login_data))
+        self.app.post("/api/v1/store-attendant/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        self.app.post("/api/v1/store-attendant/login",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.login_data))
+        res = self.app.get("/api/v1/sales/1")
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Sale record with this id doesn't exist"
+        }
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res_data, expected_output)
