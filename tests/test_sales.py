@@ -238,3 +238,15 @@ class TestSaletView(unittest.TestCase):
         }
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res_data, expected_output)
+
+    def test_get_sale_record_as_unauthenticated_user(self):
+        """
+        Test getting a sale record as unauthenticated user
+        """
+        res = self.app.get("/api/v1/sales/1")
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Please login to view this sale record"
+        }
+        self.assertEqual(res.status_code, 401)
+        self.assertEqual(res_data, expected_output)

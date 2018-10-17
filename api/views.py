@@ -326,6 +326,10 @@ class SaleView(MethodView):
                         return jsonify({
                             "error": "You didn't make this sale"
                         }), 403
+            else:
+                return jsonify({
+                    "error": "Please login to view this sale record"
+                    }), 401
         if "store_owner" in session:
             return jsonify({
                 "message": "Sale records returned successfully",
