@@ -277,6 +277,15 @@ class SaleView(MethodView):
                     return jsonify({"error": "Product quantity is required"}), 400
                 if not price:
                     return jsonify({"error": "Product price is required"}), 400
+                if not isinstance(price, int):
+                    return jsonify({
+                        "error": "Product price is invalid please an integer"
+                        }), 400
+                if not isinstance(quantity, int):
+                    return jsonify({
+                        "error": "Product quantity is invalid please an integer"
+                        }), 400
+
         return jsonify({"error": "Please login as a store attendant"}), 401
 
 
