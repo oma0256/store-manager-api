@@ -29,7 +29,9 @@ class StoreOwnerRegister(MethodView):
         """
         Method that registers store owner
         """
+        # data being sent
         data = request.get_json()
+        # funtion returns a json response and status code
         res = register_user(data, store_owners, True)
         return res
 
@@ -42,7 +44,9 @@ class StoreOwnerLogin(MethodView):
         """
         Method to perform login of store owner
         """
+        # data being sent
         data = request.get_json()
+        # funtion returns a json response and status code
         res = login_user(data, store_owners, True)
         return res
 
@@ -55,7 +59,9 @@ class StoreAttendantRegister(MethodView):
         """
         Method that registers store attendant
         """
+        # data being sent
         data = request.get_json()
+        # funtion returns a json response and status code
         res = register_user(data, store_attendants, False)
         return res
 
@@ -68,7 +74,9 @@ class StoreAttendantLogin(MethodView):
         """
         Method to perform login of store attendant
         """
+        # data being sent
         data = request.get_json()
+        # funtion returns a json response and status code
         res = login_user(data, store_attendants, False)
         return res
 
@@ -87,13 +95,15 @@ class ProductView(MethodView):
         name = data.get("name")
         price = data.get("price")
         quantity = data.get("quantity")
-
+        # validates product and returns json response and status code
         res = validate_product(name, price, quantity)
         if res:
             return res
 
         product_id = len(products) + 1
+        # create a product object
         new_product = Product(product_id, name, price, quantity)
+        # appends the product object to list
         products.append(new_product)
         return jsonify({
             "message": "Product created successfully",
@@ -128,15 +138,17 @@ class SaleView(MethodView):
     @is_store_attendant
     def post(self):
         """
-        Methode to create a sale record
+        Method to create a sale record
         """
         data = request.get_json()
+        # get items being sold
         cart_items = data.get("products")
         total = 0
         for cart_item in cart_items:
             name = cart_item.get("name")
             price = cart_item.get("price")
             quantity = cart_item.get("quantity")
+            # validate each product
             res = validate_product(name, price, quantity)
             if res:
                 return res
@@ -158,17 +170,23 @@ class SaleView(MethodView):
         """
         Perform GET on sale records
         """
+        # run if request is for a single sale record
         if sale_id:
+            # run if it's a store owner
             if "store_owner" in session:
                 for sale_record in sale_records:
+                    # check if sale record exists
                     if sale_record.sale_id == int(sale_id):
                         return jsonify({
                             "message": "Sale record returned successfully",
                             "sale": sale_record.__dict__
                         })
+            # run if it's a store attendant
             elif "store_attendant" in session:
                 for sale_record in sale_records:
+                    # check if sale record exists
                     if sale_record.sale_id == int(sale_id):
+                        # check if store attendant created the sale record
                         if sale_record.attendant_email == session["store_attendant"]:
                             return jsonify({
                                 "message": "Sale record returned successfully",
@@ -184,6 +202,8 @@ class SaleView(MethodView):
             return jsonify({
                 "error": "Sale record with this id doesn't exist"
             }), 404
+        # run if request is for all sale records and if it's a store
+        # owner
         if "store_owner" in session:
             return jsonify({
                 "message": "Sale records returned successfully",
