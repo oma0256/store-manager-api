@@ -67,9 +67,9 @@ def is_not_store_attendant(f):
     """
     @wraps(f)
     def decorated(*args, **kwargs):
-        if "store_owner" in session:
+        if "store_owner" in session and "store_attendant" not in session:
             return jsonify({
-                "error": "Please login as a store owner"
+                "error": "Please login as a store attendant"
                 }), 403
         return f(*args, **kwargs)
     return decorated

@@ -126,6 +126,26 @@ class TestSaleView(unittest.TestCase):
         self.assertEqual(res.status_code, 201)
         self.assertEqual(res_data, expected_output)
 
+    def test_create_sale_as_store_owner(self):
+        """
+        Test creating sale as store owner
+        """
+        self.app.post("/api/v1/store-owner/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        self.app.post("/api/v1/store-owner/login",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.login_data))
+        res = self.app.post("/api/v1/sales",
+                            headers={"Content-Type": "application/json"},
+                            data=json.dumps(self.sale))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Please login as a store attendant"
+        }
+        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res_data, expected_output)
+
     def test_get_all_sale_records_authenticated_as_store_owner(self):
         """
         Test getting all sale records logged in as store owner

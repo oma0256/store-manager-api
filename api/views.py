@@ -8,7 +8,8 @@ from api.__init__ import app
 from api.utilities.decorators import (is_store_owner,
                                       is_store_owner_or_attendant,
                                       is_store_attendant,
-                                      is_not_store_owner)
+                                      is_not_store_owner,
+                                      is_not_store_attendant)
 from api.utilities.auth_functions import register_user, login_user
 from api.utilities.validators import validate_product
 
@@ -138,6 +139,7 @@ class SaleView(MethodView):
     """
     Class to perform http methods on sales
     """
+    @is_not_store_attendant
     @is_store_attendant
     def post(self):
         """
