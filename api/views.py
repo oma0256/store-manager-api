@@ -22,6 +22,8 @@ products = []
 # Store sales
 sale_records = []
 
+product_dict = {}
+
 
 class StoreOwnerRegister(MethodView):
     """
@@ -107,6 +109,7 @@ class ProductView(MethodView):
         product_id = len(products) + 1
         # create a product object
         new_product = Product(product_id, name, price, quantity, category)
+        product_dict[product_id] = new_product
         # appends the product object to list
         products.append(new_product)
         return jsonify({
@@ -121,13 +124,17 @@ class ProductView(MethodView):
         """
         # Check if an id has been passed
         if product_id:
-            for product in products:
+            try:
+                product = product_dict[int(product_id)]
+            except:
+                product = None
+            if product:
                 # Check if product exists
-                if product.product_id == int(product_id):
-                    return jsonify({
-                        "message": "Product returned successfully",
-                        "products": product.__dict__
-                    })
+                # if product.product_id == int(product_id):
+                return jsonify({
+                    "message": "Product returned successfully",
+                    "products": product.__dict__
+                })
             return jsonify({"error": "This product does not exist"}), 404
         return jsonify({
             "message": "Products returned successfully",
