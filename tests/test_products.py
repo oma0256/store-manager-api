@@ -115,6 +115,32 @@ class TestProductView(unittest.TestCase):
         self.assertEqual(res.status_code, 401)
         self.assertEqual(res_data, expected_output)
 
+    def test_create_product_as_store_attendant(self):
+        """
+        Test to create product as a store attendant
+        """
+        self.app.post("/api/v1/store-owner/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        self.app.post("/api/v1/store-owner/login",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.login_data))
+        self.app.post("/api/v1/store-owner/attendant/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        self.app.post("/api/v1/store-attendant/login",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.login_data))
+        res = self.app.post("/api/v1/products",
+                            headers={"Content-Type": "application/json"},
+                            data=json.dumps(self.product))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Please login as a store owner"
+        }
+        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res_data, expected_output)
+
     def test_get_all_products_authenticated_as_store_owner(self):
         """
         Test getting all products logged in as store owner
