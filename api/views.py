@@ -3,7 +3,8 @@ File to handle application views
 """
 from flask import jsonify, request, session
 from flask.views import MethodView
-from api.models import Product, Sale
+from api.models import Sale
+from api.products.models import Product
 from api.__init__ import app
 from api.utilities.decorators import (is_store_owner,
                                       is_store_owner_or_attendant,
@@ -21,8 +22,6 @@ store_attendants = []
 products = []
 # Store sales
 sale_records = []
-
-product_dict = {}
 
 
 class StoreOwnerRegister(MethodView):
@@ -109,7 +108,6 @@ class ProductView(MethodView):
         product_id = len(products) + 1
         # create a product object
         new_product = Product(product_id, name, price, quantity, category)
-        product_dict[product_id] = new_product
         # appends the product object to list
         products.append(new_product)
         return jsonify({
@@ -124,17 +122,13 @@ class ProductView(MethodView):
         """
         # Check if an id has been passed
         if product_id:
-            try:
-                product = product_dict[int(product_id)]
-            except:
-                product = None
-            if product:
+            for product in products:
                 # Check if product exists
-                # if product.product_id == int(product_id):
-                return jsonify({
-                    "message": "Product returned successfully",
-                    "products": product.__dict__
-                })
+                if product.product_id == int(product_id):
+                    return jsonify({
+                        "message": "Product returned successfully",
+                        "products": product.__dict__
+                    })
             return jsonify({"error": "This product does not exist"}), 404
         return jsonify({
             "message": "Products returned successfully",
