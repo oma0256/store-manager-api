@@ -34,7 +34,6 @@ class TestProductView(unittest.TestCase):
 
     def tearDown(self):
         views.products = []
-        views.product_dict = {}
         views.store_attendants = []
         views.store_owners = []
 
