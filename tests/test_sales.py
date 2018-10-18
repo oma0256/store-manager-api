@@ -58,7 +58,7 @@ class TestSaleView(unittest.TestCase):
         """
         Test creating sale with missing fields
         """
-        self.app.post("/api/v1/store-attendant/register",
+        self.app.post("/api/v1/store-owner/attendant/register",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.reg_data))
         self.app.post("/api/v1/store-attendant/login",
@@ -80,7 +80,7 @@ class TestSaleView(unittest.TestCase):
         """
         Test creating sale with invalid data
         """
-        self.app.post("/api/v1/store-attendant/register",
+        self.app.post("/api/v1/store-owner/attendant/register",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.reg_data))
         self.app.post("/api/v1/store-attendant/login",
@@ -102,7 +102,7 @@ class TestSaleView(unittest.TestCase):
         """
         Test creating sale with valid data
         """
-        self.app.post("/api/v1/store-attendant/register",
+        self.app.post("/api/v1/store-owner/attendant/register",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.reg_data))
         self.app.post("/api/v1/store-attendant/login",
@@ -135,7 +135,7 @@ class TestSaleView(unittest.TestCase):
         self.app.post("/api/v1/store-owner/login",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.login_data))
-        self.app.post("/api/v1/store-attendant/register",
+        self.app.post("/api/v1/store-owner/attendant/register",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.reg_data))
         self.app.post("/api/v1/store-attendant/login",
@@ -181,7 +181,7 @@ class TestSaleView(unittest.TestCase):
         self.app.post("/api/v1/store-owner/login",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.login_data))
-        self.app.post("/api/v1/store-attendant/register",
+        self.app.post("/api/v1/store-owner/attendant/register",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.reg_data))
         self.app.post("/api/v1/store-attendant/login",
@@ -215,7 +215,7 @@ class TestSaleView(unittest.TestCase):
         self.app.post("/api/v1/store-owner/login",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.login_data))
-        self.app.post("/api/v1/store-attendant/register",
+        self.app.post("/api/v1/store-owner/attendant/register",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.reg_data))
         self.app.post("/api/v1/store-attendant/login",
@@ -261,7 +261,7 @@ class TestSaleView(unittest.TestCase):
         self.app.post("/api/v1/store-owner/login",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.login_data))
-        self.app.post("/api/v1/store-attendant/register",
+        self.app.post("/api/v1/store-owner/attendant/register",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.reg_data))
         self.app.post("/api/v1/store-attendant/login",

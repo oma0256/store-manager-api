@@ -197,7 +197,7 @@ class TestSoreAttendantauth(unittest.TestCase):
         """
         Test registration with valid data
         """
-        res = self.app.post("/api/v1/store-attendant/register",
+        res = self.app.post("/api/v1/store-owner/attendant/register",
                             headers={"Content-Type": "application/json"},
                             data=json.dumps(self.reg_data))
         res_data = json.loads(res.data)
@@ -212,7 +212,7 @@ class TestSoreAttendantauth(unittest.TestCase):
         Test registration with missing fields
         """
         self.reg_data["email"] = ""
-        res = self.app.post("/api/v1/store-attendant/register",
+        res = self.app.post("/api/v1/store-owner/attendant/register",
                             headers={"Content-Type": "application/json"},
                             data=json.dumps(self.reg_data))
         res_data = json.loads(res.data)
@@ -227,7 +227,7 @@ class TestSoreAttendantauth(unittest.TestCase):
         Test registration with invalid email
         """
         self.reg_data["email"] = "okay"
-        res = self.app.post("/api/v1/store-attendant/register",
+        res = self.app.post("/api/v1/store-owner/attendant/register",
                             headers={"Content-Type": "application/json"},
                             data=json.dumps(self.reg_data))
         res_data = json.loads(res.data)
@@ -242,7 +242,7 @@ class TestSoreAttendantauth(unittest.TestCase):
         Test registration with unmatching password
         """
         self.reg_data["confirm_password"] = "okay"
-        res = self.app.post("/api/v1/store-attendant/register",
+        res = self.app.post("/api/v1/store-owner/attendant/register",
                             headers={"Content-Type": "application/json"},
                             data=json.dumps(self.reg_data))
         res_data = json.loads(res.data)
@@ -256,10 +256,10 @@ class TestSoreAttendantauth(unittest.TestCase):
         """
         Test register already registered store attendant
         """
-        self.app.post("/api/v1/store-attendant/register",
+        self.app.post("/api/v1/store-owner/attendant/register",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.reg_data))
-        res = self.app.post("/api/v1/store-attendant/register",
+        res = self.app.post("/api/v1/store-owner/attendant/register",
                             headers={"Content-Type": "application/json"},
                             data=json.dumps(self.reg_data))
         res_data = json.loads(res.data)
@@ -273,7 +273,7 @@ class TestSoreAttendantauth(unittest.TestCase):
         """
         Test login with valid data
         """
-        self.app.post("/api/v1/store-attendant/register",
+        self.app.post("/api/v1/store-owner/attendant/register",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.reg_data))
         res = self.app.post("/api/v1/store-attendant/login",
@@ -291,7 +291,7 @@ class TestSoreAttendantauth(unittest.TestCase):
         Test login with some missing fields
         """
         self.login_data["password"] = ""
-        self.app.post("/api/v1/store-attendant/register",
+        self.app.post("/api/v1/store-owner/attendant/register",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.reg_data))
         res = self.app.post("/api/v1/store-attendant/login",
@@ -309,7 +309,7 @@ class TestSoreAttendantauth(unittest.TestCase):
         Test login with invalid password
         """
         self.login_data["password"] = "kjsdvjj"
-        self.app.post("/api/v1/store-attendant/register",
+        self.app.post("/api/v1/store-owner/attendant/register",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.reg_data))
         res = self.app.post("/api/v1/store-attendant/login",

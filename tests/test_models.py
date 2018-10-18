@@ -3,7 +3,7 @@ File to test the application models
 """
 
 import unittest
-from api.models import User, Product
+from api.models import User, Product, Sale
 
 
 class TestModels(unittest.TestCase):
@@ -31,3 +31,19 @@ class TestModels(unittest.TestCase):
         self.assertEqual(product.name, "Belt")
         self.assertEqual(product.price, 10000)
         self.assertEqual(product.quantity, 3)
+
+    def test_sale_model(self):
+        """
+        Test initializing a Sale object
+        """
+        product = {
+            "name": "Belt",
+            "quantity": 1,
+            "price": 10000
+        }
+        sale = Sale(1, [product], "joe doe", "joe@email.com", 10000)
+        self.assertEqual(sale.sale_id, 1)
+        self.assertEqual(sale.products, [product])
+        self.assertEqual(sale.attendant_name, "joe doe")
+        self.assertEqual(sale.attendant_email, "joe@email.com")
+        self.assertEqual(sale.total, 10000)

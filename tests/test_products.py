@@ -150,7 +150,7 @@ class TestProductView(unittest.TestCase):
         self.app.post("/api/v1/products",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.product))
-        self.app.post("/api/v1/store-attendant/register",
+        self.app.post("/api/v1/store-owner/attendant/register",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.reg_data))
         self.app.post("/api/v1/store-attendant/login",
@@ -214,7 +214,7 @@ class TestProductView(unittest.TestCase):
         self.app.post("/api/v1/products",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.product))
-        self.app.post("/api/v1/store-attendant/register",
+        self.app.post("/api/v1/store-owner/attendant/register",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.reg_data))
         self.app.post("/api/v1/store-attendant/login",
