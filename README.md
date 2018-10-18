@@ -9,16 +9,16 @@ You have to have python 3 and pip installed on your computer.
 
 ### Installing
 Navigate to where you cloned the repository
-```cd store-manager-api```
-```virtual venv```
-```cd venv```
-```./Scripts/activate```
-```pip install -r requirements.txt```
+- ```cd store-manager-api```
+- ```virtual venv```
+- ```cd venv```
+- ```./Scripts/activate```
+- ```pip install -r requirements.txt```
 
 ## Running the tests
 To run the test
-```cd store-manager-api```
-```python -m pytest```
+- ```cd store-manager-api```
+- ```python -m pytest```
 
 ## Built With
 - Flask python's web framework
