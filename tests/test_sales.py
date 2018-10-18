@@ -28,7 +28,8 @@ class TestSaleView(unittest.TestCase):
         self.product = {
             "name": "Belt",
             "price": 10000,
-            "quantity": 1
+            "quantity": 1,
+            "category": "clothing"
         }
         self.sale = {
             "products": [self.product]

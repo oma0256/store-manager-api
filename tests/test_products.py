@@ -28,7 +28,8 @@ class TestProductView(unittest.TestCase):
         self.product = {
             "name": "Belt",
             "price": 10000,
-            "quantity": 3
+            "quantity": 3,
+            "category": "clothing"
         }
 
     def tearDown(self):

@@ -26,11 +26,12 @@ class TestModels(unittest.TestCase):
         """
         Test initializing a Product object
         """
-        product = Product(1, "Belt", 10000, 3)
+        product = Product(1, "Belt", 10000, 3, "clothing")
         self.assertEqual(product.product_id, 1)
         self.assertEqual(product.name, "Belt")
         self.assertEqual(product.price, 10000)
         self.assertEqual(product.quantity, 3)
+        self.assertEqual(product.category, "clothing")
 
     def test_sale_model(self):
         """

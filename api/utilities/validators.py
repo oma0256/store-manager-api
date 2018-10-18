@@ -5,7 +5,7 @@ File containig validators
 from flask import jsonify
 
 
-def validate_product(name, price, quantity):
+def validate_product(name, price, quantity, category):
     """
     Funtion to validate product data
     """
@@ -16,6 +16,8 @@ def validate_product(name, price, quantity):
         return jsonify({"error": "Product price is required"}), 400
     if not quantity:
         return jsonify({"error": "Product quantity is required"}), 400
+    if not category:
+        return jsonify({"error": "Product category is required"}), 400
 
     # Checks if price and quantity are integers
     if not isinstance(price, int):

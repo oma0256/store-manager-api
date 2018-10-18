@@ -95,14 +95,15 @@ class ProductView(MethodView):
         name = data.get("name")
         price = data.get("price")
         quantity = data.get("quantity")
+        category = data.get("category")
         # validates product and returns json response and status code
-        res = validate_product(name, price, quantity)
+        res = validate_product(name, price, quantity, category)
         if res:
             return res
 
         product_id = len(products) + 1
         # create a product object
-        new_product = Product(product_id, name, price, quantity)
+        new_product = Product(product_id, name, price, quantity, category)
         # appends the product object to list
         products.append(new_product)
         return jsonify({
@@ -148,8 +149,9 @@ class SaleView(MethodView):
             name = cart_item.get("name")
             price = cart_item.get("price")
             quantity = cart_item.get("quantity")
+            category = cart_item.get("category")
             # validate each product
-            res = validate_product(name, price, quantity)
+            res = validate_product(name, price, quantity, category)
             if res:
                 return res
             total += price
