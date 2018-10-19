@@ -3,6 +3,7 @@ File to handle application views
 """
 from flask import jsonify, request, session
 from flask.views import MethodView
+from functools import partial
 from api.models import Product, Sale
 from api.__init__ import app
 from api.utilities.decorators import (is_store_owner_attendant,
@@ -11,7 +12,6 @@ from api.utilities.decorators import (is_store_owner_attendant,
                                       is_not_store_attendant)
 from api.utilities.auth_functions import register_user, login_user
 from api.utilities.validators import validate_product
-from functools import partial
 
 store_owner_decorator = partial(is_store_owner_attendant, admin=True)
 store_attendant_decorator = partial(is_store_owner_attendant, admin=False)
@@ -27,8 +27,11 @@ sale_records = []
 
 
 def get_single_resource(resource_list, resource_id, msg, key):
+    """
+    Iterates through product and sale to return a single object
+    """
     for resource in resource_list:
-        # check if sale record exists
+        # check if sale record or product exists
         if resource.id == int(resource_id):
             return jsonify({
                 "message": msg,
@@ -103,6 +106,7 @@ class ProductView(MethodView):
             return get_single_resource(products, product_id,
                                        "Product returned successfully",
                                        "products")
+        # Get all products
         return jsonify({
             "message": "Products returned successfully",
             "products": [product.__dict__ for product in products]
@@ -136,7 +140,6 @@ class SaleView(MethodView):
         sale_id = len(sale_records) + 1
         for store_attendant in store_attendants:
             if store_attendant.email == session["store_attendant"]:
-                # attendant_name = store_attendant.first_name + " " + store_attendant.last_name
                 attendant_email = session["store_attendant"]
                 sale = Sale(sale_id, cart_items, attendant_email, total)
                 sale_records.append(sale)
@@ -159,7 +162,7 @@ class SaleView(MethodView):
             # run if it's a store attendant
             elif "store_attendant" in session:
                 for sale_record in sale_records:
-                    # check if sale record exists
+                    # check if sale attendant made the sale
                     if sale_record.attendant_email == session["store_attendant"]:
                         return get_single_resource(sale_records, sale_id,
                                                    "Sale record returned successfully",

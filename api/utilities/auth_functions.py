@@ -32,6 +32,7 @@ def register_user(data, db_users, is_admin):
     # Add user to list
     db_users.append(new_user)
 
+    # Check if is store owner or attendant
     if is_admin:
         return jsonify({"message": "Store owner successfully registered"}), 201
     return jsonify({"message": "Store attendant successfully registered"}), 201
@@ -48,19 +49,17 @@ def login_user(data, db_users, is_admin):
     # Check if any field is empty
     if not email or not password:
         return jsonify({"error": "This field is required"}), 400
-    # if not password:
-    #     return jsonify({"error": "Password field is required"}), 400
 
     for user in db_users:
         # Check if the user is registered
         if user.email == email:
-            # # Check if they input the correct password
-            # if check_password_hash(user.password, password):
+            # Check if password and it's store owner
             if is_admin and user.password == password:
                 session["store_owner"] = email
                 return jsonify({
                     "message": "Store owner logged in successfully"
                     })
+            # Check if password and it's store attendant
             elif not is_admin and user.password == password:
                 session["store_attendant"] = email
                 return jsonify({
