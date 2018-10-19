@@ -21,9 +21,9 @@ def register_user(data, db_users, is_admin):
     if not last_name:
         return jsonify({"error": "Last name is required"}), 400
     if not email:
-        return jsonify({"error": "Email name is required"}), 400
+        return jsonify({"error": "Email is required"}), 400
     if not password:
-        return jsonify({"error": "password name is required"}), 400
+        return jsonify({"error": "password is required"}), 400
 
     # Check if user already exists
     for user in db_users:
@@ -54,9 +54,9 @@ def login_user(data, db_users, is_admin):
 
     # Check if any field is empty
     if not email:
-        return jsonify({"error": "Email name is required"}), 400
+        return jsonify({"error": "Email is required"}), 400
     if not password:
-        return jsonify({"error": "password name is required"}), 400
+        return jsonify({"error": "password is required"}), 400
 
     for user in db_users:
         # Check if the user is registered
