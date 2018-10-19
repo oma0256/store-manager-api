@@ -22,65 +22,41 @@ products = []
 # Store sales
 sale_records = []
 
-def auth_user(auth_func):
-    # funtion returns a json response and status code
-    res = auth_func
-    return res
+
+def get_single_resource(resource_list, resource_id, msg, key):
+    for resource in resource_list:
+        # check if sale record exists
+        if resource.id == int(resource_id):
+            return jsonify({
+                "message": msg,
+                key: resource.__dict__
+            })
+    if key == "products":
+        return jsonify({"error": "This product does not exist"}), 404
+    if key == 'sale':
+        return jsonify({"error": "Sale record with this id doesn't exist"}), 404
+
 
 class AppAuthView(MethodView):
+    """
+    Class to handle user authentication
+    """
     def post(self):
+        """
+        handles registration and login
+        """
+        # check if it is store owner registration
         if request.path == '/api/v1/store-owner/register':
-            return auth_user(register_user(request.get_json(), store_owners, True))
+            return register_user(request.get_json(), store_owners, True)
+        # check if it is store owner login
         if request.path == '/api/v1/store-owner/login':
-            return auth_user(login_user(request.get_json(), store_owners, True))
+            return login_user(request.get_json(), store_owners, True)
+        # check if it is store attendant registration
         if request.path == '/api/v1/store-owner/attendant/register':
-            return auth_user(register_user(request.get_json(), store_attendants, False))
+            return register_user(request.get_json(), store_attendants, False)
+        # check if it is store attendant login
         if request.path == '/api/v1/store-attendant/login':
-            return auth_user(login_user(request.get_json(), store_attendants, False))
-
-
-# class StoreOwnerRegister(MethodView):
-#     """
-#     Class to register store owner
-#     """
-#     def post(self):
-#         """
-#         Method that registers store owner
-#         """
-#         return auth_user(register_user(request.get_json(), store_owners, True))
-
-
-# class StoreOwnerLogin(MethodView):
-#     """
-#     Class to login store owner
-#     """
-#     def post(self):
-#         """
-#         Method to perform login of store owner
-#         """
-#         return auth_user(login_user(request.get_json(), store_owners, True))
-
-
-# class StoreAttendantRegister(MethodView):
-#     """
-#     Class to register store attendant
-#     """
-#     def post(self):
-#         """
-#         Method that registers store attendant
-#         """
-#         return auth_user(register_user(request.get_json(), store_attendants, False))
-
-
-# class StoreAttendantLogin(MethodView):
-#     """
-#     Class to login store attendant
-#     """
-#     def post(self):
-#         """
-#         Method to perform login of store attendant
-#         """
-#         return auth_user(login_user(request.get_json(), store_attendants, False))
+            return login_user(request.get_json(), store_attendants, False)
 
 
 class ProductView(MethodView):
@@ -90,7 +66,6 @@ class ProductView(MethodView):
     @is_not_store_owner
     @is_store_owner
     def post(self):
-        print(request.path)
         """
         Handles creating of a product
         """
@@ -122,14 +97,9 @@ class ProductView(MethodView):
         """
         # Check if an id has been passed
         if product_id:
-            for product in products:
-                # Check if product exists
-                if product.product_id == int(product_id):
-                    return jsonify({
-                        "message": "Product returned successfully",
-                        "products": product.__dict__
-                    })
-            return jsonify({"error": "This product does not exist"}), 404
+            return get_single_resource(products, product_id,
+                                       "Product returned successfully",
+                                       "products")
         return jsonify({
             "message": "Products returned successfully",
             "products": [product.__dict__ for product in products]
@@ -148,7 +118,7 @@ class SaleView(MethodView):
         """
         data = request.get_json()
         # get items being sold
-        cart_items = data.get("products")
+        cart_items = data.get("cart_items")
         total = 0
         for cart_item in cart_items:
             name = cart_item.get("name")
@@ -181,34 +151,22 @@ class SaleView(MethodView):
         if sale_id:
             # run if it's a store owner
             if "store_owner" in session:
-                for sale_record in sale_records:
-                    # check if sale record exists
-                    if sale_record.sale_id == int(sale_id):
-                        return jsonify({
-                            "message": "Sale record returned successfully",
-                            "sale": sale_record.__dict__
-                        })
+                return get_single_resource(sale_records, sale_id,
+                                           "Sale record returned successfully",
+                                           "sale")
             # run if it's a store attendant
             elif "store_attendant" in session:
                 for sale_record in sale_records:
                     # check if sale record exists
-                    if sale_record.sale_id == int(sale_id):
-                        # check if store attendant created the sale record
-                        if sale_record.attendant_email == session["store_attendant"]:
-                            return jsonify({
-                                "message": "Sale record returned successfully",
-                                "sale": sale_record.__dict__
-                            })
-                        return jsonify({
-                            "error": "You didn't make this sale"
-                        }), 403
+                    if sale_record.attendant_email == session["store_attendant"]:
+                        return get_single_resource(sale_records, sale_id,
+                                                   "Sale record returned successfully",
+                                                   "sale")
+                    return jsonify({"error": "You didn't make this sale"}), 403
             else:
                 return jsonify({
                     "error": "Please login to view this sale record"
                     }), 401
-            return jsonify({
-                "error": "Sale record with this id doesn't exist"
-            }), 404
         # run if request is for all sale records and if it's a store
         # owner
         if "store_owner" in session:
@@ -229,10 +187,13 @@ app.add_url_rule('/api/v1/store-owner/attendant/register',
 app.add_url_rule('/api/v1/store-attendant/login',
                  view_func=AppAuthView.as_view('store_attendant_login'))
 app.add_url_rule('/api/v1/products',
-                 view_func=ProductView.as_view('product_view'), methods=["GET","POST"])
+                 view_func=ProductView.as_view('product_view'),
+                 methods=["GET", "POST"])
 app.add_url_rule('/api/v1/products/<product_id>',
-                 view_func=ProductView.as_view('product_view1'), methods=["GET"])
+                 view_func=ProductView.as_view('product_view1'),
+                 methods=["GET"])
 app.add_url_rule('/api/v1/sales',
-                 view_func=SaleView.as_view('sale_view'), methods=["GET","POST"])
+                 view_func=SaleView.as_view('sale_view'),
+                 methods=["GET","POST"])
 app.add_url_rule('/api/v1/sales/<sale_id>',
                  view_func=SaleView.as_view('sale_view1'), methods=["GET"])

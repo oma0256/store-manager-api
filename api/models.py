@@ -22,7 +22,7 @@ class Product:
     Define product structure
     """
     def __init__(self, product_id, name, price, quantity, category):
-        self.product_id = product_id
+        self.id = product_id
         self.name = name
         self.price = price
         self.quantity = quantity
@@ -33,10 +33,10 @@ class Sale:
     """
     Define sale structure
     """
-    def __init__(self, sale_id, products,
+    def __init__(self, sale_id, cart_items,
                  attendant_name, attendannt_email, total):
-        self.sale_id = sale_id
-        self.products = products
+        self.id = sale_id
+        self.cart_items = cart_items
         self.attendant_name = attendant_name
         self.attendant_email = attendannt_email
         self.total = total
