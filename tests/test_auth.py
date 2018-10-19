@@ -57,6 +57,21 @@ class TestStoreOwnerAuth(unittest.TestCase):
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
 
+    def test_register_missing_fields(self):
+        """
+        Test registration with missing fields
+        """
+        self.reg_data["email"] = "dkjfgvs"
+        res = self.app.post("/api/v1/store-owner/register",
+                            headers={"Content-Type": "application/json"},
+                            data=json.dumps(self.reg_data))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Please enter a valid email"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, expected_output)
+
     def test_register_duplicate_user(self):
         """
         Test register already registered store owner

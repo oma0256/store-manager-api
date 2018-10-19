@@ -19,4 +19,8 @@ def validate_product(name, price, quantity, category):
     if not category:
         return jsonify({"error": "Product category is required"}), 400
 
+    # Check for invalid price or quantity
+    if not isinstance(price, int) or not isinstance(price, int):
+        return jsonify({"error": "Please enter an integer"}), 400
+
     return None
