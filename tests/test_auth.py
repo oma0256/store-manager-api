@@ -52,7 +52,7 @@ class TestStoreOwnerAuth(unittest.TestCase):
                             data=json.dumps(self.reg_data))
         res_data = json.loads(res.data)
         expected_output = {
-            "error": "Email is required"
+            "error": "This field is required"
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
@@ -104,7 +104,7 @@ class TestStoreOwnerAuth(unittest.TestCase):
                             data=json.dumps(self.login_data))
         res_data = json.loads(res.data)
         expected_output = {
-            "error": "password is required"
+            "error": "This field is required"
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
@@ -187,7 +187,7 @@ class TestSoreAttendantauth(unittest.TestCase):
                             data=json.dumps(self.reg_data))
         res_data = json.loads(res.data)
         expected_output = {
-            "error": "Email is required"
+            "error": "This field is required"
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
@@ -239,7 +239,7 @@ class TestSoreAttendantauth(unittest.TestCase):
                             data=json.dumps(self.login_data))
         res_data = json.loads(res.data)
         expected_output = {
-            "error": "password is required"
+            "error": "This field is required"
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
