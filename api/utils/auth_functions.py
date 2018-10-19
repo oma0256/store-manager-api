@@ -2,7 +2,6 @@
 File contains funtions to register store owner and store attendant
 """
 from flask import jsonify, session
-from validate_email import validate_email
 from api.models import User
 
 
@@ -19,11 +18,6 @@ def register_user(data, db_users, is_admin):
     # Check for empty fields
     if not first_name or not last_name or not email or not password:
         return jsonify({"error": "This field is required"}), 400
-
-    # Check if email is valid
-    is_valid = validate_email(email)
-    if not is_valid:
-        return jsonify({"error": "Please enter a valid email"}), 400
 
     # Check if user already exists
     for user in db_users:
