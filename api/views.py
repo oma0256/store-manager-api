@@ -6,12 +6,13 @@ from flask.views import MethodView
 from functools import partial
 from api.models import Product, Sale
 from api.__init__ import app
-from api.utilities.decorators import (is_store_owner_attendant,
-                                      is_store_owner_or_attendant,
-                                      is_not_store_owner,
-                                      is_not_store_attendant)
-from api.utilities.auth_functions import register_user, login_user
-from api.utilities.validators import validate_product
+from api.utils.decorators import (is_store_owner_attendant,
+                                  is_store_owner_or_attendant,
+                                  is_not_store_owner,
+                                  is_not_store_attendant)
+from api.utils.auth_functions import register_user, login_user
+from api.utils.validators import validate_product
+from api.utils.resource_functions import get_single_resource
 
 store_owner_decorator = partial(is_store_owner_attendant, admin=True)
 store_attendant_decorator = partial(is_store_owner_attendant, admin=False)
@@ -24,23 +25,6 @@ store_attendants = []
 products = []
 # Store sales
 sale_records = []
-
-
-def get_single_resource(resource_list, resource_id, msg, key):
-    """
-    Iterates through product and sale to return a single object
-    """
-    for resource in resource_list:
-        # check if sale record or product exists
-        if resource.id == int(resource_id):
-            return jsonify({
-                "message": msg,
-                key: resource.__dict__
-            })
-    if key == "products":
-        return jsonify({"error": "This product does not exist"}), 404
-    if key == 'sale':
-        return jsonify({"error": "Sale record with this id doesn't exist"}), 404
 
 
 class AppAuthView(MethodView):
