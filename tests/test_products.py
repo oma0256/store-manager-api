@@ -75,7 +75,7 @@ class TestProductView(unittest.TestCase):
                             data=json.dumps(self.product))
         res_data = json.loads(res.data)
         expected_output = {
-            "error": "This field is required"
+            "error": "Product name is required"
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
