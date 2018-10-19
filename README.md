@@ -38,6 +38,7 @@ The store attendant can perform the following tasks:
 - View all products
 - View an individual product
 
+## Endpoints
 HTTP Method | End point | Action
 -----------|-----------|----------
 POST | api/v1/store-owner/register | Create an a store owner account
