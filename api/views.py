@@ -27,6 +27,11 @@ products = []
 sale_records = []
 
 
+@app.route("/")
+def home_page():
+    return("Welcome to the store manager")
+
+
 class AppAuthView(MethodView):
     """
     Class to handle user authentication
