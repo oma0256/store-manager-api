@@ -96,7 +96,6 @@ class TestSaleView(unittest.TestCase):
             "sale": {
                 "id": 1,
                 "cart_items": [self.product],
-                "attendant_name": "joe doe",
                 "attendant_email": "joe@email.com",
                 "total": 10000
             }
@@ -150,7 +149,6 @@ class TestSaleView(unittest.TestCase):
             "sales": [{
                 "id": 1,
                 "cart_items": [self.product],
-                "attendant_name": "joe doe",
                 "attendant_email": "joe@email.com",
                 "total": 10000
             }]
@@ -196,7 +194,6 @@ class TestSaleView(unittest.TestCase):
             "sale": {
                 "id": 1,
                 "cart_items": [self.product],
-                "attendant_name": "joe doe",
                 "attendant_email": "joe@email.com",
                 "total": 10000
             }
@@ -230,7 +227,6 @@ class TestSaleView(unittest.TestCase):
             "sale": {
                 "id": 1,
                 "cart_items": [self.product],
-                "attendant_name": "joe doe",
                 "attendant_email": "joe@email.com",
                 "total": 10000
             }

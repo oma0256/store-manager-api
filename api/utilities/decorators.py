@@ -5,7 +5,7 @@ from functools import wraps
 from flask import jsonify, session
 
 
-def is_store_owner(f, admin):
+def is_store_owner_attendant(f, admin):
     """
     Authenticates if store owner is logged in
     """

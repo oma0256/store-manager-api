@@ -42,9 +42,8 @@ class TestModels(unittest.TestCase):
             "quantity": 1,
             "price": 10000
         }
-        sale = Sale(1, [cart_item], "joe doe", "joe@email.com", 10000)
+        sale = Sale(1, [cart_item], "joe@email.com", 10000)
         self.assertEqual(sale.id, 1)
         self.assertEqual(sale.cart_items, [cart_item])
-        self.assertEqual(sale.attendant_name, "joe doe")
         self.assertEqual(sale.attendant_email, "joe@email.com")
         self.assertEqual(sale.total, 10000)

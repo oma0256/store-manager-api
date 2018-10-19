@@ -5,17 +5,16 @@ from flask import jsonify, request, session
 from flask.views import MethodView
 from api.models import Product, Sale
 from api.__init__ import app
-from api.utilities.decorators import (is_store_owner,
+from api.utilities.decorators import (is_store_owner_attendant,
                                       is_store_owner_or_attendant,
-                                      is_store_attendant,
                                       is_not_store_owner,
                                       is_not_store_attendant)
 from api.utilities.auth_functions import register_user, login_user
 from api.utilities.validators import validate_product
 from functools import partial
 
-store_owner_decorator = partial(is_store_owner, admin=True)
-store_attendant_decorator = partial(is_store_owner, admin=False)
+store_owner_decorator = partial(is_store_owner_attendant, admin=True)
+store_attendant_decorator = partial(is_store_owner_attendant, admin=False)
 
 # Holds store owners
 store_owners = []
@@ -135,12 +134,11 @@ class SaleView(MethodView):
                 return res
             total += price
         sale_id = len(sale_records) + 1
-        attendant_name = ""
         for store_attendant in store_attendants:
             if store_attendant.email == session["store_attendant"]:
-                attendant_name = store_attendant.first_name + " " + store_attendant.last_name
+                # attendant_name = store_attendant.first_name + " " + store_attendant.last_name
                 attendant_email = session["store_attendant"]
-                sale = Sale(sale_id, cart_items, attendant_name, attendant_email, total)
+                sale = Sale(sale_id, cart_items, attendant_email, total)
                 sale_records.append(sale)
                 return jsonify({
                     "message": "Sale created successfully",
