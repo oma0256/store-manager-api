@@ -12,6 +12,10 @@ from api.utilities.decorators import (is_store_owner,
                                       is_not_store_attendant)
 from api.utilities.auth_functions import register_user, login_user
 from api.utilities.validators import validate_product
+from functools import partial
+
+store_owner_decorator = partial(is_store_owner, admin=True)
+store_attendant_decorator = partial(is_store_owner, admin=False)
 
 # Holds store owners
 store_owners = []
@@ -64,7 +68,7 @@ class ProductView(MethodView):
     Class to perform http methods on products
     """
     @is_not_store_owner
-    @is_store_owner
+    @store_owner_decorator
     def post(self):
         """
         Handles creating of a product
@@ -111,7 +115,7 @@ class SaleView(MethodView):
     Class to perform http methods on sales
     """
     @is_not_store_attendant
-    @is_store_attendant
+    @store_attendant_decorator
     def post(self):
         """
         Method to create a sale record
