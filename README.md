@@ -23,6 +23,34 @@ To run the test
 - ```cd store-manager-api```
 - ```python -m pytest```
 
+## Features
+The store owner can perform the following tasks:
+- Register a store attendant
+- Add a new product
+- View all products
+- View an individual product
+- View all sale records
+- View an individual sale record
+
+The store attendant can perform the following tasks:
+- Create a sale record
+- View a single sale record if they created it
+- View all products
+- View an individual product
+
+HTTP Method | End point | Action
+-----------|-----------|----------
+POST | api/v1/store-owner/register | Create an a store owner account
+POST | api/v1/store-owner/login | Login a store owner
+POST | api/v1/store-owner/attendant/login | Login a store owner
+POST | api/v1/store-attendant/login | Login a store attendant
+POST | api/v1/sales | Create a sales record
+GET | api/v1/sales | Retrieve all sales record
+GET | api/v1/sales/sale_id | Retrieve a single sale record
+POST | api/v1/products | Add a product
+GET | api/v1/products | Retrieve all products
+GET | api/v1/products/product_id | Retrieve a single product
+
 ## Built With
 - Flask python's web framework
 
