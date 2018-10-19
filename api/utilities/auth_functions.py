@@ -19,7 +19,7 @@ def register_user(data, db_users, is_admin):
     # confirm_password = data.get("confirm_password")
 
     # Check for empty fields
-    if not first_name or not last_name or not password:
+    if not first_name or not last_name or not email or not password:
         return jsonify({"error": "This field is required"}), 400
     # if not last_name:
     #     return jsonify({"error": "Last name field is required"}), 400
@@ -68,24 +68,25 @@ def login_user(data, db_users, is_admin):
     password = data.get("password")
 
     # Check if any field is empty
-    if not email:
-        return jsonify({"error": "Email field is required"}), 400
-    if not password:
-        return jsonify({"error": "Password field is required"}), 400
+    if not email or not password:
+        return jsonify({"error": "This field is required"}), 400
+    # if not password:
+    #     return jsonify({"error": "Password field is required"}), 400
 
     for user in db_users:
         # Check if the user is registered
         if user.email == email:
             # # Check if they input the correct password
             # if check_password_hash(user.password, password):
-            if is_admin:
+            if is_admin and user.password == password:
                 session["store_owner"] = email
                 return jsonify({
                     "message": "Store owner logged in successfully"
                     })
-            session["store_attendant"] = email
-            return jsonify({
-                "message": "Store attendant logged in successfully"
-                })
-        return jsonify({"error": "Invalid email or password"}), 401
+            elif not is_admin and user.password == password:
+                session["store_attendant"] = email
+                return jsonify({
+                    "message": "Store attendant logged in successfully"
+                    })
+            return jsonify({"error": "Invalid email or password"}), 401
     return jsonify({"error": "Please register to login"}), 401

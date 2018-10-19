@@ -22,55 +22,65 @@ products = []
 # Store sales
 sale_records = []
 
-class HandleAuth:
-    def auth_user(auth_func):
-        # funtion returns a json response and status code
-        res = auth_func
-        return res
+def auth_user(auth_func):
+    # funtion returns a json response and status code
+    res = auth_func
+    return res
 
-handle_auth = HandleAuth()
-class StoreOwnerRegister(MethodView):
-    """
-    Class to register store owner
-    """
+class AppAuthView(MethodView):
     def post(self):
-        """
-        Method that registers store owner
-        """
-        return self.auth_user(register_user(request.get_json(), store_owners, True))
+        if request.path == '/api/v1/store-owner/register':
+            return auth_user(register_user(request.get_json(), store_owners, True))
+        if request.path == '/api/v1/store-owner/login':
+            return auth_user(login_user(request.get_json(), store_owners, True))
+        if request.path == '/api/v1/store-owner/attendant/register':
+            return auth_user(register_user(request.get_json(), store_attendants, False))
+        if request.path == '/api/v1/store-attendant/login':
+            return auth_user(login_user(request.get_json(), store_attendants, False))
 
 
-class StoreOwnerLogin(MethodView):
-    """
-    Class to login store owner
-    """
-    def post(self):
-        """
-        Method to perform login of store owner
-        """
-        return self.auth_user(login_user(request.get_json(), store_owners, True))
+# class StoreOwnerRegister(MethodView):
+#     """
+#     Class to register store owner
+#     """
+#     def post(self):
+#         """
+#         Method that registers store owner
+#         """
+#         return auth_user(register_user(request.get_json(), store_owners, True))
 
 
-class StoreAttendantRegister(MethodView):
-    """
-    Class to register store attendant
-    """
-    def post(self):
-        """
-        Method that registers store attendant
-        """
-        return self.auth_user(register_user(request.get_json(), store_attendants, False))
+# class StoreOwnerLogin(MethodView):
+#     """
+#     Class to login store owner
+#     """
+#     def post(self):
+#         """
+#         Method to perform login of store owner
+#         """
+#         return auth_user(login_user(request.get_json(), store_owners, True))
 
 
-class StoreAttendantLogin(MethodView):
-    """
-    Class to login store attendant
-    """
-    def post(self):
-        """
-        Method to perform login of store attendant
-        """
-        return self.auth_user(login_user(request.get_json(), store_attendants, False))
+# class StoreAttendantRegister(MethodView):
+#     """
+#     Class to register store attendant
+#     """
+#     def post(self):
+#         """
+#         Method that registers store attendant
+#         """
+#         return auth_user(register_user(request.get_json(), store_attendants, False))
+
+
+# class StoreAttendantLogin(MethodView):
+#     """
+#     Class to login store attendant
+#     """
+#     def post(self):
+#         """
+#         Method to perform login of store attendant
+#         """
+#         return auth_user(login_user(request.get_json(), store_attendants, False))
 
 
 class ProductView(MethodView):
@@ -80,6 +90,7 @@ class ProductView(MethodView):
     @is_not_store_owner
     @is_store_owner
     def post(self):
+        print(request.path)
         """
         Handles creating of a product
         """
@@ -210,13 +221,13 @@ class SaleView(MethodView):
 
 # Map urls to view classes
 app.add_url_rule('/api/v1/store-owner/register',
-                 view_func=StoreOwnerRegister.as_view('store_owner_register'))
+                 view_func=AppAuthView.as_view('store_owner_register'))
 app.add_url_rule('/api/v1/store-owner/login',
-                 view_func=StoreOwnerLogin.as_view('store_owner_login'))
+                 view_func=AppAuthView.as_view('store_owner_login'))
 app.add_url_rule('/api/v1/store-owner/attendant/register',
-                 view_func=StoreAttendantRegister.as_view('store_attendant_register'))
+                 view_func=AppAuthView.as_view('store_attendant_register'))
 app.add_url_rule('/api/v1/store-attendant/login',
-                 view_func=StoreAttendantLogin.as_view('store_attendant_login'))
+                 view_func=AppAuthView.as_view('store_attendant_login'))
 app.add_url_rule('/api/v1/products',
                  view_func=ProductView.as_view('product_view'), methods=["GET","POST"])
 app.add_url_rule('/api/v1/products/<product_id>',
