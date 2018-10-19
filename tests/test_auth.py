@@ -52,37 +52,7 @@ class TestStoreOwnerAuth(unittest.TestCase):
                             data=json.dumps(self.reg_data))
         res_data = json.loads(res.data)
         expected_output = {
-            "error": "Email field is required"
-        }
-        self.assertEqual(res.status_code, 400)
-        self.assertEqual(res_data, expected_output)
-
-    def test_register_invalid_data(self):
-        """
-        Test registration with invalid email
-        """
-        self.reg_data["email"] = "okay"
-        res = self.app.post("/api/v1/store-owner/register",
-                            headers={"Content-Type": "application/json"},
-                            data=json.dumps(self.reg_data))
-        res_data = json.loads(res.data)
-        expected_output = {
-            "error": "Please enter a valid email"
-        }
-        self.assertEqual(res.status_code, 400)
-        self.assertEqual(res_data, expected_output)
-
-    def test_register_unmatched_passwords(self):
-        """
-        Test registration with unmatching password
-        """
-        self.reg_data["confirm_password"] = "okay"
-        res = self.app.post("/api/v1/store-owner/register",
-                            headers={"Content-Type": "application/json"},
-                            data=json.dumps(self.reg_data))
-        res_data = json.loads(res.data)
-        expected_output = {
-            "error": "The passwords must match"
+            "error": "This field is required"
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
@@ -134,7 +104,7 @@ class TestStoreOwnerAuth(unittest.TestCase):
                             data=json.dumps(self.login_data))
         res_data = json.loads(res.data)
         expected_output = {
-            "error": "Password field is required"
+            "error": "This field is required"
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
@@ -217,37 +187,7 @@ class TestSoreAttendantauth(unittest.TestCase):
                             data=json.dumps(self.reg_data))
         res_data = json.loads(res.data)
         expected_output = {
-            "error": "Email field is required"
-        }
-        self.assertEqual(res.status_code, 400)
-        self.assertEqual(res_data, expected_output)
-
-    def test_register_invalid_data(self):
-        """
-        Test registration with invalid email
-        """
-        self.reg_data["email"] = "okay"
-        res = self.app.post("/api/v1/store-owner/attendant/register",
-                            headers={"Content-Type": "application/json"},
-                            data=json.dumps(self.reg_data))
-        res_data = json.loads(res.data)
-        expected_output = {
-            "error": "Please enter a valid email"
-        }
-        self.assertEqual(res.status_code, 400)
-        self.assertEqual(res_data, expected_output)
-
-    def test_register_unmatched_passwords(self):
-        """
-        Test registration with unmatching password
-        """
-        self.reg_data["confirm_password"] = "okay"
-        res = self.app.post("/api/v1/store-owner/attendant/register",
-                            headers={"Content-Type": "application/json"},
-                            data=json.dumps(self.reg_data))
-        res_data = json.loads(res.data)
-        expected_output = {
-            "error": "The passwords must match"
+            "error": "This field is required"
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
@@ -299,7 +239,7 @@ class TestSoreAttendantauth(unittest.TestCase):
                             data=json.dumps(self.login_data))
         res_data = json.loads(res.data)
         expected_output = {
-            "error": "Password field is required"
+            "error": "This field is required"
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)

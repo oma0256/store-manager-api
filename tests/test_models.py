@@ -27,7 +27,7 @@ class TestModels(unittest.TestCase):
         Test initializing a Product object
         """
         product = Product(1, "Belt", 10000, 3, "clothing")
-        self.assertEqual(product.product_id, 1)
+        self.assertEqual(product.id, 1)
         self.assertEqual(product.name, "Belt")
         self.assertEqual(product.price, 10000)
         self.assertEqual(product.quantity, 3)
@@ -37,14 +37,13 @@ class TestModels(unittest.TestCase):
         """
         Test initializing a Sale object
         """
-        product = {
+        cart_item = {
             "name": "Belt",
             "quantity": 1,
             "price": 10000
         }
-        sale = Sale(1, [product], "joe doe", "joe@email.com", 10000)
-        self.assertEqual(sale.sale_id, 1)
-        self.assertEqual(sale.products, [product])
-        self.assertEqual(sale.attendant_name, "joe doe")
+        sale = Sale(1, [cart_item], "joe@email.com", 10000)
+        self.assertEqual(sale.id, 1)
+        self.assertEqual(sale.cart_items, [cart_item])
         self.assertEqual(sale.attendant_email, "joe@email.com")
         self.assertEqual(sale.total, 10000)

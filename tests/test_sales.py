@@ -32,7 +32,7 @@ class TestSaleView(unittest.TestCase):
             "category": "clothing"
         }
         self.sale = {
-            "products": [self.product]
+            "cart_items": [self.product]
         }
 
     def tearDown(self):
@@ -66,35 +66,13 @@ class TestSaleView(unittest.TestCase):
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.login_data))
         self.product["name"] = ""
-        self.sale["products"] = [self.product]
+        self.sale["cart_items"] = [self.product]
         res = self.app.post("/api/v1/sales",
                             headers={"Content-Type": "application/json"},
                             data=json.dumps(self.sale))
         res_data = json.loads(res.data)
         expected_output = {
             "error": "Product name is required"
-        }
-        self.assertEqual(res.status_code, 400)
-        self.assertEqual(res_data, expected_output)
-
-    def test_create_sale_with_invalid_data(self):
-        """
-        Test creating sale with invalid data
-        """
-        self.app.post("/api/v1/store-owner/attendant/register",
-                      headers={"Content-Type": "application/json"},
-                      data=json.dumps(self.reg_data))
-        self.app.post("/api/v1/store-attendant/login",
-                      headers={"Content-Type": "application/json"},
-                      data=json.dumps(self.login_data))
-        self.product["price"] = "bjzb"
-        self.sale["products"] = [self.product]
-        res = self.app.post("/api/v1/sales",
-                            headers={"Content-Type": "application/json"},
-                            data=json.dumps(self.sale))
-        res_data = json.loads(res.data)
-        expected_output = {
-            "error": "Product price is invalid please an integer"
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
@@ -116,9 +94,8 @@ class TestSaleView(unittest.TestCase):
         expected_output = {
             "message": "Sale created successfully",
             "sale": {
-                "sale_id": 1,
-                "products": [self.product],
-                "attendant_name": "joe doe",
+                "id": 1,
+                "cart_items": [self.product],
                 "attendant_email": "joe@email.com",
                 "total": 10000
             }
@@ -170,9 +147,8 @@ class TestSaleView(unittest.TestCase):
         exepected_output = {
             "message": "Sale records returned successfully",
             "sales": [{
-                "sale_id": 1,
-                "products": [self.product],
-                "attendant_name": "joe doe",
+                "id": 1,
+                "cart_items": [self.product],
                 "attendant_email": "joe@email.com",
                 "total": 10000
             }]
@@ -216,9 +192,8 @@ class TestSaleView(unittest.TestCase):
         expected_output = {
             "message": "Sale record returned successfully",
             "sale": {
-                "sale_id": 1,
-                "products": [self.product],
-                "attendant_name": "joe doe",
+                "id": 1,
+                "cart_items": [self.product],
                 "attendant_email": "joe@email.com",
                 "total": 10000
             }
@@ -250,9 +225,8 @@ class TestSaleView(unittest.TestCase):
         expected_output = {
             "message": "Sale record returned successfully",
             "sale": {
-                "sale_id": 1,
-                "products": [self.product],
-                "attendant_name": "joe doe",
+                "id": 1,
+                "cart_items": [self.product],
                 "attendant_email": "joe@email.com",
                 "total": 10000
             }

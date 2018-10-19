@@ -51,7 +51,7 @@ class TestProductView(unittest.TestCase):
                             headers={"Content-Type": "application/json"},
                             data=json.dumps(self.product))
         res_data = json.loads(res.data)
-        self.product["product_id"] = 1
+        self.product["id"] = 1
         expected_output = {
             "message": "Product created successfully",
             "product": self.product
@@ -76,27 +76,6 @@ class TestProductView(unittest.TestCase):
         res_data = json.loads(res.data)
         expected_output = {
             "error": "Product name is required"
-        }
-        self.assertEqual(res.status_code, 400)
-        self.assertEqual(res_data, expected_output)
-
-    def test_create_product_with_invalid_data(self):
-        """
-        Test to create a product with invalid data
-        """
-        self.app.post("/api/v1/store-owner/register",
-                      headers={"Content-Type": "application/json"},
-                      data=json.dumps(self.reg_data))
-        self.app.post("/api/v1/store-owner/login",
-                      headers={"Content-Type": "application/json"},
-                      data=json.dumps(self.login_data))
-        self.product["price"] = "sbkdaks"
-        res = self.app.post("/api/v1/products",
-                            headers={"Content-Type": "application/json"},
-                            data=json.dumps(self.product))
-        res_data = json.loads(res.data)
-        expected_output = {
-            "error": "Product price is invalid please an integer"
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
@@ -156,7 +135,7 @@ class TestProductView(unittest.TestCase):
                       data=json.dumps(self.product))
         res = self.app.get("/api/v1/products")
         res_data = json.loads(res.data)
-        self.product["product_id"] = 1
+        self.product["id"] = 1
         exepected_output = {
             "message": "Products returned successfully",
             "products": [self.product]
@@ -185,7 +164,7 @@ class TestProductView(unittest.TestCase):
                       data=json.dumps(self.login_data))
         res = self.app.get("/api/v1/products")
         res_data = json.loads(res.data)
-        self.product["product_id"] = 1
+        self.product["id"] = 1
         exepected_output = {
             "message": "Products returned successfully",
             "products": [self.product]
@@ -220,7 +199,7 @@ class TestProductView(unittest.TestCase):
                       data=json.dumps(self.product))
         res = self.app.get("/api/v1/products/1")
         res_data = json.loads(res.data)
-        self.product["product_id"] = 1
+        self.product["id"] = 1
         exepected_output = {
             "message": "Product returned successfully",
             "products": self.product
@@ -249,7 +228,7 @@ class TestProductView(unittest.TestCase):
                       data=json.dumps(self.login_data))
         res = self.app.get("/api/v1/products/1")
         res_data = json.loads(res.data)
-        self.product["product_id"] = 1
+        self.product["id"] = 1
         exepected_output = {
             "message": "Product returned successfully",
             "products": self.product
