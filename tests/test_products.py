@@ -80,27 +80,6 @@ class TestProductView(unittest.TestCase):
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
 
-    def test_create_product_with_invalid_data(self):
-        """
-        Test create product with invalid data
-        """
-        self.app.post("/api/v1/store-owner/register",
-                      headers={"Content-Type": "application/json"},
-                      data=json.dumps(self.reg_data))
-        self.app.post("/api/v1/store-owner/login",
-                      headers={"Content-Type": "application/json"},
-                      data=json.dumps(self.login_data))
-        self.product["price"] = "sidisd"
-        res = self.app.post("/api/v1/products",
-                            headers={"Content-Type": "application/json"},
-                            data=json.dumps(self.product))
-        res_data = json.loads(res.data)
-        expected_output = {
-            "error": "Please enter an integer"
-        }
-        self.assertEqual(res.status_code, 400)
-        self.assertEqual(res_data, expected_output)
-
     def test_create_product_with_unauthenticated_user(self):
         """
         Test to create a without logging in as store owner
