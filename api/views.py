@@ -30,7 +30,7 @@ def auth_user(auth_func):
 
 class StoreOwnerRegister(MethodView):
     """
-    Class to register store owner
+     register store owner
     """
     def post(self):
         """
