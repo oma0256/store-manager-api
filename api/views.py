@@ -22,12 +22,13 @@ products = []
 # Store sales
 sale_records = []
 
-def auth_user(auth_func):
-    # funtion returns a json response and status code
-    res = auth_func
-    return res
+class HandleAuth:
+    def auth_user(auth_func):
+        # funtion returns a json response and status code
+        res = auth_func
+        return res
 
-
+handle_auth = HandleAuth()
 class StoreOwnerRegister(MethodView):
     """
     Class to register store owner
@@ -36,7 +37,7 @@ class StoreOwnerRegister(MethodView):
         """
         Method that registers store owner
         """
-        return auth_user(register_user(request.get_json(), store_owners, True))
+        return self.auth_user(register_user(request.get_json(), store_owners, True))
 
 
 class StoreOwnerLogin(MethodView):
@@ -47,7 +48,7 @@ class StoreOwnerLogin(MethodView):
         """
         Method to perform login of store owner
         """
-        return auth_user(login_user(request.get_json(), store_owners, True))
+        return self.auth_user(login_user(request.get_json(), store_owners, True))
 
 
 class StoreAttendantRegister(MethodView):
@@ -58,7 +59,7 @@ class StoreAttendantRegister(MethodView):
         """
         Method that registers store attendant
         """
-        return auth_user(register_user(request.get_json(), store_attendants, False))
+        return self.auth_user(register_user(request.get_json(), store_attendants, False))
 
 
 class StoreAttendantLogin(MethodView):
@@ -69,7 +70,7 @@ class StoreAttendantLogin(MethodView):
         """
         Method to perform login of store attendant
         """
-        return auth_user(login_user(request.get_json(), store_attendants, False))
+        return self.auth_user(login_user(request.get_json(), store_attendants, False))
 
 
 class ProductView(MethodView):
