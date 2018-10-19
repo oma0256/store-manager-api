@@ -29,7 +29,7 @@ sale_records = []
 
 @app.route("/")
 def home_page():
-    return("Welcome to the store manager")
+    return "Welcome to the store manager"
 
 
 class AppAuthView(MethodView):
