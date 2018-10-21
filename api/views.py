@@ -71,7 +71,7 @@ class ProductView(MethodView):
         quantity = data.get("quantity")
         category = data.get("category")
         # validates product and returns json response and status code
-        res = validate_product(name, price, quantity, category)
+        res = validate_product(name, price, quantity)
         if res:
             return res
 
@@ -122,7 +122,7 @@ class SaleView(MethodView):
             quantity = cart_item.get("quantity")
             category = cart_item.get("category")
             # validate each product
-            res = validate_product(name, price, quantity, category)
+            res = validate_product(name, price, quantity)
             if res:
                 return res
             total += price
