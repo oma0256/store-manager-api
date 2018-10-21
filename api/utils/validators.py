@@ -10,13 +10,9 @@ def validate_product(name, price, quantity, category):
     Funtion to validate product data
     """
     # Check if fields are empty
-    if not name:
-        return jsonify({"error": "Product name is required"}), 400
-    if not price:
-        return jsonify({"error": "Product price is required"}), 400
-    if not quantity:
-        return jsonify({"error": "Product quantity is required"}), 400
-    if not category:
-        return jsonify({"error": "Product category is required"}), 400
+    if not name or not price or not quantity:
+        return jsonify({
+            "error": "Product name, price and quantity is required"
+            }), 400
 
     return None

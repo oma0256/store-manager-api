@@ -72,7 +72,7 @@ class TestSaleView(unittest.TestCase):
                             data=json.dumps(self.sale))
         res_data = json.loads(res.data)
         expected_output = {
-            "error": "Product name is required"
+            "error": "Product name, price and quantity is required"
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
