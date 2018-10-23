@@ -3,6 +3,7 @@ File contains funtions to register store owner and store attendant
 """
 from flask import jsonify, session
 from api.models import User
+from api.utils.generate_id import create_id
 
 
 def register_user(data, db_users, is_admin):
@@ -28,7 +29,7 @@ def register_user(data, db_users, is_admin):
                 "error": "User with this email address already exists"
                 }), 400
 
-    user_id = len(db_users) + 1
+    user_id = create_id(db_users)
     new_user = User(user_id, first_name, last_name, email, password, is_admin)
 
     # Add user to list

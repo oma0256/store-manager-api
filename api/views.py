@@ -12,6 +12,7 @@ from api.utils.decorators import (is_store_owner_attendant,
                                   is_not_store_attendant)
 from api.utils.auth_functions import register_user, login_user
 from api.utils.validators import validate_product
+from api.utils.generate_id import create_id
 
 store_owner_decorator = partial(is_store_owner_attendant, admin=True)
 store_attendant_decorator = partial(is_store_owner_attendant, admin=False)
@@ -74,7 +75,7 @@ class ProductView(MethodView):
         if res:
             return res
 
-        product_id = len(products) + 1
+        product_id = create_id(products)
         # create a product object
         new_product = Product(product_id, name, price, quantity, category)
         # appends the product object to list
@@ -132,7 +133,7 @@ class SaleView(MethodView):
             if res:
                 return res
             total += price
-        sale_id = len(sale_records) + 1
+        sale_id = create_id(sale_records)
         for store_attendant in store_attendants:
             if store_attendant.email == session["store_attendant"]:
                 attendant_email = session["store_attendant"]
