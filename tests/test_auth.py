@@ -177,6 +177,51 @@ class TestSoreAttendantauth(unittest.TestCase):
         self.assertEqual(res.status_code, 201)
         self.assertEqual(res_data, expected_output)
 
+    def test_register_invalid_email(self):
+        """
+        Test registration with valid data
+        """
+        self.reg_data["email"] = "ashga"
+        res = self.app.post("/api/v1/store-owner/attendant/register",
+                            headers={"Content-Type": "application/json"},
+                            data=json.dumps(self.reg_data))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Please use a valid email address"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, expected_output)
+
+    def test_register_invalid_first_name(self):
+        """
+        Test registration with valid data
+        """
+        self.reg_data["first_name"] = "4124324"
+        res = self.app.post("/api/v1/store-owner/attendant/register",
+                            headers={"Content-Type": "application/json"},
+                            data=json.dumps(self.reg_data))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "First and last name should only be alphabets"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, expected_output)
+
+    def test_register_with_short_password(self):
+        """
+        Test registration with valid data
+        """
+        self.reg_data["password"] = "123"
+        res = self.app.post("/api/v1/store-owner/attendant/register",
+                            headers={"Content-Type": "application/json"},
+                            data=json.dumps(self.reg_data))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Password should be more than 5 characters"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, expected_output)
+
     def test_register_missing_fields(self):
         """
         Test registration with missing fields
