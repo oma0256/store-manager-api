@@ -1,9 +1,9 @@
 """
 File to handle application views
 """
+from functools import partial
 from flask import jsonify, request, session
 from flask.views import MethodView
-from functools import partial
 from api.models import Product, Sale
 from api.__init__ import app
 from api.utils.decorators import (is_store_owner_attendant,
@@ -12,7 +12,6 @@ from api.utils.decorators import (is_store_owner_attendant,
                                   is_not_store_attendant)
 from api.utils.auth_functions import register_user, login_user
 from api.utils.validators import validate_product
-from api.utils.resource_functions import get_single_resource
 
 store_owner_decorator = partial(is_store_owner_attendant, admin=True)
 store_attendant_decorator = partial(is_store_owner_attendant, admin=False)
@@ -92,9 +91,16 @@ class ProductView(MethodView):
         """
         # Check if an id has been passed
         if product_id:
-            return get_single_resource(products, product_id,
-                                       "Product returned successfully",
-                                       "products")
+            product = [pro for pro in products if pro.id == int(product_id)]
+            # Check if product doesn't exist
+            if not product:
+                return jsonify({
+                    "error": "This product does not exist"
+                }), 404
+            return jsonify({
+                "message": "Product returned successfully",
+                "products": product[0].__dict__
+                })
         # Get all products
         return jsonify({
             "message": "Products returned successfully",
@@ -143,20 +149,27 @@ class SaleView(MethodView):
         """
         # run if request is for a single sale record
         if sale_id:
+            # Return a list of a specific sale record
+            sale = [s for s in sale_records if s.id == int(sale_id)]
+            # Check if sale doesn't exist
+            if not sale:
+                return jsonify({
+                    "error": "Sale record with this id doesn't exist"
+                }), 404
             # run if it's a store owner
             if "store_owner" in session:
-                return get_single_resource(sale_records, sale_id,
-                                           "Sale record returned successfully",
-                                           "sale")
+                return jsonify({
+                    "message": "Sale record returned successfully",
+                    "sale": sale[0].__dict__
+                    })
             # run if it's a store attendant
             elif "store_attendant" in session:
-                for sale_record in sale_records:
-                    # check if sale attendant made the sale
-                    if sale_record.attendant_email == session["store_attendant"]:
-                        return get_single_resource(sale_records, sale_id,
-                                                   "Sale record returned successfully",
-                                                   "sale")
-                    return jsonify({"error": "You didn't make this sale"}), 403
+                if sale[0].attendant_email == session["store_attendant"]:
+                    return jsonify({
+                        "message": "Sale record returned successfully",
+                        "sale": sale[0].__dict__
+                        })
+                return jsonify({"error": "You didn't make this sale"}), 403
             else:
                 return jsonify({
                     "error": "Please login to view this sale record"
