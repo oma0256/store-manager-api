@@ -138,15 +138,15 @@ class SaleView(MethodView):
                 return res
             total += price
         sale_id = create_id(sale_records)
-        for store_attendant in store_attendants:
-            if store_attendant.email == session["store_attendant"]:
-                attendant_email = session["store_attendant"]
-                sale = Sale(sale_id, cart_items, attendant_email, total)
-                sale_records.append(sale)
-                return jsonify({
-                    "message": "Sale created successfully",
-                    "sale": sale.__dict__
-                }), 201
+        store_attendant = [att for att in store_attendants if att.email == session["store_attendant"]]
+        if store_attendant[0]:
+            attendant_email = session["store_attendant"]
+            sale = Sale(sale_id, cart_items, attendant_email, total)
+            sale_records.append(sale)
+            return jsonify({
+                "message": "Sale created successfully",
+                "sale": sale.__dict__
+            }), 201
 
     def get(self, sale_id=None):
         """
