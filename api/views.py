@@ -14,8 +14,12 @@ from api.utils.auth_functions import register_user, login_user
 from api.utils.validators import validate_product
 from api.utils.generate_id import create_id
 
-store_owner_decorator = partial(is_store_owner_attendant, admin=True)
-store_attendant_decorator = partial(is_store_owner_attendant, admin=False)
+store_owner_decorator = partial(is_store_owner_attendant,
+                                user="store_owner",
+                                error_msg="Please login as a store owner")
+store_attendant_decorator = partial(is_store_owner_attendant,
+                                    user="store_attendant",
+                                    error_msg="Please login as a store attendant")
 
 # Holds store owners
 store_owners = []

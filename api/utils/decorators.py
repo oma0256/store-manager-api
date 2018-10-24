@@ -5,24 +5,17 @@ from functools import wraps
 from flask import jsonify, session
 
 
-def is_store_owner_attendant(f, admin):
+def is_store_owner_attendant(f, user, error_msg):
     """
     Authenticates if store owner or attendant is logged in
     """
     @wraps(f)
     def decorated(*args, **kwargs):
-        if admin:
-            # run for endpoint that requires store owner
-            if "store_owner" in session:
-                return f(*args, **kwargs)
-            return jsonify({
-                "error": "Please login as a store owner"
-                }), 401
-        # run for endpoint that requires store attendant
-        if "store_attendant" in session:
+        # Check if store owner or attendant is in session
+        if user in session:
             return f(*args, **kwargs)
         return jsonify({
-            "error": "Please login as a store attendant"
+            "error": error_msg
             }), 401
     return decorated
 
