@@ -23,11 +23,11 @@ def register_user(data, db_users, is_admin):
         return res
 
     # Check if user already exists
-    for user in db_users:
-        if user.email == email:
-            return jsonify({
-                "error": "User with this email address already exists"
-                }), 400
+    user = [u for u in db_users if u.email == email]
+    if len(user) > 0:
+        return jsonify({
+            "error": "User with this email address already exists"
+            }), 400
 
     user_id = create_id(db_users)
     new_user = User(user_id, first_name, last_name, email, password, is_admin)
@@ -53,20 +53,20 @@ def login_user(data, db_users, is_admin):
     if res:
         return res
 
-    for user in db_users:
-        # Check if the user is registered
-        if user.email == email:
-            # Check if password and it's store owner
-            if is_admin and user.password == password:
-                session["store_owner"] = email
-                return jsonify({
-                    "message": "Store owner logged in successfully"
-                    })
-            # Check if password and it's store attendant
-            elif not is_admin and user.password == password:
-                session["store_attendant"] = email
-                return jsonify({
-                    "message": "Store attendant logged in successfully"
-                    })
-            return jsonify({"error": "Invalid email or password"}), 401
-    return jsonify({"error": "Please register to login"}), 401
+    user = [u for u in db_users if u.email == email]
+    if not user:
+        return jsonify({"error": "Please register to login"}), 401
+
+    # Check if it's a store owner and the password is theirs
+    if is_admin and user[0].password == password:
+        session["store_owner"] = email
+        return jsonify({
+            "message": "Store owner logged in successfully"
+            })
+    # Check if it's a store attendant and the password is theirs
+    elif not is_admin and user[0].password == password:
+        session["store_attendant"] = email
+        return jsonify({
+            "message": "Store attendant logged in successfully"
+            })
+    return jsonify({"error": "Invalid email or password"}), 401
