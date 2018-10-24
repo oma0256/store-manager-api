@@ -43,7 +43,7 @@ HTTP Method | End point | Action
 -----------|-----------|----------
 POST | api/v1/store-owner/register | Create an a store owner account
 POST | api/v1/store-owner/login | Login a store owner
-POST | api/v1/store-owner/attendant/login | Login a store owner
+POST | api/v1/store-owner/attendant/register | Register a store attendant
 POST | api/v1/store-attendant/login | Login a store attendant
 POST | api/v1/sales | Create a sales record
 GET | api/v1/sales | Retrieve all sales record

@@ -132,7 +132,6 @@ class SaleView(MethodView):
             name = cart_item.get("name")
             price = cart_item.get("price")
             quantity = cart_item.get("quantity")
-            category = cart_item.get("category")
             # validate each product
             res = validate_product(name, price, quantity)
             if res:
