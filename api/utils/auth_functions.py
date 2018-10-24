@@ -59,16 +59,16 @@ def login_user(data, db_users, is_admin):
     if not user:
         return jsonify({"error": "Please register to login"}), 401
 
+    login_msg = ""
     # Check if it's a store owner and the password is theirs
     if is_admin and user[0].password == password:
         session["store_owner"] = email
-        return jsonify({
-            "message": "Store owner logged in successfully"
-            })
+        login_msg = "Store owner logged in successfully"
     # Check if it's a store attendant and the password is theirs
     elif not is_admin and user[0].password == password:
         session["store_attendant"] = email
-        return jsonify({
-            "message": "Store attendant logged in successfully"
-            })
-    return jsonify({"error": "Invalid email or password"}), 401
+        login_msg = "Store attendant logged in successfully"
+    else:
+        return jsonify({"error": "Invalid email or password"}), 401
+    if login_msg:
+        return jsonify({"message": login_msg})
