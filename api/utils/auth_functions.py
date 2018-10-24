@@ -30,7 +30,9 @@ def register_user(data, db_users, is_admin):
             }), 400
 
     user_id = create_id(db_users)
-    new_user = User(user_id, first_name, last_name, email, password, is_admin)
+    new_user = User(user_id=user_id, first_name=first_name,
+                    last_name=last_name, email=email, 
+                    password=password, is_admin=is_admin)
 
     # Add user to list
     db_users.append(new_user)

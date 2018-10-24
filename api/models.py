@@ -7,26 +7,25 @@ class User:
     """
     Define user structure
     """
-    def __init__(self, user_id, first_name, last_name,
-                 email, password, is_admin):
-        self.id = user_id
-        self.first_name = first_name
-        self.last_name = last_name
-        self.email = email
-        self.password = password
-        self.is_admin = is_admin
+    def __init__(self, **kwargs):
+        self.id = kwargs.get("user_id")
+        self.first_name = kwargs.get("first_name")
+        self.last_name = kwargs.get("last_name")
+        self.email = kwargs.get("email")
+        self.password = kwargs.get("password")
+        self.is_admin = kwargs.get("is_admin")
 
 
 class Product:
     """
     Define product structure
     """
-    def __init__(self, product_id, name, price, quantity, category):
-        self.id = product_id
-        self.name = name
-        self.price = price
-        self.quantity = quantity
-        self.category = category
+    def __init__(self, **kwargs):
+        self.id = kwargs.get("product_id")
+        self.name = kwargs.get("name")
+        self.price = kwargs.get("price")
+        self.quantity = kwargs.get("quantity")
+        self.category = kwargs.get("category")
 
 
 class Sale:

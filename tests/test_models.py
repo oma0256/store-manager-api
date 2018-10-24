@@ -14,7 +14,9 @@ class TestModels(unittest.TestCase):
         """
         Test initializing a User object
         """
-        user = User(1, "first", "last", "first@email.com", "pass1234", True)
+        user = User(user_id=1, first_name="first", 
+                    last_name="last", email="first@email.com", 
+                    password="pass1234", is_admin=True)
         self.assertEqual(user.id, 1)
         self.assertEqual(user.first_name, "first")
         self.assertEqual(user.last_name, "last")
@@ -26,7 +28,8 @@ class TestModels(unittest.TestCase):
         """
         Test initializing a Product object
         """
-        product = Product(1, "Belt", 10000, 3, "clothing")
+        product = Product(product_id=1, name="Belt", price=10000, 
+                          quantity=3, category="clothing")
         self.assertEqual(product.id, 1)
         self.assertEqual(product.name, "Belt")
         self.assertEqual(product.price, 10000)

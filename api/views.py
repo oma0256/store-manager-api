@@ -81,7 +81,8 @@ class ProductView(MethodView):
 
         product_id = create_id(products)
         # create a product object
-        new_product = Product(product_id, name, price, quantity, category)
+        new_product = Product(product_id=product_id, name=name, price=price,
+                              quantity=quantity, category=category)
         # appends the product object to list
         products.append(new_product)
         return jsonify({
