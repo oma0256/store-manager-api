@@ -57,14 +57,6 @@ class AppAuthView(MethodView):
             return login_user(request.get_json(), store_owners, True)
         # check if it is store attendant registration
         if request.path == '/api/v1/store-owner/attendant/register':
-            if "store_attendant" in session:
-                return jsonify({
-                    "error": "Please login as a store owner"
-                    }), 403
-            if not "store_owner" in session:
-                return jsonify({
-                    "error": "Please login as a store owner"
-                    }), 401
             return register_user(request.get_json(), store_attendants, False)
         # check if it is store attendant login
         if request.path == '/api/v1/store-attendant/login':
@@ -203,12 +195,13 @@ class SaleView(MethodView):
 
 
 # Map urls to view classes
+view = not_store_owner(store_owner_decorator(AppAuthView.as_view('store_attendant_register')))
 app.add_url_rule('/api/v1/store-owner/register',
                  view_func=AppAuthView.as_view('store_owner_register'))
 app.add_url_rule('/api/v1/store-owner/login',
                  view_func=AppAuthView.as_view('store_owner_login'))
 app.add_url_rule('/api/v1/store-owner/attendant/register',
-                 view_func=AppAuthView.as_view('store_attendant_register'))
+                 view_func=view)
 app.add_url_rule('/api/v1/store-attendant/login',
                  view_func=AppAuthView.as_view('store_attendant_login'))
 app.add_url_rule('/api/v1/products',
