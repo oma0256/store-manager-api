@@ -167,6 +167,12 @@ class TestSoreAttendantauth(unittest.TestCase):
         """
         Test registration with valid data
         """
+        self.app.post("/api/v1/store-owner/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        self.app.post("/api/v1/store-owner/login",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.login_data))
         res = self.app.post("/api/v1/store-owner/attendant/register",
                             headers={"Content-Type": "application/json"},
                             data=json.dumps(self.reg_data))
@@ -181,6 +187,12 @@ class TestSoreAttendantauth(unittest.TestCase):
         """
         Test registration with valid data
         """
+        self.app.post("/api/v1/store-owner/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        self.app.post("/api/v1/store-owner/login",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.login_data))
         self.reg_data["email"] = "ashga"
         res = self.app.post("/api/v1/store-owner/attendant/register",
                             headers={"Content-Type": "application/json"},
@@ -196,6 +208,12 @@ class TestSoreAttendantauth(unittest.TestCase):
         """
         Test registration with valid data
         """
+        self.app.post("/api/v1/store-owner/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        self.app.post("/api/v1/store-owner/login",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.login_data))
         self.reg_data["first_name"] = "4124324"
         res = self.app.post("/api/v1/store-owner/attendant/register",
                             headers={"Content-Type": "application/json"},
@@ -211,6 +229,12 @@ class TestSoreAttendantauth(unittest.TestCase):
         """
         Test registration with valid data
         """
+        self.app.post("/api/v1/store-owner/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        self.app.post("/api/v1/store-owner/login",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.login_data))
         self.reg_data["password"] = "123"
         res = self.app.post("/api/v1/store-owner/attendant/register",
                             headers={"Content-Type": "application/json"},
@@ -226,6 +250,12 @@ class TestSoreAttendantauth(unittest.TestCase):
         """
         Test registration with missing fields
         """
+        self.app.post("/api/v1/store-owner/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        self.app.post("/api/v1/store-owner/login",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.login_data))
         self.reg_data["email"] = ""
         res = self.app.post("/api/v1/store-owner/attendant/register",
                             headers={"Content-Type": "application/json"},
@@ -241,6 +271,12 @@ class TestSoreAttendantauth(unittest.TestCase):
         """
         Test register already registered store attendant
         """
+        self.app.post("/api/v1/store-owner/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        self.app.post("/api/v1/store-owner/login",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.login_data))
         self.app.post("/api/v1/store-owner/attendant/register",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.reg_data))
@@ -254,10 +290,56 @@ class TestSoreAttendantauth(unittest.TestCase):
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
 
+    def test_register_using_store_attendant(self):
+        """
+        Test register as a store attendant
+        """
+        self.app.post("/api/v1/store-owner/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        self.app.post("/api/v1/store-owner/login",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.login_data))
+        self.app.post("/api/v1/store-owner/attendant/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        self.app.post("/api/v1/store-attendant/login",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.login_data))
+        res = self.app.post("/api/v1/store-owner/attendant/register",
+                            headers={"Content-Type": "application/json"},
+                            data=json.dumps(self.reg_data))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Please login as a store owner"
+        }
+        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res_data, expected_output)
+
+    def test_register_using_unauthenticated_user(self):
+        """
+        Test register as unauthenticated user
+        """
+        res = self.app.post("/api/v1/store-owner/attendant/register",
+                            headers={"Content-Type": "application/json"},
+                            data=json.dumps(self.reg_data))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Please login as a store owner"
+        }
+        self.assertEqual(res.status_code, 401)
+        self.assertEqual(res_data, expected_output)
+
     def test_login_valid_data(self):
         """
         Test login with valid data
         """
+        self.app.post("/api/v1/store-owner/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        self.app.post("/api/v1/store-owner/login",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.login_data))
         self.app.post("/api/v1/store-owner/attendant/register",
                       headers={"Content-Type": "application/json"},
                       data=json.dumps(self.reg_data))
@@ -275,6 +357,12 @@ class TestSoreAttendantauth(unittest.TestCase):
         """
         Test login with some missing fields
         """
+        self.app.post("/api/v1/store-owner/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        self.app.post("/api/v1/store-owner/login",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.login_data))
         self.login_data["password"] = ""
         self.app.post("/api/v1/store-owner/attendant/register",
                       headers={"Content-Type": "application/json"},
@@ -293,6 +381,12 @@ class TestSoreAttendantauth(unittest.TestCase):
         """
         Test login with invalid password
         """
+        self.app.post("/api/v1/store-owner/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        self.app.post("/api/v1/store-owner/login",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.login_data))
         self.login_data["password"] = "kjsdvjj"
         self.app.post("/api/v1/store-owner/attendant/register",
                       headers={"Content-Type": "application/json"},
@@ -311,6 +405,12 @@ class TestSoreAttendantauth(unittest.TestCase):
         """
         Test login with unregistered user
         """
+        self.app.post("/api/v1/store-owner/register",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.reg_data))
+        self.app.post("/api/v1/store-owner/login",
+                      headers={"Content-Type": "application/json"},
+                      data=json.dumps(self.login_data))
         res = self.app.post("/api/v1/store-attendant/login",
                             headers={"Content-Type": "application/json"},
                             data=json.dumps(self.login_data))

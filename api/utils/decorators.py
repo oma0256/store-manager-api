@@ -34,29 +34,15 @@ def is_store_owner_or_attendant(f):
     return decorated
 
 
-def is_not_store_owner(f):
+def is_forbidden(f, user, error_msg):
     """
     Check if store attendant is looged in and store owner is not
     """
     @wraps(f)
     def decorated(*args, **kwargs):
-        if "store_attendant" in session:
+        if user in session:
             return jsonify({
-                "error": "Please login as a store owner"
-                }), 403
-        return f(*args, **kwargs)
-    return decorated
-
-
-def is_not_store_attendant(f):
-    """
-    Check if store owner is looged in and store attendant is not
-    """
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if "store_owner" in session and "store_attendant" not in session:
-            return jsonify({
-                "error": "Please login as a store attendant"
+                "error": error_msg
                 }), 403
         return f(*args, **kwargs)
     return decorated

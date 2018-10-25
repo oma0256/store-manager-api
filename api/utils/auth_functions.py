@@ -47,6 +47,8 @@ def login_user(data, db_users, is_admin):
     """
     Function to login store owner and attendant
     """
+    # logout current user
+    session.clear()
     # Get fields which were sent
     email = data.get("email")
     password = data.get("password")

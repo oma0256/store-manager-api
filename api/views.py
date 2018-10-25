@@ -8,8 +8,7 @@ from api.models import Product, Sale
 from api.__init__ import app
 from api.utils.decorators import (is_store_owner_attendant,
                                   is_store_owner_or_attendant,
-                                  is_not_store_owner,
-                                  is_not_store_attendant)
+                                  is_forbidden)
 from api.utils.auth_functions import register_user, login_user
 from api.utils.validators import validate_product
 from api.utils.generate_id import create_id
@@ -20,6 +19,12 @@ store_owner_decorator = partial(is_store_owner_attendant,
 store_attendant_decorator = partial(is_store_owner_attendant,
                                     user="store_attendant",
                                     error_msg="Please login as a store attendant")
+not_store_owner = partial(is_forbidden,
+                          user="store_attendant",
+                          error_msg="Please login as a store owner")
+not_store_attendant = partial(is_forbidden,
+                              user="store_owner",
+                              error_msg="Please login as a store attendant")
 
 # Holds store owners
 store_owners = []
@@ -52,6 +57,14 @@ class AppAuthView(MethodView):
             return login_user(request.get_json(), store_owners, True)
         # check if it is store attendant registration
         if request.path == '/api/v1/store-owner/attendant/register':
+            if "store_attendant" in session:
+                return jsonify({
+                    "error": "Please login as a store owner"
+                    }), 403
+            if not "store_owner" in session:
+                return jsonify({
+                    "error": "Please login as a store owner"
+                    }), 401
             return register_user(request.get_json(), store_attendants, False)
         # check if it is store attendant login
         if request.path == '/api/v1/store-attendant/login':
@@ -62,7 +75,7 @@ class ProductView(MethodView):
     """
     Class to perform http methods on products
     """
-    @is_not_store_owner
+    @not_store_owner
     @store_owner_decorator
     def post(self):
         """
@@ -118,7 +131,7 @@ class SaleView(MethodView):
     """
     Class to perform http methods on sales
     """
-    @is_not_store_attendant
+    @not_store_attendant
     @store_attendant_decorator
     def post(self):
         """
