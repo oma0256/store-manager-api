@@ -215,15 +215,14 @@ class ProductView(MethodView):
         db_conn = DB()
         # Check if an id has been passed
         if product_id:
-            product = [pro for pro in products if pro.id == int(product_id)]
+            product = db_conn.get_product_by_id(int(product_id))
             # Check if product doesn't exist
             if not product:
                 return jsonify({
                     "error": "This product does not exist"
                 }), 404
             return jsonify({
-                "message": "Product returned successfully",
-                "products": product[0].__dict__
+                "message": "Product returned successfully"
                 })
         # Get all products
         db_conn.get_products()
@@ -324,7 +323,7 @@ app.add_url_rule('/api/v1/store-attendant/login',
 app.add_url_rule('/api/v2/products',
                  view_func=ProductView.as_view('product_view'),
                  methods=["GET", "POST"])
-app.add_url_rule('/api/v1/products/<product_id>',
+app.add_url_rule('/api/v2/products/<product_id>',
                  view_func=ProductView.as_view('product_view1'),
                  methods=["GET"])
 app.add_url_rule('/api/v1/sales',

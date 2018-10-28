@@ -84,3 +84,7 @@ class DB:
     def get_products(self):
         self.cur.execute("SELECT * FROM public.products")
         return self.cur.fetchall()
+    
+    def get_product_by_id(self, product_id):
+        self.cur.execute("SELECT * FROM public.products WHERE id=%s", (product_id,))
+        return self.cur.fetchone()
