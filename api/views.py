@@ -5,7 +5,7 @@ from functools import partial
 from flask import jsonify, request, session
 from flask.views import MethodView
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask_jwt_extended import create_access_token, jwt_required
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from api.models import Product, Sale, User
 from api.__init__ import app
 from api.utils.decorators import (is_store_owner_attendant,
@@ -122,6 +122,16 @@ class RegisterView(MethodView):
         Function to add a store attendant
         """
         db_conn = DB()
+
+        # Get logged in user
+        current_user = get_jwt_identity()
+        loggedin_user = db_conn.get_user(current_user)
+        # Check if it's not store owner
+        if not loggedin_user["is_admin"]:
+            return jsonify({
+                "error": "Please login as store owner to add store attendant"
+            }), 403
+
         # Get data sent
         data = request.get_json()
         # Get attributes of the data sent
@@ -136,6 +146,13 @@ class RegisterView(MethodView):
                                      password=password, confirm_password=confirm_password)
         if res:
             return res
+        
+        # Check if user is already registered
+        user_exists = db_conn.get_user(email)
+        if user_exists:
+            return jsonify({
+                "error": "User with this email already exists"
+            }), 400
 
         new_user = User(first_name=first_name, last_name=last_name, 
                         email=email, password=generate_password_hash(password))
