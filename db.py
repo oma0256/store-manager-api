@@ -72,3 +72,11 @@ class DB:
     
     def delete_products(self):
         self.cur.execute("TRUNCATE public.products")
+    
+    def add_product(self, product):
+        self.cur.execute("INSERT INTO public.products(name, unit_cost, quantity) VALUES (%s, %s, %s)", 
+                         (product.name, product.unit_cost, product.quantity))
+    
+    def get_product_by_name(self, name):
+        self.cur.execute("SELECT * FROM public.products WHERE name=%s", (name,))
+        return self.cur.fetchone()

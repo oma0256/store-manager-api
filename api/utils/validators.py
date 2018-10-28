@@ -50,20 +50,20 @@ def validate_login_data(email, password):
     return None
 
 
-def validate_product(name, price, quantity):
+def validate_product(name, unit_cost, quantity):
     """
     Funtion to validate product data
     """
     # Check if fields are empty
-    if not name or not price or not quantity:
+    if not name or not unit_cost or not quantity:
         return jsonify({
-            "error": "Product name, price and quantity is required"
+            "error": "Product name, unit_cost and quantity is required"
             }), 400
 
-    # Check for valid price and quantity input
-    if not isinstance(price, int) or not isinstance(quantity, int):
+    # Check for valid unit_cost and quantity input
+    if not isinstance(unit_cost, int) or not isinstance(quantity, int):
         return jsonify({
-            "error": "Product price and quantity must be integers"
+            "error": "Product unit_cost and quantity must be integers"
             }), 400
 
     return None

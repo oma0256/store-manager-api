@@ -177,20 +177,19 @@ class ProductView(MethodView):
         # Get logged in user
         current_user = get_jwt_identity()
         loggedin_user = db_conn.get_user(current_user)
-        # Check if it's not store owner
+        # # Check if it's not store owner
         if not loggedin_user["is_admin"]:
             return jsonify({
                 "error": "Please login as a store owner"
             }), 403
-
+        
         data = request.get_json()
         # Get the fields which were sent
         name = data.get("name")
-        price = data.get("price")
+        unit_cost = data.get("unit_cost")
         quantity = data.get("quantity")
-        category = data.get("category")
         # validates product and returns json response and status code
-        res = validate_product(name, price, quantity)
+        res = validate_product(name=name, unit_cost=unit_cost, quantity=quantity)
         if res:
             return res
 
@@ -205,7 +204,7 @@ class ProductView(MethodView):
         # Add product to database
         db_conn.add_product(new_product)
         return jsonify({
-            "message": "Product created successfully"
+            "message": "Product created successfully",
             }), 201
 
     @is_store_owner_or_attendant
@@ -313,6 +312,14 @@ app.add_url_rule('/api/v2/auth/login',
                  view_func=LoginView.as_view('login_view'))
 app.add_url_rule('/api/v2/auth/signup',
                  view_func=RegisterView.as_view('register_view'))
+app.add_url_rule('/api/v1/store-owner/register',
+                 view_func=AppAuthView.as_view('store_owner_register'))
+app.add_url_rule('/api/v1/store-owner/login',
+                 view_func=AppAuthView.as_view('store_owner_login'))
+app.add_url_rule('/api/v1/store-owner/attendant/register',
+                 view_func=view)
+app.add_url_rule('/api/v1/store-attendant/login',
+                 view_func=AppAuthView.as_view('store_attendant_login'))
 app.add_url_rule('/api/v2/products',
                  view_func=ProductView.as_view('product_view'),
                  methods=["GET", "POST"])

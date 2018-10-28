@@ -23,9 +23,8 @@ class Product:
     def __init__(self, **kwargs):
         self.id = kwargs.get("product_id")
         self.name = kwargs.get("name")
-        self.price = kwargs.get("price")
+        self.unit_cost = kwargs.get("unit_cost")
         self.quantity = kwargs.get("quantity")
-        self.category = kwargs.get("category")
 
 
 class Sale:

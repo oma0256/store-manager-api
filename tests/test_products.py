@@ -33,7 +33,7 @@ class TestProductView(unittest.TestCase):
         }
         self.product = {
             "name": "Belt",
-            "price": 10000,
+            "unit_cost": 10000,
             "quantity": 3
         }
         self.headers = {"Content-Type": "application/json"}
@@ -47,109 +47,84 @@ class TestProductView(unittest.TestCase):
         db_conn.delete_products()
         db_conn.delete_attendants()
 
-#     def test_create_product_with_valid_fields(self):
-#         """
-#         Test to create product with valid fields
-#         """
-#         self.app.post("/api/v1/store-owner/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-owner/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         res = self.app.post("/api/v1/products",
-#                             headers={"Content-Type": "application/json"},
-#                             data=json.dumps(self.product))
-#         res_data = json.loads(res.data)
-#         self.product["id"] = 1
-#         expected_output = {
-#             "message": "Product created successfully",
-#             "product": self.product
-#         }
-#         self.assertEqual(res.status_code, 201)
-#         self.assertEqual(res_data, expected_output)
+    def test_create_product_with_valid_fields(self):
+        """
+        Test to create product with valid fields
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        res = self.app.post("/api/v2/products",
+                            headers=self.headers,
+                            data=json.dumps(self.product))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "message": "Product created successfully",
+        }
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res_data, expected_output)
 
-#     def test_create_product_with_missing_fields(self):
-#         """
-#         Test to create product with missing fields
-#         """
-#         self.app.post("/api/v1/store-owner/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-owner/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         self.product["name"] = ""
-#         res = self.app.post("/api/v1/products",
-#                             headers={"Content-Type": "application/json"},
-#                             data=json.dumps(self.product))
-#         res_data = json.loads(res.data)
-#         expected_output = {
-#             "error": "Product name, price and quantity is required"
-#         }
-#         self.assertEqual(res.status_code, 400)
-#         self.assertEqual(res_data, expected_output)
+    def test_create_product_with_missing_fields(self):
+        """
+        Test to create product with missing fields
+        """
+        self.product["name"] = ""
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        res = self.app.post("/api/v2/products",
+                            headers=self.headers,
+                            data=json.dumps(self.product))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Product name, unit_cost and quantity is required"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, expected_output)
 
-#     def test_create_product_with_invalid_data(self):
-#         """
-#         Test to create product with invalid data
-#         """
-#         self.app.post("/api/v1/store-owner/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-owner/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         self.product["price"] = "zjsvgjs"
-#         res = self.app.post("/api/v1/products",
-#                             headers={"Content-Type": "application/json"},
-#                             data=json.dumps(self.product))
-#         res_data = json.loads(res.data)
-#         expected_output = {
-#             "error": "Product price and quantity must be integers"
-#         }
-#         self.assertEqual(res.status_code, 400)
-#         self.assertEqual(res_data, expected_output)
+    def test_create_product_with_invalid_data(self):
+        """
+        Test to create product with invalid data
+        """
+        self.product["unit_cost"] = "zjsvgjs"
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        res = self.app.post("/api/v2/products",
+                            headers=self.headers,
+                            data=json.dumps(self.product))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Product unit_cost and quantity must be integers"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, expected_output)
 
-#     def test_create_product_with_unauthenticated_user(self):
-#         """
-#         Test to create a without logging in as store owner
-#         """
-#         res = self.app.post("/api/v1/products",
-#                             headers={"Content-Type": "application/json"},
-#                             data=json.dumps(self.product))
-#         res_data = json.loads(res.data)
-#         expected_output = {
-#             "error": "Please login as a store owner"
-#         }
-#         self.assertEqual(res.status_code, 401)
-#         self.assertEqual(res_data, expected_output)
+    def test_create_product_with_unauthenticated_user(self):
+        """
+        Test to create a without logging in as store owner
+        """
+        res = self.app.post("/api/v2/products",
+                            headers=self.headers,
+                            data=json.dumps(self.product))
+        res_data = json.loads(res.data)
+        self.assertEqual(res.status_code, 401)
 
-#     def test_create_product_as_store_attendant(self):
-#         """
-#         Test to create product as a store attendant
-#         """
-#         self.app.post("/api/v1/store-owner/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-owner/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         self.app.post("/api/v1/store-owner/attendant/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-attendant/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         res = self.app.post("/api/v1/products",
-#                             headers={"Content-Type": "application/json"},
-#                             data=json.dumps(self.product))
-#         res_data = json.loads(res.data)
-#         expected_output = {
-#             "error": "Please login as a store owner"
-#         }
-#         self.assertEqual(res.status_code, 403)
-#         self.assertEqual(res_data, expected_output)
+    def test_create_product_as_store_attendant(self):
+        """
+        Test to create product as a store attendant
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/auth/signup",
+                      headers=self.headers,
+                      data=json.dumps(self.reg_data))
+        res = self.app.post("/api/v2/auth/login",
+                      headers=self.headers,
+                      data=json.dumps(self.login_data))
+        self.headers["Authorization"] = "Bearer " + json.loads(res.data)["token"]
+        res = self.app.post("/api/v2/products",
+                            headers=self.headers,
+                            data=json.dumps(self.product))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Please login as a store owner"
+        }
+        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res_data, expected_output)
 
 #     def test_get_all_products_authenticated_as_store_owner(self):
 #         """
