@@ -27,8 +27,12 @@ CREATE TABLE public.sales(
     total VARCHAR NOT NULL
 );
 """
+"""
+INSERT INTO public.users(first_name, last_name, email, password, is_admin) VALUES ()
+"""
 import psycopg2
 from psycopg2.extras import DictCursor
+from werkzeug.security import generate_password_hash
 
 
 class DB:
@@ -39,3 +43,10 @@ class DB:
             self.conn.autocommit = True
         except:
             print("Failed to connect")
+    
+    def create_admin(self):
+        """
+        Function to create an admin
+        """
+        self.cur.execute("INSERT INTO public.users(first_name, last_name, email, password, is_admin) VALUES (%s, %s, %s, %s, %s)",
+                         ("admin", "owner", "admin@email.com", generate_password_hash("pass1234"), True))

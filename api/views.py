@@ -12,6 +12,9 @@ from api.utils.decorators import (is_store_owner_attendant,
 from api.utils.auth_functions import register_user, login_user
 from api.utils.validators import validate_product
 from api.utils.generate_id import create_id
+from db import DB
+
+db_conn = DB()
 
 store_owner_decorator = partial(is_store_owner_attendant,
                                 user="store_owner",
@@ -38,6 +41,7 @@ sale_records = []
 
 @app.route("/")
 def home_page():
+    db_conn.create_admin()
     return "Welcome to the store manager"
 
 
