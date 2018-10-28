@@ -4,6 +4,8 @@ File to handle application views
 from functools import partial
 from flask import jsonify, request, session
 from flask.views import MethodView
+from werkzeug.security import check_password_hash
+# from flask_jwt_extended import create_access_token
 from api.models import Product, Sale
 from api.__init__ import app
 from api.utils.decorators import (is_store_owner_attendant,
@@ -65,6 +67,33 @@ class AppAuthView(MethodView):
         # check if it is store attendant login
         if request.path == '/api/v1/store-attendant/login':
             return login_user(request.get_json(), store_attendants, False)
+
+
+class LoginView(MethodView):
+    """
+    Class to login a user
+    """
+    def post(self):
+        """
+        Function to perform user login
+        """
+        # Get data sent
+        data = request.get_json()
+        # Get attributes of the data sent
+        email = data.get("email")
+        password = data.get("password")
+        print(email, password)
+
+        # Check if user already registered
+        user = db_conn.get_user(email)
+
+        # Check if it's a store owner and the password is theirs
+        if user["is_admin"] and check_password_hash(user["password"], password):
+            access_token = create_access_token(identity=email)
+            return jsonify({
+                "message": "Store owner logged in successfully",
+                "token": access_token
+                })
 
 
 class ProductView(MethodView):
@@ -200,6 +229,8 @@ class SaleView(MethodView):
 
 # Map urls to view classes
 view = not_store_owner(store_owner_decorator(AppAuthView.as_view('store_attendant_register')))
+app.add_url_rule('/api/v2/auth/login',
+                 view_func=LoginView.as_view('login_view'))
 app.add_url_rule('/api/v1/store-owner/register',
                  view_func=AppAuthView.as_view('store_owner_register'))
 app.add_url_rule('/api/v1/store-owner/login',

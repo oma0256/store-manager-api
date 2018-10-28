@@ -50,3 +50,7 @@ class DB:
         """
         self.cur.execute("INSERT INTO public.users(first_name, last_name, email, password, is_admin) VALUES (%s, %s, %s, %s, %s)",
                          ("admin", "owner", "admin@email.com", generate_password_hash("pass1234"), True))
+    
+    def get_user(self, email):
+        self.cur.execute("SELECT * FROM public.users WHERE email=%s", (email,))
+        return self.cur.fetchone()
