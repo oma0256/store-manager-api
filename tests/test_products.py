@@ -297,3 +297,22 @@ class TestProductView(unittest.TestCase):
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, exepected_output)
+    
+    def test_delete_product_store_owner(self):
+        """
+        Test delete a product as store owner
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/products",
+                      headers=self.headers,
+                      data=json.dumps(self.product))
+        product_id = self.db_conn.get_products()[0]["id"]
+        res = self.app.delete("/api/v2/products/" + str(product_id),
+                           headers=self.headers,
+                           data=json.dumps(self.product))
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "message": "Product has been deleted successfully"
+        }
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res_data, exepected_output)

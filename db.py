@@ -92,3 +92,6 @@ class DB:
     def update_product(self, name, unit_cost, quantity, product_id):
         self.cur.execute("UPDATE public.products SET name=%s, unit_cost=%s, quantity=%s WHERE id=%s", 
                          (name, unit_cost, quantity, product_id))
+    
+    def delete_product(self, product_id):
+        self.cur.execute("DELETE FROM public.products WHERE id=%s", (product_id,))

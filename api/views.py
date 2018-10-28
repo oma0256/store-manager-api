@@ -268,6 +268,20 @@ class ProductView(MethodView):
         return jsonify({
             "message": "Product updated successfully"
         })
+    
+    @jwt_required
+    def delete(self, product_id):
+        """
+        Funtion to delete a product
+        """
+        db_conn = DB()
+
+        # Delete product
+        db_conn.delete_product(int(product_id))
+        return jsonify({
+            "message": "Product has been deleted successfully"
+        })
+
 
 
 class SaleView(MethodView):
@@ -364,7 +378,7 @@ app.add_url_rule('/api/v2/products',
                  methods=["GET", "POST"])
 app.add_url_rule('/api/v2/products/<product_id>',
                  view_func=ProductView.as_view('product_view1'),
-                 methods=["GET", "PUT"])
+                 methods=["GET", "PUT", "DELETE"])
 app.add_url_rule('/api/v1/sales',
                  view_func=SaleView.as_view('sale_view'),
                  methods=["GET","POST"])
