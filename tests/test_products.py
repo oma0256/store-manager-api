@@ -211,3 +211,30 @@ class TestProductView(unittest.TestCase):
         }
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res_data, exepected_output)
+    
+    def test_modify_product_as_store_attendant(self):
+        """
+        Test modify a product as store attendant
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/products",
+                      headers=self.headers,
+                      data=json.dumps(self.product))
+        product_id = self.db_conn.get_products()[0]["id"]
+        self.product["name"] = "svdkjsd"
+        self.app.post("/api/v2/auth/signup",
+                      headers=self.headers,
+                      data=json.dumps(self.reg_data))
+        res = self.app.post("/api/v2/auth/login",
+                      headers=self.headers,
+                      data=json.dumps(self.login_data))
+        self.headers["Authorization"] = "Bearer " + json.loads(res.data)["token"]
+        res = self.app.put("/api/v2/products/" + str(product_id),
+                           headers=self.headers,
+                           data=json.dumps(self.product))
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "error": "Please login as a store owner"
+        }
+        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res_data, exepected_output)

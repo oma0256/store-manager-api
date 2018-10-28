@@ -237,6 +237,15 @@ class ProductView(MethodView):
         """
         db_conn = DB()
 
+        # Get logged in user
+        current_user = get_jwt_identity()
+        loggedin_user = db_conn.get_user(current_user)
+        # # Check if it's not store owner
+        if not loggedin_user["is_admin"]:
+            return jsonify({
+                "error": "Please login as a store owner"
+            }), 403
+
         data = request.get_json()
         # Get the fields which were sent
         name = data.get("name")
