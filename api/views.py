@@ -258,6 +258,11 @@ class ProductView(MethodView):
         name = data.get("name")
         unit_cost = data.get("unit_cost")
         quantity = data.get("quantity")
+        # validates product and returns json response and status code
+        res = validate_product(name, unit_cost, quantity)
+        if res:
+            return res
+        
         # Modify product
         db_conn.update_product(name, unit_cost, quantity, int(product_id))
         return jsonify({

@@ -257,3 +257,43 @@ class TestProductView(unittest.TestCase):
         }
         self.assertEqual(res.status_code, 404)
         self.assertEqual(res_data, exepected_output)
+
+    def test_modify_product_with_invalid_data(self):
+        """
+        Test modify a product with invalid data
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/products",
+                      headers=self.headers,
+                      data=json.dumps(self.product))
+        product_id = self.db_conn.get_products()[0]["id"]
+        self.product["unit_cost"] = "ksjdg"
+        res = self.app.put("/api/v2/products/" + str(product_id),
+                           headers=self.headers,
+                           data=json.dumps(self.product))
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "error": "Product unit_cost and quantity must be integers"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, exepected_output)
+    
+    def test_modify_product_with_empty_value(self):
+        """
+        Test modify a product with empty value
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/products",
+                      headers=self.headers,
+                      data=json.dumps(self.product))
+        product_id = self.db_conn.get_products()[0]["id"]
+        self.product["unit_cost"] = ""
+        res = self.app.put("/api/v2/products/" + str(product_id),
+                           headers=self.headers,
+                           data=json.dumps(self.product))
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "error": "Product name, unit_cost and quantity is required"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, exepected_output)
