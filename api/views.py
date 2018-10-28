@@ -12,7 +12,7 @@ from api.utils.decorators import (is_store_owner_attendant,
                                   is_store_owner_or_attendant,
                                   is_forbidden)
 from api.utils.auth_functions import register_user, login_user
-from api.utils.validators import validate_product, validate_login_data
+from api.utils.validators import validate_product, validate_login_data, validate_register_data
 from api.utils.generate_id import create_id
 from db import DB
 
@@ -130,6 +130,12 @@ class RegisterView(MethodView):
         email = data.get("email")
         password = data.get("password")
         confirm_password = data.get("confirm_password")
+
+        # Validate the data
+        res = validate_register_data(first_name=first_name, last_name=last_name, email=email, 
+                                     password=password, confirm_password=confirm_password)
+        if res:
+            return res
 
         new_user = User(first_name=first_name, last_name=last_name, 
                         email=email, password=generate_password_hash(password))

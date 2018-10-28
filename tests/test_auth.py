@@ -4,6 +4,7 @@ File to test authentication for the application
 import unittest
 import json
 from api.__init__ import app
+from db import DB
 
 
 app.config['TESTING'] = True
@@ -102,8 +103,9 @@ class TestSoreAttendantauth(unittest.TestCase):
                                   data=json.dumps(self.admin_login))
         self.access_token = json.loads(response.data)["token"]
 
-#     def tearDown(self):
-#         views.store_attendants = []
+    def tearDown(self):
+        db_conn = DB()
+        db_conn.delete_attendants()
 
     def test_register_valid_data(self):
         """
@@ -119,90 +121,81 @@ class TestSoreAttendantauth(unittest.TestCase):
         }
         self.assertEqual(res.status_code, 201)
         self.assertEqual(res_data, expected_output)
+    
+    def test_register_with_unathenticated_user(self):
+        """
+        Test registration with unathenticated user
+        """
+        res = self.app.post("/api/v2/auth/signup",
+                            headers=self.headers,
+                            data=json.dumps(self.reg_data))
+        res_data = json.loads(res.data)
+        self.assertEqual(res.status_code, 401)
+        self.assertIsNone(res_data.get("token"))
 
-#     def test_register_invalid_email(self):
-#         """
-#         Test registration with valid data
-#         """
-#         self.app.post("/api/v1/store-owner/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-owner/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         self.reg_data["email"] = "ashga"
-#         res = self.app.post("/api/v1/store-owner/attendant/register",
-#                             headers={"Content-Type": "application/json"},
-#                             data=json.dumps(self.reg_data))
-#         res_data = json.loads(res.data)
-#         expected_output = {
-#             "error": "Please use a valid email address"
-#         }
-#         self.assertEqual(res.status_code, 400)
-#         self.assertEqual(res_data, expected_output)
+    def test_register_invalid_email(self):
+        """
+        Test registration with invalid email
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.reg_data["email"] = "ashga"
+        res = self.app.post("/api/v2/auth/signup",
+                            headers=self.headers,
+                            data=json.dumps(self.reg_data))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Please use a valid email address"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, expected_output)
 
-#     def test_register_invalid_first_name(self):
-#         """
-#         Test registration with valid data
-#         """
-#         self.app.post("/api/v1/store-owner/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-owner/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         self.reg_data["first_name"] = "4124324"
-#         res = self.app.post("/api/v1/store-owner/attendant/register",
-#                             headers={"Content-Type": "application/json"},
-#                             data=json.dumps(self.reg_data))
-#         res_data = json.loads(res.data)
-#         expected_output = {
-#             "error": "First and last name should only be alphabets"
-#         }
-#         self.assertEqual(res.status_code, 400)
-#         self.assertEqual(res_data, expected_output)
+    def test_register_invalid_first_name(self):
+        """
+        Test registration with invalid first name
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.reg_data["first_name"] = "sbfsb4124324"
+        res = self.app.post("/api/v2/auth/signup",
+                            headers=self.headers,
+                            data=json.dumps(self.reg_data))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "First and last name should only be alphabets"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, expected_output)
 
-#     def test_register_with_short_password(self):
-#         """
-#         Test registration with valid data
-#         """
-#         self.app.post("/api/v1/store-owner/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-owner/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         self.reg_data["password"] = "123"
-#         res = self.app.post("/api/v1/store-owner/attendant/register",
-#                             headers={"Content-Type": "application/json"},
-#                             data=json.dumps(self.reg_data))
-#         res_data = json.loads(res.data)
-#         expected_output = {
-#             "error": "Password should be more than 5 characters"
-#         }
-#         self.assertEqual(res.status_code, 400)
-#         self.assertEqual(res_data, expected_output)
+    def test_register_with_unmatching_password(self):
+        """
+        Test registration with unmatching passwords
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.reg_data["password"] = "123"
+        res = self.app.post("/api/v2/auth/signup",
+                            headers=self.headers,
+                            data=json.dumps(self.reg_data))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Passwords must match"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, expected_output)
 
-#     def test_register_missing_fields(self):
-#         """
-#         Test registration with missing fields
-#         """
-#         self.app.post("/api/v1/store-owner/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-owner/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         self.reg_data["email"] = ""
-#         res = self.app.post("/api/v1/store-owner/attendant/register",
-#                             headers={"Content-Type": "application/json"},
-#                             data=json.dumps(self.reg_data))
-#         res_data = json.loads(res.data)
-#         expected_output = {
-#             "error": "First name, last name, email and password field is required"
-#         }
-#         self.assertEqual(res.status_code, 400)
-#         self.assertEqual(res_data, expected_output)
+    def test_register_missing_fields(self):
+        """
+        Test registration with missing fields
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.reg_data["email"] = ""
+        res = self.app.post("/api/v2/auth/signup",
+                            headers=self.headers,
+                            data=json.dumps(self.reg_data))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "First name, last name, email, password and confirm password fields are required"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, expected_output)
 
 #     def test_register_duplicate_user(self):
 #         """

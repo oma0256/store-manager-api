@@ -10,6 +10,11 @@ def validate_register_data(**kwargs):
     """
     Function to validate registration data
     """
+    first_name = kwargs.get("first_name")
+    last_name = kwargs.get("last_name")
+    email = kwargs.get("email")
+    password = kwargs.get("password")
+    confirm_password = kwargs.get("confirm_password")
     # Check for empty fields
     if not first_name or not last_name or not email or not password or not confirm_password:
         return jsonify({

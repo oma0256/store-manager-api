@@ -66,3 +66,6 @@ class DB:
     def create_user(self, user):
         self.cur.execute("INSERT INTO public.users(first_name, last_name, email, password) VALUES (%s, %s, %s, %s)", 
                          (user.first_name, user.last_name, user.email, user.password))
+    
+    def delete_attendants(self):
+        self.cur.execute("DELETE FROM public.users WHERE is_admin=%s", (False,))
