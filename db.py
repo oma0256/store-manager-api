@@ -14,9 +14,9 @@ CREATE TABLE public.users(
 """
 CREATE TABLE public.products(
     id SERIAL PRIMARY KEY,
-    name VARCHAR NOT NULL UNIQUE,
-    unit_cost VARCHAR NOT NULL,
-    quantity VARCHAR NOT NULL
+    name VARCHAR UNIQUE NOT NULL,
+    unit_cost INTEGER NOT NULL,
+    quantity INTEGER NOT NULL
 );
 """
 """
@@ -69,3 +69,6 @@ class DB:
     
     def delete_attendants(self):
         self.cur.execute("DELETE FROM public.users WHERE is_admin=%s", (False,))
+    
+    def delete_products(self):
+        self.cur.execute("TRUNCATE public.products")

@@ -167,12 +167,22 @@ class ProductView(MethodView):
     """
     Class to perform http methods on products
     """
-    @not_store_owner
-    @store_owner_decorator
+    @jwt_required
     def post(self):
         """
         Handles creating of a product
         """
+        db_conn = DB()
+
+        # Get logged in user
+        current_user = get_jwt_identity()
+        loggedin_user = db_conn.get_user(current_user)
+        # Check if it's not store owner
+        if not loggedin_user["is_admin"]:
+            return jsonify({
+                "error": "Please login as a store owner"
+            }), 403
+
         data = request.get_json()
         # Get the fields which were sent
         name = data.get("name")
@@ -184,15 +194,18 @@ class ProductView(MethodView):
         if res:
             return res
 
-        product_id = create_id(products)
         # create a product object
-        new_product = Product(product_id=product_id, name=name, price=price,
-                              quantity=quantity, category=category)
-        # appends the product object to list
-        products.append(new_product)
+        new_product = Product(name=name, unit_cost=unit_cost, quantity=quantity)
+        # Check if product exists with this name
+        product = db_conn.get_product_by_name(name)
+        if product:
+            return jsonify({
+                "error": "Product with this name already exists"
+            }), 400
+        # Add product to database
+        db_conn.add_product(new_product)
         return jsonify({
-            "message": "Product created successfully",
-            "product": new_product.__dict__
+            "message": "Product created successfully"
             }), 201
 
     @is_store_owner_or_attendant
@@ -300,15 +313,7 @@ app.add_url_rule('/api/v2/auth/login',
                  view_func=LoginView.as_view('login_view'))
 app.add_url_rule('/api/v2/auth/signup',
                  view_func=RegisterView.as_view('register_view'))
-app.add_url_rule('/api/v1/store-owner/register',
-                 view_func=AppAuthView.as_view('store_owner_register'))
-app.add_url_rule('/api/v1/store-owner/login',
-                 view_func=AppAuthView.as_view('store_owner_login'))
-app.add_url_rule('/api/v1/store-owner/attendant/register',
-                 view_func=view)
-app.add_url_rule('/api/v1/store-attendant/login',
-                 view_func=AppAuthView.as_view('store_attendant_login'))
-app.add_url_rule('/api/v1/products',
+app.add_url_rule('/api/v2/products',
                  view_func=ProductView.as_view('product_view'),
                  methods=["GET", "POST"])
 app.add_url_rule('/api/v1/products/<product_id>',

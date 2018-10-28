@@ -1,41 +1,51 @@
-# """
-# File to test product view
-# """
+"""
+File to test product view
+"""
 
-# import unittest
-# import json
-# from api import views
-# from api.__init__ import app
+import unittest
+import json
+from api import views
+from api.__init__ import app
+from db import DB
 
 
-# class TestProductView(unittest.TestCase):
-#     """
-#     Class to test product view
-#     """
-#     def setUp(self):
-#         self.app = app.test_client()
-#         self.reg_data = {
-#             "first_name": "joe",
-#             "last_name": "doe",
-#             "email": "joe@email.com",
-#             "password": "pass1234",
-#             "confirm_password": "pass1234"
-#         }
-#         self.login_data = {
-#             "email": "joe@email.com",
-#             "password": "pass1234"
-#         }
-#         self.product = {
-#             "name": "Belt",
-#             "price": 10000,
-#             "quantity": 3,
-#             "category": "clothing"
-#         }
+app.config['TESTING'] = True
+class TestProductView(unittest.TestCase):
+    """
+    Class to test product view
+    """
+    def setUp(self):
+        self.app = app.test_client()
+        self.reg_data = {
+            "first_name": "joe",
+            "last_name": "doe",
+            "email": "joe@email.com",
+            "password": "pass1234",
+            "confirm_password": "pass1234"
+        }
+        self.login_data = {
+            "email": "joe@email.com",
+            "password": "pass1234"
+        }
+        self.admin_login = {
+            "email": "admin@email.com",
+            "password": "pass1234"
+        }
+        self.product = {
+            "name": "Belt",
+            "price": 10000,
+            "quantity": 3
+        }
+        self.headers = {"Content-Type": "application/json"}
+        response = self.app.post("/api/v2/auth/login",
+                                  headers=self.headers,
+                                  data=json.dumps(self.admin_login))
+        self.access_token = json.loads(response.data)["token"]
 
-#     def tearDown(self):
-#         views.products = []
-#         views.store_attendants = []
-#         views.store_owners = []
+    def tearDown(self):
+        db_conn = DB()
+        db_conn.delete_products()
+        db_conn.delete_attendants()
 
 #     def test_create_product_with_valid_fields(self):
 #         """
