@@ -80,3 +80,7 @@ class DB:
     def get_product_by_name(self, name):
         self.cur.execute("SELECT * FROM public.products WHERE name=%s", (name,))
         return self.cur.fetchone()
+    
+    def get_products(self):
+        self.cur.execute("SELECT * FROM public.products")
+        return self.cur.fetchall()

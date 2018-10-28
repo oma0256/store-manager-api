@@ -207,11 +207,12 @@ class ProductView(MethodView):
             "message": "Product created successfully",
             }), 201
 
-    @is_store_owner_or_attendant
+    @jwt_required
     def get(self, product_id=None):
         """
         Get all products
         """
+        db_conn = DB()
         # Check if an id has been passed
         if product_id:
             product = [pro for pro in products if pro.id == int(product_id)]
@@ -225,9 +226,9 @@ class ProductView(MethodView):
                 "products": product[0].__dict__
                 })
         # Get all products
+        db_conn.get_products()
         return jsonify({
-            "message": "Products returned successfully",
-            "products": [product.__dict__ for product in products]
+            "message": "Products returned successfully"
         })
 
 
