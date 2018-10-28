@@ -5,14 +5,14 @@ from functools import partial
 from flask import jsonify, request, session
 from flask.views import MethodView
 from werkzeug.security import check_password_hash
-# from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token
 from api.models import Product, Sale
 from api.__init__ import app
 from api.utils.decorators import (is_store_owner_attendant,
                                   is_store_owner_or_attendant,
                                   is_forbidden)
 from api.utils.auth_functions import register_user, login_user
-from api.utils.validators import validate_product
+from api.utils.validators import validate_product, validate_login_data
 from api.utils.generate_id import create_id
 from db import DB
 
@@ -82,10 +82,16 @@ class LoginView(MethodView):
         # Get attributes of the data sent
         email = data.get("email")
         password = data.get("password")
-        print(email, password)
+
+        # Validate the data
+        res = validate_login_data(email, password)
+        if res:
+            return res
 
         # Check if user already registered
         user = db_conn.get_user(email)
+        if not user:
+            return jsonify({"error": "Please register to login"}), 401
 
         # Check if it's a store owner and the password is theirs
         if user["is_admin"] and check_password_hash(user["password"], password):
@@ -94,6 +100,14 @@ class LoginView(MethodView):
                 "message": "Store owner logged in successfully",
                 "token": access_token
                 })
+        # Check if it's a store attendant and the password is theirs
+        if not user["is_admin"] and check_password_hash(user["password"], password):
+            access_token = create_access_token(identity=email)
+            return jsonify({
+                "message": "Store attendant logged in successfully",
+                "token": access_token
+                })
+        return jsonify({"error": "Invalid email or password"}), 401
 
 
 class ProductView(MethodView):
