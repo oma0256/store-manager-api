@@ -27,15 +27,15 @@ CREATE TABLE public.sales(
     total VARCHAR NOT NULL
 );
 """
-# import psycopg2
-# from psycopg2.extras import DictCursor
+import psycopg2
+from psycopg2.extras import DictCursor
 
 
-# class DB:
-#     def __init__(self):
-#         try:
-#             self.conn = psycopg2.connect(host="localhost", database="manager", user="postgres", password="pass1234")
-#             self.cur = self.conn.cursor(cursor_factory=DictCursor)
-#             self.conn.autocommit = True
-#         except:
-#             print("Failed to connect")
+class DB:
+    def __init__(self):
+        try:
+            self.conn = psycopg2.connect(host="localhost", database="manager", user="postgres", password="pass1234")
+            self.cur = self.conn.cursor(cursor_factory=DictCursor)
+            self.conn.autocommit = True
+        except:
+            print("Failed to connect")
