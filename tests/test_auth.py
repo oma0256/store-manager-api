@@ -248,93 +248,17 @@ class TestSoreAttendantauth(unittest.TestCase):
         res_data = json.loads(res.data)
         self.assertEqual(res.status_code, 401)
 
-#     def test_login_valid_data(self):
-#         """
-#         Test login with valid data
-#         """
-#         self.app.post("/api/v1/store-owner/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-owner/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         self.app.post("/api/v1/store-owner/attendant/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         res = self.app.post("/api/v1/store-attendant/login",
-#                             headers={"Content-Type": "application/json"},
-#                             data=json.dumps(self.login_data))
-#         res_data = json.loads(res.data)
-#         expected_output = {
-#             "message": "Store attendant logged in successfully"
-#         }
-#         self.assertEqual(res.status_code, 200)
-#         self.assertEqual(res_data, expected_output)
-
-#     def test_login_with_missing_fields(self):
-#         """
-#         Test login with some missing fields
-#         """
-#         self.app.post("/api/v1/store-owner/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-owner/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         self.login_data["password"] = ""
-#         self.app.post("/api/v1/store-owner/attendant/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         res = self.app.post("/api/v1/store-attendant/login",
-#                             headers={"Content-Type": "application/json"},
-#                             data=json.dumps(self.login_data))
-#         res_data = json.loads(res.data)
-#         expected_output = {
-#             "error": "Email and password is required"
-#         }
-#         self.assertEqual(res.status_code, 400)
-#         self.assertEqual(res_data, expected_output)
-
-#     def test_login_invalid_password(self):
-#         """
-#         Test login with invalid password
-#         """
-#         self.app.post("/api/v1/store-owner/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-owner/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         self.login_data["password"] = "kjsdvjj"
-#         self.app.post("/api/v1/store-owner/attendant/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         res = self.app.post("/api/v1/store-attendant/login",
-#                             headers={"Content-Type": "application/json"},
-#                             data=json.dumps(self.login_data))
-#         res_data = json.loads(res.data)
-#         expected_output = {
-#             "error": "Invalid email or password"
-#         }
-#         self.assertEqual(res.status_code, 401)
-#         self.assertEqual(res_data, expected_output)
-
-#     def test_login_unregistered_store_owner(self):
-#         """
-#         Test login with unregistered user
-#         """
-#         self.app.post("/api/v1/store-owner/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-owner/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         res = self.app.post("/api/v1/store-attendant/login",
-#                             headers={"Content-Type": "application/json"},
-#                             data=json.dumps(self.login_data))
-#         res_data = json.loads(res.data)
-#         expected_output = {
-#             "error": "Please register to login"
-#         }
-#         self.assertEqual(res.status_code, 401)
-#         self.assertEqual(res_data, expected_output)
+    def test_login_valid_data(self):
+        """
+        Test login with valid data
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/auth/signup",
+                      headers=self.headers,
+                      data=json.dumps(self.reg_data))
+        res = self.app.post("/api/v2/auth/login",
+                            headers=self.headers,
+                            data=json.dumps(self.login_data))
+        res_data = json.loads(res.data)
+        self.assertEqual(res.status_code, 200)
+        self.assertIsNotNone(res_data["token"])
