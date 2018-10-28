@@ -4,9 +4,9 @@ File to handle application views
 from functools import partial
 from flask import jsonify, request, session
 from flask.views import MethodView
-from werkzeug.security import check_password_hash
-from flask_jwt_extended import create_access_token
-from api.models import Product, Sale
+from werkzeug.security import check_password_hash, generate_password_hash
+from flask_jwt_extended import create_access_token, jwt_required
+from api.models import Product, Sale, User
 from api.__init__ import app
 from api.utils.decorators import (is_store_owner_attendant,
                                   is_store_owner_or_attendant,
@@ -16,7 +16,7 @@ from api.utils.validators import validate_product, validate_login_data
 from api.utils.generate_id import create_id
 from db import DB
 
-db_conn = DB()
+
 
 store_owner_decorator = partial(is_store_owner_attendant,
                                 user="store_owner",
@@ -43,6 +43,7 @@ sale_records = []
 
 @app.route("/")
 def home_page():
+    db_conn = DB()
     db_conn.create_admin()
     return "Welcome to the store manager"
 
@@ -78,6 +79,7 @@ class LoginView(MethodView):
         Function to perform user login
         """
         # Get data sent
+        db_conn = DB()
         data = request.get_json()
         # Get attributes of the data sent
         email = data.get("email")
@@ -108,6 +110,34 @@ class LoginView(MethodView):
                 "token": access_token
                 })
         return jsonify({"error": "Invalid email or password"}), 401
+
+
+class RegisterView(MethodView):
+    """
+    Class to handle adding a store attendant
+    """
+    @jwt_required
+    def post(self):
+        """
+        Function to add a store attendant
+        """
+        db_conn = DB()
+        # Get data sent
+        data = request.get_json()
+        # Get attributes of the data sent
+        first_name = data.get("first_name")
+        last_name = data.get("last_name")
+        email = data.get("email")
+        password = data.get("password")
+        confirm_password = data.get("confirm_password")
+
+        new_user = User(first_name=first_name, last_name=last_name, 
+                        email=email, password=generate_password_hash(password))
+        # Add user to database
+        db_conn.create_user(new_user)
+        return jsonify({
+            "message": "Store attendant added successfully"
+        }), 201
 
 
 class ProductView(MethodView):
@@ -245,6 +275,8 @@ class SaleView(MethodView):
 view = not_store_owner(store_owner_decorator(AppAuthView.as_view('store_attendant_register')))
 app.add_url_rule('/api/v2/auth/login',
                  view_func=LoginView.as_view('login_view'))
+app.add_url_rule('/api/v2/auth/signup',
+                 view_func=RegisterView.as_view('register_view'))
 app.add_url_rule('/api/v1/store-owner/register',
                  view_func=AppAuthView.as_view('store_owner_register'))
 app.add_url_rule('/api/v1/store-owner/login',

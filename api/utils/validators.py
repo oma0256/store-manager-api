@@ -6,14 +6,14 @@ from flask import jsonify
 from validate_email import validate_email
 
 
-def validate_register_data(first_name, last_name, email, password):
+def validate_register_data(**kwargs):
     """
     Function to validate registration data
     """
     # Check for empty fields
-    if not first_name or not last_name or not email or not password:
+    if not first_name or not last_name or not email or not password or not confirm_password:
         return jsonify({
-            "error": "First name, last name, email and password field is required"
+            "error": "First name, last name, email, password and confirm password fields are required"
             }), 400
     # Check if email is valid
     is_valid = validate_email(email)
@@ -26,10 +26,10 @@ def validate_register_data(first_name, last_name, email, password):
         return jsonify({
             "error": "First and last name should only be alphabets"
         }), 400
-    # Check if password has more than 5 characters
-    if len(password) < 5:
+    # Check if password and confirm password are equal
+    if password != confirm_password:
         return jsonify({
-            "error": "Password should be more than 5 characters"
+            "error": "Passwords must match"
         }), 400
 
 

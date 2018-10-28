@@ -6,6 +6,7 @@ import json
 from api.__init__ import app
 
 
+app.config['TESTING'] = True
 class TestStoreOwnerAuth(unittest.TestCase):
     """
     Test store owner authentication
@@ -16,7 +17,7 @@ class TestStoreOwnerAuth(unittest.TestCase):
             "email": "admin@email.com",
             "password": "pass1234"
         }
-
+    
     def test_login_valid_data(self):
         """
         Test login with valid data
@@ -74,46 +75,50 @@ class TestStoreOwnerAuth(unittest.TestCase):
         self.assertEqual(res_data, expected_output)
 
 
-# class TestSoreAttendantauth(unittest.TestCase):
-#     """
-#     Test store attendant authentication
-#     """
-#     def setUp(self):
-#         self.app = app.test_client()
-#         self.reg_data = {
-#             "first_name": "joe",
-#             "last_name": "doe",
-#             "email": "joe@email.com",
-#             "password": "pass1234",
-#             "confirm_password": "pass1234"
-#         }
-#         self.login_data = {
-#             "email": "joe@email.com",
-#             "password": "pass1234"
-#         }
+class TestSoreAttendantauth(unittest.TestCase):
+    """
+    Test store attendant authentication
+    """
+    def setUp(self):
+        self.app = app.test_client()
+        self.reg_data = {
+            "first_name": "joe",
+            "last_name": "doe",
+            "email": "joe@email.com",
+            "password": "pass1234",
+            "confirm_password": "pass1234"
+        }
+        self.login_data = {
+            "email": "joe@email.com",
+            "password": "pass1234"
+        }
+        self.admin_login = {
+            "email": "admin@email.com",
+            "password": "pass1234"
+        }
+        self.headers = {"Content-Type": "application/json"}
+        response = self.app.post("/api/v2/auth/login",
+                                  headers=self.headers,
+                                  data=json.dumps(self.admin_login))
+        self.access_token = json.loads(response.data)["token"]
 
 #     def tearDown(self):
 #         views.store_attendants = []
 
-#     def test_register_valid_data(self):
-#         """
-#         Test registration with valid data
-#         """
-#         self.app.post("/api/v1/store-owner/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-owner/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         res = self.app.post("/api/v1/store-owner/attendant/register",
-#                             headers={"Content-Type": "application/json"},
-#                             data=json.dumps(self.reg_data))
-#         res_data = json.loads(res.data)
-#         expected_output = {
-#             "message": "Store attendant successfully registered"
-#         }
-#         self.assertEqual(res.status_code, 201)
-#         self.assertEqual(res_data, expected_output)
+    def test_register_valid_data(self):
+        """
+        Test registration with valid data
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        res = self.app.post("/api/v2/auth/signup",
+                            headers=self.headers,
+                            data=json.dumps(self.reg_data))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "message": "Store attendant added successfully"
+        }
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res_data, expected_output)
 
 #     def test_register_invalid_email(self):
 #         """
