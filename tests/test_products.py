@@ -238,3 +238,22 @@ class TestProductView(unittest.TestCase):
         }
         self.assertEqual(res.status_code, 403)
         self.assertEqual(res_data, exepected_output)
+    
+    def test_modify_product_non_existant(self):
+        """
+        Test modify a product which doesn't exist
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/products",
+                      headers=self.headers,
+                      data=json.dumps(self.product))
+        self.product["name"] = "svdkjsd"
+        res = self.app.put("/api/v2/products/553445354665789",
+                           headers=self.headers,
+                           data=json.dumps(self.product))
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "error": "The product you're trying to modify doesn't exist"
+        }
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res_data, exepected_output)

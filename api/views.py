@@ -245,6 +245,13 @@ class ProductView(MethodView):
             return jsonify({
                 "error": "Please login as a store owner"
             }), 403
+        
+        # Check if product exists
+        product = db_conn.get_product_by_id(int(product_id))
+        if not product:
+            return jsonify({
+                "error": "The product you're trying to modify doesn't exist"
+            }), 404
 
         data = request.get_json()
         # Get the fields which were sent
