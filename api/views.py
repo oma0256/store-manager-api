@@ -279,11 +279,18 @@ class ProductView(MethodView):
         # Get logged in user
         current_user = get_jwt_identity()
         loggedin_user = db_conn.get_user(current_user)
-        # # Check if it's not store owner
+        # Check if it's not store owner
         if not loggedin_user["is_admin"]:
             return jsonify({
                 "error": "Please login as a store owner"
             }), 403
+        
+        # Check if product exists
+        product = db_conn.get_product_by_id(int(product_id))
+        if not product:
+            return jsonify({
+                "error": "Product you're trying to delete doesn't exist"
+            }), 404
 
         # Delete product
         db_conn.delete_product(int(product_id))

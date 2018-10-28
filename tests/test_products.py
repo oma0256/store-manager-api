@@ -342,3 +342,21 @@ class TestProductView(unittest.TestCase):
         }
         self.assertEqual(res.status_code, 403)
         self.assertEqual(res_data, exepected_output)
+    
+    def test_delete_product_non_existance(self):
+        """
+        Test delete a product as store owner
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/products",
+                      headers=self.headers,
+                      data=json.dumps(self.product))
+        res = self.app.delete("/api/v2/products/142556789068970",
+                           headers=self.headers,
+                           data=json.dumps(self.product))
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "error": "Product you're trying to delete doesn't exist"
+        }
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res_data, exepected_output)
