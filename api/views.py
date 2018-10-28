@@ -229,6 +229,24 @@ class ProductView(MethodView):
         return jsonify({
             "message": "Products returned successfully"
         })
+    
+    @jwt_required
+    def put(self, product_id):
+        """
+        Funtion to modify a product
+        """
+        db_conn = DB()
+
+        data = request.get_json()
+        # Get the fields which were sent
+        name = data.get("name")
+        unit_cost = data.get("unit_cost")
+        quantity = data.get("quantity")
+        # Modify product
+        db_conn.update_product(name, unit_cost, quantity, int(product_id))
+        return jsonify({
+            "message": "Product updated successfully"
+        })
 
 
 class SaleView(MethodView):
@@ -325,7 +343,7 @@ app.add_url_rule('/api/v2/products',
                  methods=["GET", "POST"])
 app.add_url_rule('/api/v2/products/<product_id>',
                  view_func=ProductView.as_view('product_view1'),
-                 methods=["GET"])
+                 methods=["GET", "PUT"])
 app.add_url_rule('/api/v1/sales',
                  view_func=SaleView.as_view('sale_view'),
                  methods=["GET","POST"])

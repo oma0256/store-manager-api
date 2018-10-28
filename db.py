@@ -88,3 +88,7 @@ class DB:
     def get_product_by_id(self, product_id):
         self.cur.execute("SELECT * FROM public.products WHERE id=%s", (product_id,))
         return self.cur.fetchone()
+    
+    def update_product(self, name, unit_cost, quantity, product_id):
+        self.cur.execute("UPDATE public.products SET name=%s, unit_cost=%s, quantity=%s WHERE id=%s", 
+                         (name, unit_cost, quantity, product_id))

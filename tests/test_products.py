@@ -15,6 +15,7 @@ class TestProductView(unittest.TestCase):
     Class to test product view
     """
     def setUp(self):
+        self.db_conn = DB()
         self.app = app.test_client()
         self.reg_data = {
             "first_name": "joe",
@@ -151,22 +152,23 @@ class TestProductView(unittest.TestCase):
         res_data = json.loads(res.data)
         self.assertEqual(res.status_code, 401)
 
-    # def test_get_single_product_authenticated(self):
-    #     """
-    #     Test getting single product when logged in
-    #     """
-    #     self.headers["Authorization"] = "Bearer " + self.access_token
-    #     self.app.post("/api/v2/products",
-    #                   headers=self.headers,
-    #                   data=json.dumps(self.product))
-    #     res = self.app.get("/api/v2/products/1",
-    #                        headers=self.headers)
-    #     res_data = json.loads(res.data)
-    #     exepected_output = {
-    #         "message": "Product returned successfully"
-    #     }
-    #     self.assertEqual(res.status_code, 200)
-    #     self.assertEqual(res_data, exepected_output)
+    def test_get_single_product_authenticated(self):
+        """
+        Test getting single product when logged in
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/products",
+                      headers=self.headers,
+                      data=json.dumps(self.product))
+        product_id = self.db_conn.get_products()[0]["id"]
+        res = self.app.get("/api/v2/products/" + str(product_id),
+                           headers=self.headers)
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "message": "Product returned successfully"
+        }
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res_data, exepected_output)
 
     def test_get_product_unauthenticated_user(self):
         """
@@ -189,3 +191,23 @@ class TestProductView(unittest.TestCase):
         }
         self.assertEqual(res.status_code, 404)
         self.assertEqual(res_data, expected_output)
+    
+    def test_modify_product_as_store_owner(self):
+        """
+        Test modify a product with valid data
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/products",
+                      headers=self.headers,
+                      data=json.dumps(self.product))
+        product_id = self.db_conn.get_products()[0]["id"]
+        self.product["name"] = "svdkjsd"
+        res = self.app.put("/api/v2/products/" + str(product_id),
+                           headers=self.headers,
+                           data=json.dumps(self.product))
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "message": "Product updated successfully"
+        }
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res_data, exepected_output)
