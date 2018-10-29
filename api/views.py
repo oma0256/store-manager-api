@@ -361,31 +361,24 @@ class SaleView(MethodView):
         user = db_conn.get_user(current_user)
         # run if request is for a single sale record
         if sale_id:
-            # Return a list of a specific sale record
-            sale = [s for s in sale_records if s.id == int(sale_id)]
-            # Check if sale doesn't exist
-            if not sale:
+            # Get a single sale record
+            sale_record = db_conn.get_single_sale(int(sale_id))
+            # # Check if sale doesn't exist
+            if not sale_record:
                 return jsonify({
                     "error": "Sale record with this id doesn't exist"
                 }), 404
             # run if it's a store owner
-            if "store_owner" in session:
+            if user["is_admin"]:
                 return jsonify({
-                    "message": "Sale record returned successfully",
-                    "sale": sale[0].__dict__
+                    "message": "Sale record returned successfully"
                     })
             # run if it's a store attendant
-            elif "store_attendant" in session:
-                if sale[0].attendant_email == session["store_attendant"]:
-                    return jsonify({
-                        "message": "Sale record returned successfully",
-                        "sale": sale[0].__dict__
-                        })
-                return jsonify({"error": "You didn't make this sale"}), 403
-            else:
+            if sale_record["attendant"] == db_conn.get_user(current_user)["id"]:
                 return jsonify({
-                    "error": "Please login to view this sale record"
-                    }), 401
+                    "message": "Sale record returned successfully"
+                    })
+            return jsonify({"error": "You didn't make this sale"}), 403
         # run if request is for all sale records and if it's a store
         # owner
         if user["is_admin"]:

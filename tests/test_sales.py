@@ -203,7 +203,7 @@ class TestSaleView(unittest.TestCase):
         Test getting all sale records logged in as store owner
         """
         self.headers["Authorization"] = "Bearer " + self.access_token
-        res = self.app.post("/api/v2/products",
+        self.app.post("/api/v2/products",
                       headers=self.headers,
                       data=json.dumps(self.product))
         self.app.post("/api/v2/auth/signup",
@@ -233,92 +233,83 @@ class TestSaleView(unittest.TestCase):
         res_data = json.loads(res.data)
         self.assertEqual(res.status_code, 401)
 
-#     def test_get_sale_record_as_store_owner(self):
-#         """
-#         Test getting a sale record as a store owner
-#         """
-#         self.app.post("/api/v1/store-owner/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-owner/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         self.app.post("/api/v1/store-owner/attendant/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-attendant/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         self.app.post("/api/v1/sales",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.sale))
-#         res = self.app.get("/api/v1/sales/1")
-#         res_data = json.loads(res.data)
-#         expected_output = {
-#             "message": "Sale record returned successfully",
-#             "sale": {
-#                 "id": 1,
-#                 "cart_items": [self.product],
-#                 "attendant_email": "joe@email.com",
-#                 "total": 10000
-#             }
-#         }
-#         self.assertEqual(res.status_code, 200)
-#         self.assertEqual(res_data, expected_output)
+    def test_get_sale_record_as_store_owner(self):
+        """
+        Test getting a sale record as a store owner
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/products",
+                      headers=self.headers,
+                      data=json.dumps(self.product))
+        product_id = self.db_conn.get_products()[0]["id"]
+        self.cart_item["product"] = product_id
+        self.cart_items = [self.cart_item]
+        self.app.post("/api/v2/auth/signup",
+                      headers=self.headers,
+                      data=json.dumps(self.reg_data))
+        res = self.app.post("/api/v2/auth/login",
+                            headers=self.headers,
+                            data=json.dumps(self.login_data))
+        self.headers["Authorization"] = "Bearer " + json.loads(res.data)["token"]
+        res = self.app.post("/api/v2/sales",
+                            headers=self.headers,
+                            data=json.dumps(self.sale))
+        sale_id = self.db_conn.get_sale_records()[0]["id"]
+        response = self.app.post("/api/v2/auth/login",
+                                  headers=self.headers,
+                                  data=json.dumps(self.admin_login))
+        self.access_token = json.loads(response.data)["token"]
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        res = self.app.get("/api/v1/sales/" + str(sale_id),
+                           headers=self.headers)
+        res_data = json.loads(res.data)
+        expected_output = {
+            "message": "Sale record returned successfully"
+        }
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res_data, expected_output)
 
-#     def test_get_sale_record_as_store_attendant(self):
-#         """
-#         Test getting a sale record as a store attendant if made it
-#         """
-#         self.app.post("/api/v1/store-owner/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-owner/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         self.app.post("/api/v1/store-owner/attendant/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-attendant/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         self.app.post("/api/v1/sales",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.sale))
-#         res = self.app.get("/api/v1/sales/1")
-#         res_data = json.loads(res.data)
-#         expected_output = {
-#             "message": "Sale record returned successfully",
-#             "sale": {
-#                 "id": 1,
-#                 "cart_items": [self.product],
-#                 "attendant_email": "joe@email.com",
-#                 "total": 10000
-#             }
-#         }
-#         self.assertEqual(res.status_code, 200)
-#         self.assertEqual(res_data, expected_output)
+    def test_get_sale_record_as_store_attendant(self):
+        """
+        Test getting a sale record as a store attendant if made it
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/products",
+                      headers=self.headers,
+                      data=json.dumps(self.product))
+        product_id = self.db_conn.get_products()[0]["id"]
+        self.cart_item["product"] = product_id
+        self.cart_items = [self.cart_item]
+        self.app.post("/api/v2/auth/signup",
+                      headers=self.headers,
+                      data=json.dumps(self.reg_data))
+        res = self.app.post("/api/v2/auth/login",
+                            headers=self.headers,
+                            data=json.dumps(self.login_data))
+        self.headers["Authorization"] = "Bearer " + json.loads(res.data)["token"]
+        res = self.app.post("/api/v2/sales",
+                            headers=self.headers,
+                            data=json.dumps(self.sale))
+        sale_id = self.db_conn.get_sale_records()[0]["id"]
+        res = self.app.get("/api/v1/sales/" + str(sale_id),
+                           headers=self.headers)
+        res_data = json.loads(res.data)
+        expected_output = {
+            "message": "Sale record returned successfully"
+        }
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res_data, expected_output)
 
-#     def test_get_sale_record_that_does_not_exist(self):
-#         """
-#         Test getting a sale record that doesn't exist
-#         """
-#         self.app.post("/api/v1/store-owner/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-owner/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         self.app.post("/api/v1/store-owner/attendant/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-attendant/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         res = self.app.get("/api/v1/sales/1")
-#         res_data = json.loads(res.data)
-#         expected_output = {
-#             "error": "Sale record with this id doesn't exist"
-#         }
-#         self.assertEqual(res.status_code, 404)
-#         self.assertEqual(res_data, expected_output)
+    def test_get_sale_record_that_does_not_exist(self):
+        """
+        Test getting a sale record that doesn't exist
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        res = self.app.get("/api/v1/sales/1",
+                           headers=self.headers)
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Sale record with this id doesn't exist"
+        }
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res_data, expected_output)
