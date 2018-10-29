@@ -102,3 +102,7 @@ class DB:
     def add_sale(self, attendant, products, total):
         self.cur.execute("INSERT INTO public.sales(attendant, cart_items, total) VALUES (%s, %s, %s)",
                      (attendant, products, total))
+
+    def get_sale_records(self):
+        self.cur.execute("SELECT * FROM public.sales")
+        return self.cur.fetchall()

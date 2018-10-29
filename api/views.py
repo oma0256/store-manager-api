@@ -350,10 +350,15 @@ class SaleView(MethodView):
             "message": "Sale made successfully"
         }), 201
 
+    @jwt_required
     def get(self, sale_id=None):
         """
         Perform GET on sale records
         """
+        db_conn = DB()
+        # Get current user
+        current_user = get_jwt_identity()
+        user = db_conn.get_user(current_user)
         # run if request is for a single sale record
         if sale_id:
             # Return a list of a specific sale record
@@ -383,12 +388,12 @@ class SaleView(MethodView):
                     }), 401
         # run if request is for all sale records and if it's a store
         # owner
-        if "store_owner" in session:
+        if user["is_admin"]:
+            sale_records = db_conn.get_sale_records()
             return jsonify({
-                "message": "Sale records returned successfully",
-                "sales": [sale_record.__dict__ for sale_record in sale_records]
+                "message": "Sale records returned successfully"
             })
-        return jsonify({"error": "Please login as a store owner"}), 401
+        return jsonify({"error": "Please login as a store owner"}), 403
 
 
 # Map urls to view classes

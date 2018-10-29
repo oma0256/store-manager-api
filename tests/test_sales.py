@@ -166,53 +166,72 @@ class TestSaleView(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertEqual(res_data, expected_output)
 
-#     def test_get_all_sale_records_authenticated_as_store_owner(self):
-#         """
-#         Test getting all sale records logged in as store owner
-#         """
-#         self.app.post("/api/v1/store-owner/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-owner/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         self.app.post("/api/v1/store-owner/attendant/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-attendant/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         self.app.post("/api/v1/sales",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.sale))
-#         self.app.post("/api/v1/store-owner/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         res = self.app.get("/api/v1/sales")
-#         res_data = json.loads(res.data)
-#         exepected_output = {
-#             "message": "Sale records returned successfully",
-#             "sales": [{
-#                 "id": 1,
-#                 "cart_items": [self.product],
-#                 "attendant_email": "joe@email.com",
-#                 "total": 10000
-#             }]
-#         }
-#         self.assertEqual(res.status_code, 200)
-#         self.assertEqual(res_data, exepected_output)
+    def test_get_all_sale_records_authenticated_as_store_owner(self):
+        """
+        Test getting all sale records logged in as store owner
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        res = self.app.post("/api/v2/products",
+                      headers=self.headers,
+                      data=json.dumps(self.product))
+        self.app.post("/api/v2/auth/signup",
+                      headers=self.headers,
+                      data=json.dumps(self.reg_data))
+        res = self.app.post("/api/v2/auth/login",
+                            headers=self.headers,
+                            data=json.dumps(self.login_data))
+        self.headers["Authorization"] = "Bearer " + json.loads(res.data)["token"]
+        self.app.post("/api/v2/sales",
+                      headers=self.headers,
+                      data=json.dumps(self.sale))
+        response = self.app.post("/api/v2/auth/login",
+                                  headers=self.headers,
+                                  data=json.dumps(self.admin_login))
+        self.access_token = json.loads(response.data)["token"]
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        res = self.app.get("/api/v2/sales",
+                           headers=self.headers)
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "message": "Sale records returned successfully"
+        }
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res_data, exepected_output)
 
-#     def test_get_all_sale_records_unauthenticated_as_store_owner(self):
-#         """
-#         Test getting all sale records logged in as store owner
-#         """
-#         res = self.app.get("/api/v1/sales")
-#         res_data = json.loads(res.data)
-#         exepected_output = {
-#             "error": "Please login as a store owner"
-#         }
-#         self.assertEqual(res.status_code, 401)
-#         self.assertEqual(res_data, exepected_output)
+    def test_get_all_sale_records_authenticated_as_store_owner(self):
+        """
+        Test getting all sale records logged in as store owner
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        res = self.app.post("/api/v2/products",
+                      headers=self.headers,
+                      data=json.dumps(self.product))
+        self.app.post("/api/v2/auth/signup",
+                      headers=self.headers,
+                      data=json.dumps(self.reg_data))
+        res = self.app.post("/api/v2/auth/login",
+                            headers=self.headers,
+                            data=json.dumps(self.login_data))
+        self.headers["Authorization"] = "Bearer " + json.loads(res.data)["token"]
+        self.app.post("/api/v2/sales",
+                      headers=self.headers,
+                      data=json.dumps(self.sale))
+        res = self.app.get("/api/v2/sales",
+                           headers=self.headers)
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "error": "Please login as a store owner"
+        }
+        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res_data, exepected_output)
+
+    def test_get_all_sale_records_unauthenticated_user(self):
+        """
+        Test getting all sale records logged in as store owner
+        """
+        res = self.app.get("/api/v2/sales")
+        res_data = json.loads(res.data)
+        self.assertEqual(res.status_code, 401)
 
 #     def test_get_sale_record_as_store_owner(self):
 #         """
