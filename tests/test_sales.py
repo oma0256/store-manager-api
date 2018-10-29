@@ -1,45 +1,58 @@
-# """
-# File to test product view
-# """
+"""
+File to test product view
+"""
 
-# import unittest
-# import json
-# from api import views
-# from api.__init__ import app
+import unittest
+import json
+from api.__init__ import app
+from db import DB
 
 
-# class TestSaleView(unittest.TestCase):
-#     """
-#     Class to test sale view
-#     """
-#     def setUp(self):
-#         self.app = app.test_client()
-#         self.reg_data = {
-#             "first_name": "joe",
-#             "last_name": "doe",
-#             "email": "joe@email.com",
-#             "password": "pass1234",
-#             "confirm_password": "pass1234"
-#         }
-#         self.login_data = {
-#             "email": "joe@email.com",
-#             "password": "pass1234"
-#         }
-#         self.product = {
-#             "name": "Belt",
-#             "price": 10000,
-#             "quantity": 1,
-#             "category": "clothing"
-#         }
-#         self.sale = {
-#             "cart_items": [self.product]
-#         }
+class TestSaleView(unittest.TestCase):
+    """
+    Class to test sale view
+    """
+    def setUp(self):
+        self.app = app.test_client()
+        self.db_conn = DB()
+        self.reg_data = {
+            "first_name": "joe",
+            "last_name": "doe",
+            "email": "joe@email.com",
+            "password": "pass1234",
+            "confirm_password": "pass1234"
+        }
+        self.login_data = {
+            "email": "joe@email.com",
+            "password": "pass1234"
+        }
+        self.admin_login = {
+        	"email": "admin@email.com",
+        	"password": "pass1234"
+        }
+        self.product = {
+            "name": "Belt",
+            "unit_cost": 10000,
+            "quantity": 3
+        }
+        self.cart_item = {
+            "product": 1,
+            "quantity": 1
+        }
+        self.sale = {
+            "cart_items": [self.cart_item]
+        }
+        self.headers = {"Content-Type": "application/json"}
+        response = self.app.post("/api/v2/auth/login",
+                                  headers=self.headers,
+                                  data=json.dumps(self.admin_login))
+        self.access_token = json.loads(response.data)["token"]
 
-#     def tearDown(self):
-#         views.products = []
-#         views.store_attendants = []
-#         views.store_owners = []
-#         views.sale_records = []
+    def tearDown(self):
+        db_conn = DB()
+        db_conn.delete_products()
+        db_conn.delete_attendants()
+        db_conn.delete_sales()
 
 #     def test_create_sale_record_as_unauthenticated(self):
 #         """
@@ -83,37 +96,33 @@
 #         self.assertEqual(res.status_code, 400)
 #         self.assertEqual(res_data, expected_output)
 
-#     def test_create_sale_with_valid_data(self):
-#         """
-#         Test creating sale with valid data
-#         """
-#         self.app.post("/api/v1/store-owner/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-owner/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         self.app.post("/api/v1/store-owner/attendant/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-attendant/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         res = self.app.post("/api/v1/sales",
-#                             headers={"Content-Type": "application/json"},
-#                             data=json.dumps(self.sale))
-#         res_data = json.loads(res.data)
-#         expected_output = {
-#             "message": "Sale created successfully",
-#             "sale": {
-#                 "id": 1,
-#                 "cart_items": [self.product],
-#                 "attendant_email": "joe@email.com",
-#                 "total": 10000
-#             }
-#         }
-#         self.assertEqual(res.status_code, 201)
-#         self.assertEqual(res_data, expected_output)
+    def test_create_sale_with_valid_data(self):
+        """
+        Test creating sale with valid data
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        res = self.app.post("/api/v2/products",
+                      headers=self.headers,
+                      data=json.dumps(self.product))
+        product_id = self.db_conn.get_products()[0]["id"]
+        self.cart_item["product"] = product_id
+        self.cart_items = [self.cart_item]
+        self.app.post("/api/v2/auth/signup",
+                      headers=self.headers,
+                      data=json.dumps(self.reg_data))
+        res = self.app.post("/api/v2/auth/login",
+                      		headers=self.headers,
+                      		data=json.dumps(self.login_data))
+        self.headers["Authorization"] = "Bearer " + json.loads(res.data)["token"]
+        res = self.app.post("/api/v2/sales",
+                            headers=self.headers,
+                            data=json.dumps(self.sale))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "message": "Sale made successfully"
+        }
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res_data, expected_output)
 
 #     def test_create_sale_as_store_owner(self):
 #         """

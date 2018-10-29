@@ -41,6 +41,8 @@ products = []
 sale_records = []
 
 
+db_conn = DB()
+
 @app.route("/")
 def home_page():
     db_conn = DB()
@@ -304,35 +306,30 @@ class SaleView(MethodView):
     """
     Class to perform http methods on sales
     """
-    @not_store_attendant
-    @store_attendant_decorator
+    @jwt_required
     def post(self):
         """
         Method to create a sale record
         """
+        db_conn = DB()
+
         data = request.get_json()
         # get items being sold
         cart_items = data.get("cart_items")
         total = 0
+        product_names = ""
         for cart_item in cart_items:
-            name = cart_item.get("name")
-            price = cart_item.get("price")
+            product_id = cart_item.get("product")
             quantity = cart_item.get("quantity")
-            # validate each product
-            res = validate_product(name, price, quantity)
-            if res:
-                return res
-            total += price
-        sale_id = create_id(sale_records)
-        store_attendant = [att for att in store_attendants if att.email == session["store_attendant"]]
-        if store_attendant[0]:
-            attendant_email = session["store_attendant"]
-            sale = Sale(sale_id, cart_items, attendant_email, total)
-            sale_records.append(sale)
-            return jsonify({
-                "message": "Sale created successfully",
-                "sale": sale.__dict__
-            }), 201
+            product = db_conn.get_product_by_id(product_id)
+            product_names += product["name"] + " "
+            total += product["unit_cost"]
+        current_user = get_jwt_identity()
+        attendant = db_conn.get_user(current_user)
+        db_conn.add_sale(int(attendant["id"]), product_names, total)
+        return jsonify({
+            "message": "Sale made successfully"
+        }), 201
 
     def get(self, sale_id=None):
         """
@@ -395,7 +392,7 @@ app.add_url_rule('/api/v2/products',
 app.add_url_rule('/api/v2/products/<product_id>',
                  view_func=ProductView.as_view('product_view1'),
                  methods=["GET", "PUT", "DELETE"])
-app.add_url_rule('/api/v1/sales',
+app.add_url_rule('/api/v2/sales',
                  view_func=SaleView.as_view('sale_view'),
                  methods=["GET","POST"])
 app.add_url_rule('/api/v1/sales/<sale_id>',

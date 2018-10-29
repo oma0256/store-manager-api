@@ -22,7 +22,7 @@ CREATE TABLE public.products(
 """
 CREATE TABLE public.sales(
     id SERIAL PRIMARY KEY,
-    attendant VARCHAR NOT NULL,
+    attendant INTEGER REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
     cart_items VARCHAR NOT NULL,
     total VARCHAR NOT NULL
 );
@@ -95,3 +95,10 @@ class DB:
     
     def delete_product(self, product_id):
         self.cur.execute("DELETE FROM public.products WHERE id=%s", (product_id,))
+
+    def delete_sales(self):
+        self.cur.execute("TRUNCATE public.sales")
+
+    def add_sale(self, attendant, products, total):
+        self.cur.execute("INSERT INTO public.sales(attendant, cart_items, total) VALUES (%s, %s, %s)",
+                     (attendant, products, total))
