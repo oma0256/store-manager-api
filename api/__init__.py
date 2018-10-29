@@ -2,17 +2,15 @@
 Set up flask
 """
 
-from flask import Flask, session
+from flask import Flask
+from flask_jwt_extended import JWTManager
 
 app = Flask(__name__)
 app.secret_key = 'super secret key'
 
 
-@app.before_first_request
-def clear_session():
-    """
-    Clear session whenever server restarts
-    """
-    session.clear()
+# Setup flask-jwt-extended
+app.config['JWT_SECRET_KEY'] = 'sajsvhca'
+jwt = JWTManager(app)
 
 from api import views

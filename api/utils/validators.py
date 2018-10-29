@@ -4,16 +4,22 @@ File containig validators
 
 from flask import jsonify
 from validate_email import validate_email
+from db import DB
 
 
-def validate_register_data(first_name, last_name, email, password):
+def validate_register_data(**kwargs):
     """
     Function to validate registration data
     """
+    first_name = kwargs.get("first_name")
+    last_name = kwargs.get("last_name")
+    email = kwargs.get("email")
+    password = kwargs.get("password")
+    confirm_password = kwargs.get("confirm_password")
     # Check for empty fields
-    if not first_name or not last_name or not email or not password:
+    if not first_name or not last_name or not email or not password or not confirm_password:
         return jsonify({
-            "error": "First name, last name, email and password field is required"
+            "error": "First name, last name, email, password and confirm password fields are required"
             }), 400
     # Check if email is valid
     is_valid = validate_email(email)
@@ -26,10 +32,10 @@ def validate_register_data(first_name, last_name, email, password):
         return jsonify({
             "error": "First and last name should only be alphabets"
         }), 400
-    # Check if password has more than 5 characters
-    if len(password) < 5:
+    # Check if password and confirm password are equal
+    if password != confirm_password:
         return jsonify({
-            "error": "Password should be more than 5 characters"
+            "error": "Passwords must match"
         }), 400
 
 
@@ -45,20 +51,50 @@ def validate_login_data(email, password):
     return None
 
 
-def validate_product(name, price, quantity):
+def validate_product(name, unit_cost, quantity):
     """
     Funtion to validate product data
     """
     # Check if fields are empty
-    if not name or not price or not quantity:
+    if not name or not unit_cost or not quantity:
         return jsonify({
-            "error": "Product name, price and quantity is required"
+            "error": "Product name, unit_cost and quantity is required"
             }), 400
 
-    # Check for valid price and quantity input
-    if not isinstance(price, int) or not isinstance(quantity, int):
+    # Check for valid unit_cost and quantity input
+    if not isinstance(unit_cost, int) or not isinstance(quantity, int):
         return jsonify({
-            "error": "Product price and quantity must be integers"
+            "error": "Product unit_cost and quantity must be integers"
             }), 400
 
     return None
+
+def validate_cart_item(product_id, quantity):
+    """
+    Function to validate cart item
+    """
+    db_conn = DB()
+    # Check if fields are empty
+    if not product_id or not quantity:
+        return jsonify({
+            "error": "Product id and quantity is required"
+        }), 400
+    
+    # Check for valid product id and quantity
+    if type(product_id) is not int or type(quantity) is not int:
+        return jsonify({
+            "error": "Product id and quantity must be integers"
+            }), 400
+    
+    # Check if product exists in database
+    product = db_conn.get_product_by_id(product_id)
+    if not product:
+        return jsonify({
+            "error": "This product doesn't exist"
+        }), 404
+    
+    # Check if quantity is more than product quantity in database
+    if quantity > product["quantity"]:
+        return jsonify({
+            "error": "This product has only a quantity of " + str(product["quantity"])
+            }), 400
