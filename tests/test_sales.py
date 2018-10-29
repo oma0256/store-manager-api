@@ -8,6 +8,7 @@ from api.__init__ import app
 from db import DB
 
 
+app.config['TESTING'] = True
 class TestSaleView(unittest.TestCase):
     """
     Class to test sale view

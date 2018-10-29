@@ -1,44 +1,19 @@
 """
 File to handle application views
 """
-from functools import partial
 from flask import jsonify, request, session
 from flask.views import MethodView
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import (create_access_token, 
+                                jwt_required, 
+                                get_jwt_identity)
 from api.models import Product, Sale, User
 from api.__init__ import app
-from api.utils.decorators import (is_store_owner_attendant,
-                                  is_store_owner_or_attendant,
-                                  is_forbidden)
-from api.utils.auth_functions import register_user, login_user
-from api.utils.validators import validate_product, validate_login_data, validate_register_data, validate_cart_item
-from api.utils.generate_id import create_id
+from api.utils.validators import (validate_product, 
+                                  validate_login_data, 
+                                  validate_register_data, 
+                                  validate_cart_item)
 from db import DB
-
-
-
-store_owner_decorator = partial(is_store_owner_attendant,
-                                user="store_owner",
-                                error_msg="Please login as a store owner")
-store_attendant_decorator = partial(is_store_owner_attendant,
-                                    user="store_attendant",
-                                    error_msg="Please login as a store attendant")
-not_store_owner = partial(is_forbidden,
-                          user="store_attendant",
-                          error_msg="Please login as a store owner")
-not_store_attendant = partial(is_forbidden,
-                              user="store_owner",
-                              error_msg="Please login as a store attendant")
-
-# Holds store owners
-store_owners = []
-# Hold store attendants
-store_attendants = []
-# Store products
-products = []
-# Store sales
-sale_records = []
 
 
 db_conn = DB()
@@ -48,28 +23,6 @@ def home_page():
     db_conn = DB()
     db_conn.create_admin()
     return "Welcome to the store manager"
-
-
-class AppAuthView(MethodView):
-    """
-    Class to handle user authentication
-    """
-    def post(self):
-        """
-        handles registration and login
-        """
-        # check if it is store owner registration
-        if request.path == '/api/v1/store-owner/register':
-            return register_user(request.get_json(), store_owners, True)
-        # check if it is store owner login
-        if request.path == '/api/v1/store-owner/login':
-            return login_user(request.get_json(), store_owners, True)
-        # check if it is store attendant registration
-        if request.path == '/api/v1/store-owner/attendant/register':
-            return register_user(request.get_json(), store_attendants, False)
-        # check if it is store attendant login
-        if request.path == '/api/v1/store-attendant/login':
-            return login_user(request.get_json(), store_attendants, False)
 
 
 class LoginView(MethodView):
@@ -144,8 +97,11 @@ class RegisterView(MethodView):
         confirm_password = data.get("confirm_password")
 
         # Validate the data
-        res = validate_register_data(first_name=first_name, last_name=last_name, email=email, 
-                                     password=password, confirm_password=confirm_password)
+        res = validate_register_data(first_name=first_name, 
+                                     last_name=last_name, 
+                                     email=email, 
+                                     password=password, 
+                                     confirm_password=confirm_password)
         if res:
             return res
         
@@ -390,19 +346,10 @@ class SaleView(MethodView):
 
 
 # Map urls to view classes
-view = not_store_owner(store_owner_decorator(AppAuthView.as_view('store_attendant_register')))
 app.add_url_rule('/api/v2/auth/login',
                  view_func=LoginView.as_view('login_view'))
 app.add_url_rule('/api/v2/auth/signup',
                  view_func=RegisterView.as_view('register_view'))
-app.add_url_rule('/api/v1/store-owner/register',
-                 view_func=AppAuthView.as_view('store_owner_register'))
-app.add_url_rule('/api/v1/store-owner/login',
-                 view_func=AppAuthView.as_view('store_owner_login'))
-app.add_url_rule('/api/v1/store-owner/attendant/register',
-                 view_func=view)
-app.add_url_rule('/api/v1/store-attendant/login',
-                 view_func=AppAuthView.as_view('store_attendant_login'))
 app.add_url_rule('/api/v2/products',
                  view_func=ProductView.as_view('product_view'),
                  methods=["GET", "POST"])

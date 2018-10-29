@@ -32,8 +32,8 @@ class Sale:
     Define sale structure
     """
     def __init__(self, sale_id, cart_items,
-                 attendannt_email, total):
+                 attendannt, total):
         self.id = sale_id
         self.cart_items = cart_items
-        self.attendant_email = attendannt_email
+        self.attendant = attendannt
         self.total = total
