@@ -313,6 +313,15 @@ class SaleView(MethodView):
         """
         db_conn = DB()
 
+        # Get logged in user
+        current_user = get_jwt_identity()
+        loggedin_user = db_conn.get_user(current_user)
+        # Check if it's a store owner
+        if loggedin_user["is_admin"]:
+            return jsonify({
+                "error": "Please login as a store attendant"
+            }), 403
+
         data = request.get_json()
         # get items being sold
         cart_items = data.get("cart_items")
