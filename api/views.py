@@ -12,7 +12,7 @@ from api.utils.decorators import (is_store_owner_attendant,
                                   is_store_owner_or_attendant,
                                   is_forbidden)
 from api.utils.auth_functions import register_user, login_user
-from api.utils.validators import validate_product, validate_login_data, validate_register_data
+from api.utils.validators import validate_product, validate_login_data, validate_register_data, validate_cart_item
 from api.utils.generate_id import create_id
 from db import DB
 
@@ -330,10 +330,20 @@ class SaleView(MethodView):
         for cart_item in cart_items:
             product_id = cart_item.get("product")
             quantity = cart_item.get("quantity")
+            # validate each product
+            res = validate_cart_item(product_id, quantity)
+            if res:
+                return res
+            # Get product
             product = db_conn.get_product_by_id(product_id)
+            if not product:
+                return jsonify({
+                    "error": "This product doesn't exist"
+                    }), 404
             product_names += product["name"] + " "
             total += product["unit_cost"]
         current_user = get_jwt_identity()
+        # Get attendant
         attendant = db_conn.get_user(current_user)
         db_conn.add_sale(int(attendant["id"]), product_names, total)
         return jsonify({

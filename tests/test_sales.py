@@ -54,47 +54,43 @@ class TestSaleView(unittest.TestCase):
         db_conn.delete_attendants()
         db_conn.delete_sales()
 
-#     def test_create_sale_record_as_unauthenticated(self):
-#         """
-#         Test creating sale as store owner
-#         """
-#         res = self.app.post("/api/v1/sales",
-#                             headers={"Content-Type": "application/json"},
-#                             data=json.dumps(self.sale))
-#         res_data = json.loads(res.data)
-#         expected_output = {
-#             "error": "Please login as a store attendant"
-#         }
-#         self.assertEqual(res.status_code, 401)
-#         self.assertEqual(res_data, expected_output)
+    def test_create_sale_record_as_unauthenticated(self):
+        """
+        Test creating sale as unauthenticated
+        """
+        res = self.app.post("/api/v2/sales",
+                            headers=self.headers,
+                            data=json.dumps(self.sale))
+        res_data = json.loads(res.data)
+        self.assertEqual(res.status_code, 401)
 
-#     def test_create_sale_with_missing_fields(self):
-#         """
-#         Test creating sale with missing fields
-#         """
-#         self.app.post("/api/v1/store-owner/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-owner/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         self.app.post("/api/v1/store-owner/attendant/register",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.reg_data))
-#         self.app.post("/api/v1/store-attendant/login",
-#                       headers={"Content-Type": "application/json"},
-#                       data=json.dumps(self.login_data))
-#         self.product["name"] = ""
-#         self.sale["cart_items"] = [self.product]
-#         res = self.app.post("/api/v1/sales",
-#                             headers={"Content-Type": "application/json"},
-#                             data=json.dumps(self.sale))
-#         res_data = json.loads(res.data)
-#         expected_output = {
-#             "error": "Product name, price and quantity is required"
-#         }
-#         self.assertEqual(res.status_code, 400)
-#         self.assertEqual(res_data, expected_output)
+    def test_create_sale_with_missing_fields(self):
+        """
+        Test creating sale with missing fields
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        res = self.app.post("/api/v2/products",
+                      headers=self.headers,
+                      data=json.dumps(self.product))
+        product_id = self.db_conn.get_products()[0]["id"]
+        self.cart_item["product"] = ""
+        self.cart_items = [self.cart_item]
+        self.app.post("/api/v2/auth/signup",
+                      headers=self.headers,
+                      data=json.dumps(self.reg_data))
+        res = self.app.post("/api/v2/auth/login",
+                      		headers=self.headers,
+                      		data=json.dumps(self.login_data))
+        self.headers["Authorization"] = "Bearer " + json.loads(res.data)["token"]
+        res = self.app.post("/api/v2/sales",
+                            headers=self.headers,
+                            data=json.dumps(self.sale))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Product id and quantity is required"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, expected_output)
 
     def test_create_sale_with_valid_data(self):
         """
@@ -143,6 +139,31 @@ class TestSaleView(unittest.TestCase):
             "error": "Please login as a store attendant"
         }
         self.assertEqual(res.status_code, 403)
+        self.assertEqual(res_data, expected_output)
+
+    def test_create_sale_non_existant_product(self):
+        """
+        Test creating sale non existant product
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        res = self.app.post("/api/v2/products",
+                      headers=self.headers,
+                      data=json.dumps(self.product))
+        self.app.post("/api/v2/auth/signup",
+                      headers=self.headers,
+                      data=json.dumps(self.reg_data))
+        res = self.app.post("/api/v2/auth/login",
+                      		headers=self.headers,
+                      		data=json.dumps(self.login_data))
+        self.headers["Authorization"] = "Bearer " + json.loads(res.data)["token"]
+        res = self.app.post("/api/v2/sales",
+                            headers=self.headers,
+                            data=json.dumps(self.sale))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "This product doesn't exist"
+        }
+        self.assertEqual(res.status_code, 404)
         self.assertEqual(res_data, expected_output)
 
 #     def test_get_all_sale_records_authenticated_as_store_owner(self):

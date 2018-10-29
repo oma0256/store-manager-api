@@ -4,6 +4,7 @@ File containig validators
 
 from flask import jsonify
 from validate_email import validate_email
+from db import DB
 
 
 def validate_register_data(**kwargs):
@@ -67,3 +68,33 @@ def validate_product(name, unit_cost, quantity):
             }), 400
 
     return None
+
+def validate_cart_item(product_id, quantity):
+    """
+    Function to validate cart item
+    """
+    db_conn = DB()
+    # Check if fields are empty
+    if not product_id or not quantity:
+        return jsonify({
+            "error": "Product id and quantity is required"
+        }), 400
+    
+    # Check for valid product id and quantity
+    if type(product_id) is not int or type(quantity) is not int:
+        return jsonify({
+            "error": "Product id and quantity must be integers"
+            }), 400
+    
+    # Check if product exists in database
+    product = db_conn.get_product_by_id(product_id)
+    if not product:
+        return jsonify({
+            "error": "This product doesn't exist"
+        }), 404
+    
+    # Check if quantity is more than product quantity in database
+    if quantity > product["quantity"]:
+        return jsonify({
+            "error": "This product has only a quantity of " + str(product["quantity"])
+            }), 400
