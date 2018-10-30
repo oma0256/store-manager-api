@@ -19,6 +19,17 @@ class TestProductView(unittest.TestCase):
             "email": "admin@email.com",
             "password": "pass1234"
         }
+        self.reg_data = {
+            "first_name": "joe",
+            "last_name": "doe",
+            "email": "joe@email.com",
+            "password": "pass1234",
+            "confirm_password": "pass1234"
+        }
+        self.login_data = {
+            "email": "joe@email.com",
+            "password": "pass1234"
+        }
         self.headers = {"Content-Type": "application/json"}
         response = self.app.post("/api/v2/auth/login",
                                   headers=self.headers,

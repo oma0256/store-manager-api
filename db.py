@@ -131,3 +131,7 @@ class DB:
     def get_category_by_name(self, name):
         self.cur.execute("SELECT * FROM categories WHERE name=%s", (name,))
         return self.cur.fetchone()
+
+    def add_category(self, category):
+        self.cur.execute("INSERT INTO categories(name, description) VALUES (%s, %s)", 
+                         (category.name, category.description))

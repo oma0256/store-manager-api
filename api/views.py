@@ -7,7 +7,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import (create_access_token, 
                                 jwt_required, 
                                 get_jwt_identity)
-from api.models import Product, Sale, User
+from api.models import Product, Sale, User, Category
 from api.__init__ import app
 from api.utils.validators import (validate_product, 
                                   validate_login_data, 
@@ -389,8 +389,8 @@ app.add_url_rule('/api/v2/sales',
                  methods=["GET","POST"])
 app.add_url_rule('/api/v2/sales/<sale_id>',
                  view_func=SaleView.as_view('sale_view1'), methods=["GET"])
-app.add_url_rule('/api/v2/category',
+app.add_url_rule('/api/v2/categories',
                  view_func=CategoryView.as_view('category_view'),
                  methods=["POST"])
-app.add_url_rule('/api/v2/category/<category_id>',
+app.add_url_rule('/api/v2/categories/<category_id>',
                  view_func=SaleView.as_view('category_view1'), methods=["PUT", "DELETE"])

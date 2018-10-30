@@ -37,3 +37,11 @@ class Sale:
         self.cart_items = cart_items
         self.attendant = attendannt
         self.total = total
+
+class Category:
+    """
+    Define Category structure
+    """
+    def __init__(self, name, description=None):
+        self.name = name
+        self.description = description
