@@ -31,8 +31,8 @@ class TestSaleView(unittest.TestCase):
             "password": "pass1234"
         }
         self.admin_login = {
-        	"email": "admin@email.com",
-        	"password": "pass1234"
+            "email": "admin@email.com",
+            "password": "pass1234"
         }
         self.product = {
             "name": "Belt",
@@ -83,8 +83,8 @@ class TestSaleView(unittest.TestCase):
                       headers=self.headers,
                       data=json.dumps(self.reg_data))
         res = self.app.post("/api/v2/auth/login",
-                      		headers=self.headers,
-                      		data=json.dumps(self.login_data))
+                            headers=self.headers,
+                            data=json.dumps(self.login_data))
         self.headers["Authorization"] = "Bearer " + json.loads(res.data)["token"]
         res = self.app.post("/api/v2/sales",
                             headers=self.headers,
@@ -111,8 +111,8 @@ class TestSaleView(unittest.TestCase):
                       headers=self.headers,
                       data=json.dumps(self.reg_data))
         res = self.app.post("/api/v2/auth/login",
-                      		headers=self.headers,
-                      		data=json.dumps(self.login_data))
+                            headers=self.headers,
+                            data=json.dumps(self.login_data))
         self.headers["Authorization"] = "Bearer " + json.loads(res.data)["token"]
         res = self.app.post("/api/v2/sales",
                             headers=self.headers,
@@ -157,8 +157,8 @@ class TestSaleView(unittest.TestCase):
                       headers=self.headers,
                       data=json.dumps(self.reg_data))
         res = self.app.post("/api/v2/auth/login",
-                      		headers=self.headers,
-                      		data=json.dumps(self.login_data))
+                            headers=self.headers,
+                            data=json.dumps(self.login_data))
         self.headers["Authorization"] = "Bearer " + json.loads(res.data)["token"]
         res = self.app.post("/api/v2/sales",
                             headers=self.headers,
