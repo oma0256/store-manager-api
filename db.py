@@ -30,6 +30,13 @@ commands = (
     )
     """,
     """
+    CREATE TABLE IF NOT EXISTS public.categories(
+        id SERIAL PRIMARY KEY,
+        name VARCHAR NOT NULL,
+        description VARCHAR NULL
+    )
+    """,
+    """
     INSERT INTO public.users(first_name, last_name, email, password, is_admin) SELECT 'admin', 'owner', 'admin@email.com', 'pbkdf2:sha256:50000$q5STunEW$09107a77f6c6a7d7042aa1d1e5755736ea128a2eeac0219724bfeddf91bfd88b', True WHERE NOT EXISTS (SELECT * FROM public.users WHERE email='admin@email.com')
     """
     )
@@ -120,3 +127,7 @@ class DB:
     def get_sale_records_user(self, user_id):
         self.cur.execute("SELECT * FROM sales WHERE attendant=%s", (user_id,))
         return self.cur.fetchall()
+
+    def get_category_by_name(self, name):
+        self.cur.execute("SELECT * FROM categories WHERE name=%s", (name,))
+        return self.cur.fetchone()
