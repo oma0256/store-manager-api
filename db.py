@@ -138,3 +138,15 @@ class DB:
 
     def delete_categories(self):
         self.cur.execute("TRUNCATE categories")
+
+    def get_category_by_id(self, category_id):
+        self.cur.execute("SELECT * FROM categories WHERE id=%s", (category_id,))
+        return self.cur.fetchone()
+
+    def update_category(self, name, description, category_id):
+        self.cur.execute("UPDATE categories SET name=%s, description=%s WHERE id=%s", 
+                         (name, description, category_id))
+
+    def get_categories(self):
+        self.cur.execute("SELECT * FROM categories")
+        return self.cur.fetchall()

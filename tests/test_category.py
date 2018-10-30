@@ -15,6 +15,7 @@ class TestProductView(unittest.TestCase):
 
     def setUp(self):
         self.app = app.test_client()
+        self.db_conn = DB()
         self.admin_login = {
             "email": "admin@email.com",
             "password": "pass1234"
@@ -105,3 +106,89 @@ class TestProductView(unittest.TestCase):
                             data=json.dumps(self.category))
         res_data = json.loads(res.data)
         self.assertEqual(res.status_code, 401)
+
+    def test_modify_category_as_store_owner(self):
+        """
+        Test modify a category with valid data
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/categories",
+                      headers=self.headers,
+                      data=json.dumps(self.category))
+        category_id = self.db_conn.get_categories()[0]["id"]
+        self.category["name"] = "svdkjsd"
+        res = self.app.put("/api/v2/categories/" + str(category_id),
+                           headers=self.headers,
+                           data=json.dumps(self.category))
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "message": "Category updated successfully"
+        }
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res_data, exepected_output)
+    
+    def test_modify_category_as_store_attendant(self):
+        """
+        Test modify a category as store attendant
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/categories",
+                      headers=self.headers,
+                      data=json.dumps(self.category))
+        category_id = self.db_conn.get_categories()[0]["id"]
+        self.category["name"] = "svdkjsd"
+        self.app.post("/api/v2/auth/signup",
+                      headers=self.headers,
+                      data=json.dumps(self.reg_data))
+        res = self.app.post("/api/v2/auth/login",
+                      headers=self.headers,
+                      data=json.dumps(self.login_data))
+        self.headers["Authorization"] = "Bearer " + json.loads(res.data)["token"]
+        res = self.app.put("/api/v2/categories/" + str(category_id),
+                           headers=self.headers,
+                           data=json.dumps(self.category))
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "error": "Please login as a store owner"
+        }
+        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res_data, exepected_output)
+    
+    def test_modify_category_non_existant(self):
+        """
+        Test modify a category which doesn't exist
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/categories",
+                      headers=self.headers,
+                      data=json.dumps(self.category))
+        self.category["name"] = "svdkjsd"
+        res = self.app.put("/api/v2/categories/553445354665789",
+                           headers=self.headers,
+                           data=json.dumps(self.category))
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "error": "The category you're trying to modify doesn't exist"
+        }
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res_data, exepected_output)
+
+    def test_modify_category_with_empty_value(self):
+        """
+        Test modify a category with empty value
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/categories",
+                      headers=self.headers,
+                      data=json.dumps(self.category))
+        category_id = self.db_conn.get_categories()[0]["id"]
+        self.category["name"] = ""
+        res = self.app.put("/api/v2/categories/" + str(category_id),
+                           headers=self.headers,
+                           data=json.dumps(self.category))
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "error": "The category name is required"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, exepected_output)

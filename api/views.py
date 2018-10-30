@@ -372,6 +372,42 @@ class CategoryView(MethodView):
             "message": "Successfully created product category"
         }), 201
 
+    @jwt_required
+    def put(self, category_id):
+        """
+        Function to modify a category
+        """
+        # Get logged in user
+        current_user = get_jwt_identity()
+        loggedin_user = db_conn.get_user(current_user)
+        # # Check if it's not store owner
+        if not loggedin_user["is_admin"]:
+            return jsonify({
+                "error": "Please login as a store owner"
+            }), 403
+        
+        # Check if category exists
+        category = db_conn.get_category_by_id(int(category_id))
+        if not category:
+            return jsonify({
+                "error": "The category you're trying to modify doesn't exist"
+            }), 404
+
+        data = request.get_json()
+        # Get the fields which were sent
+        name = data.get("name")
+        description = data.get("description")
+        if not name:
+            return jsonify({
+                "error": "The category name is required"
+            }), 400
+        
+        # Modify category
+        db_conn.update_category(name, description, category_id)
+        return jsonify({
+            "message": "Category updated successfully"
+        })
+
 
 # Map urls to view classes
 app.add_url_rule('/api/v2/auth/login',
@@ -393,4 +429,4 @@ app.add_url_rule('/api/v2/categories',
                  view_func=CategoryView.as_view('category_view'),
                  methods=["POST"])
 app.add_url_rule('/api/v2/categories/<category_id>',
-                 view_func=SaleView.as_view('category_view1'), methods=["PUT", "DELETE"])
+                 view_func=CategoryView.as_view('category_view1'), methods=["PUT", "DELETE"])
