@@ -3,30 +3,30 @@ File to handle my database operations
 """
 commands = (
     """
-    CREATE TABLE public.users(
+    CREATE TABLE IF NOT EXISTS public.users(
     id SERIAL PRIMARY KEY,
     first_name VARCHAR NOT NULL,
     last_name VARCHAR NOT NULL,
     email VARCHAR UNIQUE NOT NULL,
     password VARCHAR NOT NULL,
     is_admin BOOLEAN DEFAULT FALSE NOT NULL
-    );
+    )
     """,
     """
-    CREATE TABLE public.products(
+    CREATE TABLE IF NOT EXISTS public.products(
         id SERIAL PRIMARY KEY,
         name VARCHAR UNIQUE NOT NULL,
         unit_cost INTEGER NOT NULL,
         quantity INTEGER NOT NULL
-    );
+    )
     """,
     """
-    CREATE TABLE public.sales(
+    CREATE TABLE IF NOT EXISTS public.sales(
         id SERIAL PRIMARY KEY,
         attendant INTEGER REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
         cart_items VARCHAR NOT NULL,
         total VARCHAR NOT NULL
-    );
+    )
     """,
     """
     INSERT INTO public.users(first_name, last_name, email, password, is_admin) VALUES ('owner', 'admin', 'admin@email.com', 'pbkdf2:sha256:50000$q5STunEW$09107a77f6c6a7d7042aa1d1e5755736ea128a2eeac0219724bfeddf91bfd88b', True)
@@ -53,10 +53,10 @@ class DB:
                                              password="pass1234")
             self.cur = self.conn.cursor(cursor_factory=RealDictCursor)
             self.conn.autocommit = True
-            for command in commands:
-                self.cur.execute(command)
         except:
             print("Failed to connect")
+        for command in commands:
+            self.cur.execute(command)
     
     def create_admin(self):
         """Function to create an admin"""
