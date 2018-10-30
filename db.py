@@ -50,8 +50,8 @@ class DB:
                                              password="pass1234")
             self.cur = self.conn.cursor(cursor_factory=RealDictCursor)
             self.conn.autocommit = True
-        except:
-            print("Failed to connect")
+        except as e:
+            print("Failed to connect " + e)
         for command in commands:
             self.cur.execute(command)
             print(self.cur)
