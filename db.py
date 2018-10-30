@@ -27,6 +27,9 @@ commands = (
         cart_items VARCHAR NOT NULL,
         total VARCHAR NOT NULL
     )
+    """,
+    """
+    INSERT INTO public.users(first_name, last_name, email, password, is_admin) VALUES ()
     """
     )
 import psycopg2
