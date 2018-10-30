@@ -194,12 +194,13 @@ class TestSaleView(unittest.TestCase):
                            headers=self.headers)
         res_data = json.loads(res.data)
         exepected_output = {
-            "message": "Sale records returned successfully"
+            "message": "Sale records returned successfully",
+            "sale_records": self.db_conn.get_sale_records()
         }
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res_data, exepected_output)
 
-    def test_get_all_sale_records_authenticated_as_store_owner(self):
+    def test_get_all_sale_records_authenticated_as_store_attendant(self):
         """
         Test getting all sale records logged in as store owner
         """
@@ -255,7 +256,8 @@ class TestSaleView(unittest.TestCase):
         res = self.app.post("/api/v2/sales",
                             headers=self.headers,
                             data=json.dumps(self.sale))
-        sale_id = self.db_conn.get_sale_records()[0]["id"]
+        sale_record = self.db_conn.get_sale_records()[0]
+        sale_id = sale_record["id"]
         response = self.app.post("/api/v2/auth/login",
                                   headers=self.headers,
                                   data=json.dumps(self.admin_login))
@@ -265,7 +267,8 @@ class TestSaleView(unittest.TestCase):
                            headers=self.headers)
         res_data = json.loads(res.data)
         expected_output = {
-            "message": "Sale record returned successfully"
+            "message": "Sale record returned successfully",
+            "sale_record": sale_record
         }
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res_data, expected_output)
@@ -291,12 +294,14 @@ class TestSaleView(unittest.TestCase):
         res = self.app.post("/api/v2/sales",
                             headers=self.headers,
                             data=json.dumps(self.sale))
-        sale_id = self.db_conn.get_sale_records()[0]["id"]
+        sale_record = self.db_conn.get_sale_records()[0]
+        sale_id = sale_record["id"]
         res = self.app.get("/api/v1/sales/" + str(sale_id),
                            headers=self.headers)
         res_data = json.loads(res.data)
         expected_output = {
-            "message": "Sale record returned successfully"
+            "message": "Sale record returned successfully",
+            "sale_record": sale_record
         }
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res_data, expected_output)

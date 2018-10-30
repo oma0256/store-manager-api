@@ -180,12 +180,14 @@ class ProductView(MethodView):
                     "error": "This product does not exist"
                 }), 404
             return jsonify({
-                "message": "Product returned successfully"
+                "message": "Product returned successfully",
+                "product": product
                 })
         # Get all products
-        db_conn.get_products()
+        products = db_conn.get_products()
         return jsonify({
-            "message": "Products returned successfully"
+            "message": "Products returned successfully",
+            "products": products
         })
     
     @jwt_required
@@ -327,12 +329,14 @@ class SaleView(MethodView):
             # run if it's a store owner
             if user["is_admin"]:
                 return jsonify({
-                    "message": "Sale record returned successfully"
+                    "message": "Sale record returned successfully",
+                    "sale_record": sale_record
                     })
             # run if it's a store attendant
             if sale_record["attendant"] == db_conn.get_user(current_user)["id"]:
                 return jsonify({
-                    "message": "Sale record returned successfully"
+                    "message": "Sale record returned successfully",
+                    "sale_record": sale_record
                     })
             return jsonify({"error": "You didn't make this sale"}), 403
         # run if request is for all sale records and if it's a store
@@ -340,7 +344,8 @@ class SaleView(MethodView):
         if user["is_admin"]:
             sale_records = db_conn.get_sale_records()
             return jsonify({
-                "message": "Sale records returned successfully"
+                "message": "Sale records returned successfully",
+                "sale_records": sale_records
             })
         return jsonify({"error": "Please login as a store owner"}), 403
 

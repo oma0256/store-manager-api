@@ -137,9 +137,12 @@ class TestProductView(unittest.TestCase):
                       data=json.dumps(self.product))
         res = self.app.get("/api/v2/products",
                            headers=self.headers)
+        product_id = self.db_conn.get_products()[0]["id"]
+        self.product["id"] = product_id
         res_data = json.loads(res.data)
         exepected_output = {
-            "message": "Products returned successfully"
+            "message": "Products returned successfully",
+            "products": [self.product]
         }
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res_data, exepected_output)
@@ -163,9 +166,12 @@ class TestProductView(unittest.TestCase):
         product_id = self.db_conn.get_products()[0]["id"]
         res = self.app.get("/api/v2/products/" + str(product_id),
                            headers=self.headers)
+        product_id = self.db_conn.get_products()[0]["id"]
+        self.product["id"] = product_id
         res_data = json.loads(res.data)
         exepected_output = {
-            "message": "Product returned successfully"
+            "message": "Product returned successfully",
+            "product": self.product
         }
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res_data, exepected_output)

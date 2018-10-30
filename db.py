@@ -31,7 +31,7 @@ CREATE TABLE public.sales(
 INSERT INTO public.users(first_name, last_name, email, password, is_admin) VALUES ()
 """
 import psycopg2
-from psycopg2.extras import DictCursor
+from psycopg2.extras import RealDictCursor
 from werkzeug.security import generate_password_hash
 from api.__init__ import app
 
@@ -49,7 +49,7 @@ class DB:
                                              database="manager", 
                                              user="postgres", 
                                              password="pass1234")
-            self.cur = self.conn.cursor(cursor_factory=DictCursor)
+            self.cur = self.conn.cursor(cursor_factory=RealDictCursor)
             self.conn.autocommit = True
         except:
             print("Failed to connect")
