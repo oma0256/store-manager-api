@@ -40,7 +40,7 @@ class TestSaleView(unittest.TestCase):
             "quantity": 3
         }
         self.cart_item = {
-            "product": 1,
+            "product_id": 1,
             "quantity": 1
         }
         self.sale = {
@@ -77,7 +77,7 @@ class TestSaleView(unittest.TestCase):
                       headers=self.headers,
                       data=json.dumps(self.product))
         product_id = self.db_conn.get_products()[0]["id"]
-        self.cart_item["product"] = ""
+        self.cart_item["product_id"] = ""
         self.cart_items = [self.cart_item]
         self.app.post("/api/v2/auth/signup",
                       headers=self.headers,
@@ -105,7 +105,7 @@ class TestSaleView(unittest.TestCase):
                       headers=self.headers,
                       data=json.dumps(self.product))
         product_id = self.db_conn.get_products()[0]["id"]
-        self.cart_item["product"] = product_id
+        self.cart_item["product_id"] = product_id
         self.cart_items = [self.cart_item]
         self.app.post("/api/v2/auth/signup",
                       headers=self.headers,
@@ -133,7 +133,7 @@ class TestSaleView(unittest.TestCase):
                       headers=self.headers,
                       data=json.dumps(self.product))
         product_id = self.db_conn.get_products()[0]["id"]
-        self.cart_item["product"] = product_id
+        self.cart_item["product_id"] = product_id
         self.cart_items = [self.cart_item]
         res = self.app.post("/api/v2/sales",
                             headers=self.headers,
@@ -247,7 +247,7 @@ class TestSaleView(unittest.TestCase):
                       headers=self.headers,
                       data=json.dumps(self.product))
         product_id = self.db_conn.get_products()[0]["id"]
-        self.cart_item["product"] = product_id
+        self.cart_item["product_id"] = product_id
         self.cart_items = [self.cart_item]
         self.app.post("/api/v2/auth/signup",
                       headers=self.headers,
@@ -285,7 +285,7 @@ class TestSaleView(unittest.TestCase):
                       headers=self.headers,
                       data=json.dumps(self.product))
         product_id = self.db_conn.get_products()[0]["id"]
-        self.cart_item["product"] = product_id
+        self.cart_item["product_id"] = product_id
         self.cart_items = [self.cart_item]
         self.app.post("/api/v2/auth/signup",
                       headers=self.headers,

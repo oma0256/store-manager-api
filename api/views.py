@@ -34,7 +34,6 @@ class LoginView(MethodView):
         Function to perform user login
         """
         # Get data sent
-        
         data = request.get_json()
         # Get attributes of the data sent
         email = data.get("email")
@@ -76,8 +75,6 @@ class RegisterView(MethodView):
         """
         Function to add a store attendant
         """
-        
-
         # Get logged in user
         current_user = get_jwt_identity()
         loggedin_user = db_conn.get_user(current_user)
@@ -130,8 +127,6 @@ class ProductView(MethodView):
         """
         Handles creating of a product
         """
-        
-
         # Get logged in user
         current_user = get_jwt_identity()
         loggedin_user = db_conn.get_user(current_user)
@@ -170,7 +165,6 @@ class ProductView(MethodView):
         """
         Get all products
         """
-        
         # Check if an id has been passed
         if product_id:
             product = db_conn.get_product_by_id(int(product_id))
@@ -195,8 +189,6 @@ class ProductView(MethodView):
         """
         Funtion to modify a product
         """
-        
-
         # Get logged in user
         current_user = get_jwt_identity()
         loggedin_user = db_conn.get_user(current_user)
@@ -234,8 +226,6 @@ class ProductView(MethodView):
         """
         Funtion to delete a product
         """
-        
-
         # Get logged in user
         current_user = get_jwt_identity()
         loggedin_user = db_conn.get_user(current_user)
@@ -269,8 +259,6 @@ class SaleView(MethodView):
         """
         Method to create a sale record
         """
-        
-
         # Get logged in user
         current_user = get_jwt_identity()
         loggedin_user = db_conn.get_user(current_user)
@@ -286,7 +274,7 @@ class SaleView(MethodView):
         total = 0
         product_names = ""
         for cart_item in cart_items:
-            product_id = cart_item.get("product")
+            product_id = cart_item.get("product_id")
             quantity = cart_item.get("quantity")
             # validate each product
             res = validate_cart_item(product_id, quantity)
@@ -313,7 +301,6 @@ class SaleView(MethodView):
         """
         Perform GET on sale records
         """
-        
         # Get current user
         current_user = get_jwt_identity()
         user = db_conn.get_user(current_user)
