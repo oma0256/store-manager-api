@@ -54,9 +54,8 @@ class TestSaleView(unittest.TestCase):
 
     def tearDown(self):
         db_conn = DB()
-        db_conn.delete_products()
         db_conn.delete_attendants()
-        db_conn.delete_sales()
+        db_conn.delete_categories()
 
     def test_create_sale_record_as_unauthenticated(self):
         """

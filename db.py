@@ -135,3 +135,6 @@ class DB:
     def add_category(self, category):
         self.cur.execute("INSERT INTO categories(name, description) VALUES (%s, %s)", 
                          (category.name, category.description))
+
+    def delete_categories(self):
+        self.cur.execute("TRUNCATE categories")
