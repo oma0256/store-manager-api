@@ -34,7 +34,7 @@ class LoginView(MethodView):
         Function to perform user login
         """
         # Get data sent
-        # db_conn = DB()
+        
         data = request.get_json()
         # Get attributes of the data sent
         email = data.get("email")
@@ -76,7 +76,7 @@ class RegisterView(MethodView):
         """
         Function to add a store attendant
         """
-        # db_conn = DB()
+        
 
         # Get logged in user
         current_user = get_jwt_identity()
@@ -130,7 +130,7 @@ class ProductView(MethodView):
         """
         Handles creating of a product
         """
-        # db_conn = DB()
+        
 
         # Get logged in user
         current_user = get_jwt_identity()
@@ -170,7 +170,7 @@ class ProductView(MethodView):
         """
         Get all products
         """
-        # db_conn = DB()
+        
         # Check if an id has been passed
         if product_id:
             product = db_conn.get_product_by_id(int(product_id))
@@ -195,7 +195,7 @@ class ProductView(MethodView):
         """
         Funtion to modify a product
         """
-        # db_conn = DB()
+        
 
         # Get logged in user
         current_user = get_jwt_identity()
@@ -234,7 +234,7 @@ class ProductView(MethodView):
         """
         Funtion to delete a product
         """
-        # db_conn = DB()
+        
 
         # Get logged in user
         current_user = get_jwt_identity()
@@ -269,7 +269,7 @@ class SaleView(MethodView):
         """
         Method to create a sale record
         """
-        # db_conn = DB()
+        
 
         # Get logged in user
         current_user = get_jwt_identity()
@@ -313,7 +313,7 @@ class SaleView(MethodView):
         """
         Perform GET on sale records
         """
-        # db_conn = DB()
+        
         # Get current user
         current_user = get_jwt_identity()
         user = db_conn.get_user(current_user)
