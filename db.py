@@ -27,9 +27,6 @@ commands = (
         cart_items VARCHAR NOT NULL,
         total VARCHAR NOT NULL
     )
-    """,
-    """
-    INSERT INTO public.users(first_name, last_name, email, password, is_admin) VALUES ('owner', 'admin', 'admin@email.com', 'pbkdf2:sha256:50000$q5STunEW$09107a77f6c6a7d7042aa1d1e5755736ea128a2eeac0219724bfeddf91bfd88b', True)
     """
     )
 import psycopg2
@@ -57,6 +54,7 @@ class DB:
             print("Failed to connect")
         for command in commands:
             self.cur.execute(command)
+            print(self.cur)
     
     def create_admin(self):
         """Function to create an admin"""
