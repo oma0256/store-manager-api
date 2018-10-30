@@ -29,7 +29,7 @@ commands = (
     )
     """,
     """
-    INSERT INTO public.users(first_name, last_name, email, password, is_admin) VALUES ()
+    INSERT INTO public.users(first_name, last_name, email, password, is_admin) VALUES ('admin', 'owner', 'admin@email.com', 'pbkdf2:sha256:50000$q5STunEW$09107a77f6c6a7d7042aa1d1e5755736ea128a2eeac0219724bfeddf91bfd88b', True)
     """
     )
 import psycopg2
