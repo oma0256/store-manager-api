@@ -7,11 +7,14 @@ from api.__init__ import app
 from db import DB
 
 
-app.config['TESTING'] = True
 class TestStoreOwnerAuth(unittest.TestCase):
     """
     Test store owner authentication
     """
+    def create_app(self):
+        app.config.from_object('config.TestConfig')
+        return app
+
     def setUp(self):
         self.app = app.test_client()
         self.login_data = {
@@ -80,6 +83,10 @@ class TestSoreAttendantauth(unittest.TestCase):
     """
     Test store attendant authentication
     """
+    def create_app(self):
+        app.config.from_object('config.TestConfig')
+        return app
+
     def setUp(self):
         self.app = app.test_client()
         self.reg_data = {

@@ -8,11 +8,14 @@ from api.__init__ import app
 from db import DB
 
 
-app.config['TESTING'] = True
 class TestSaleView(unittest.TestCase):
     """
     Class to test sale view
     """
+    def create_app(self):
+        app.config.from_object('config.TestConfig')
+        return app
+    
     def setUp(self):
         self.app = app.test_client()
         self.db_conn = DB()
