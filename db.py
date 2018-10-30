@@ -116,3 +116,7 @@ class DB:
     def get_single_sale(self, sale_id):
         self.cur.execute("SELECT * FROM sales WHERE id=%s", (sale_id,))
         return self.cur.fetchone()
+
+    def get_sale_records_user(self, user_id):
+        self.cur.execute("SELECT * FROM sales WHERE attendant=%s", (user_id,))
+        return self.cur.fetchall()

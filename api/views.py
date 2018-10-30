@@ -334,7 +334,14 @@ class SaleView(MethodView):
                 "message": "Sale records returned successfully",
                 "sale_records": sale_records
             })
-        return jsonify({"error": "Please login as a store owner"}), 403
+        # run if request is for all sale records and if it's a store
+        # attendant
+        if not user["is_admin"]:
+            sale_records = db_conn.get_sale_records_user(user["id"])
+            return jsonify({
+                "message": "Sale records returned successfully",
+                "sale_records": sale_records
+            })
 
 
 # Map urls to view classes
@@ -351,5 +358,5 @@ app.add_url_rule('/api/v2/products/<product_id>',
 app.add_url_rule('/api/v2/sales',
                  view_func=SaleView.as_view('sale_view'),
                  methods=["GET","POST"])
-app.add_url_rule('/api/v1/sales/<sale_id>',
+app.add_url_rule('/api/v2/sales/<sale_id>',
                  view_func=SaleView.as_view('sale_view1'), methods=["GET"])
