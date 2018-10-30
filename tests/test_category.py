@@ -192,3 +192,65 @@ class TestProductView(unittest.TestCase):
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, exepected_output)
+
+    def test_delete_category_store_owner(self):
+        """
+        Test delete a category as store owner
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/categories",
+                      headers=self.headers,
+                      data=json.dumps(self.category))
+        category_id = self.db_conn.get_categories()[0]["id"]
+        res = self.app.delete("/api/v2/categories/" + str(category_id),
+                           headers=self.headers,
+                           data=json.dumps(self.category))
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "message": "Category has been deleted successfully"
+        }
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res_data, exepected_output)
+    
+    def test_delete_category_store_attendant(self):
+        """
+        Test delete a product as store attendant
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/categories",
+                      headers=self.headers,
+                      data=json.dumps(self.category))
+        category_id = self.db_conn.get_categories()[0]["id"]
+        self.app.post("/api/v2/auth/signup",
+                      headers=self.headers,
+                      data=json.dumps(self.reg_data))
+        res = self.app.post("/api/v2/auth/login",
+                            headers=self.headers,
+                            data=json.dumps(self.login_data))
+        self.headers["Authorization"] = "Bearer " + json.loads(res.data)["token"]
+        res = self.app.delete("/api/v2/categories/" + str(category_id),
+                              headers=self.headers)
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "error": "Please login as a store owner"
+        }
+        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res_data, exepected_output)
+    
+    def test_delete_category_non_existance(self):
+        """
+        Test delete a category as store owner
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/categories",
+                      headers=self.headers,
+                      data=json.dumps(self.category))
+        res = self.app.delete("/api/v2/categories/142556789068970",
+                           headers=self.headers,
+                           data=json.dumps(self.category))
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "error": "Category you're trying to delete doesn't exist"
+        }
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res_data, exepected_output)

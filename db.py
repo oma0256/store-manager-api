@@ -150,3 +150,6 @@ class DB:
     def get_categories(self):
         self.cur.execute("SELECT * FROM categories")
         return self.cur.fetchall()
+
+    def delete_category(self, category_id):
+        self.cur.execute("DELETE FROM categories WHERE id=%s", (category_id,))

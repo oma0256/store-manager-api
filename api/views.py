@@ -408,6 +408,33 @@ class CategoryView(MethodView):
             "message": "Category updated successfully"
         })
 
+    @jwt_required
+    def delete(self, category_id):
+        """
+        Funtion to category a product
+        """
+        # Get logged in user
+        current_user = get_jwt_identity()
+        loggedin_user = db_conn.get_user(current_user)
+        # Check if it's not store owner
+        if not loggedin_user["is_admin"]:
+            return jsonify({
+                "error": "Please login as a store owner"
+            }), 403
+        
+        # Check if category exists
+        category = db_conn.get_category_by_id(int(category_id))
+        if not category:
+            return jsonify({
+                "error": "Category you're trying to delete doesn't exist"
+            }), 404
+
+        # Delete category
+        db_conn.delete_category(int(category_id))
+        return jsonify({
+            "message": "Category has been deleted successfully"
+        })
+
 
 # Map urls to view classes
 app.add_url_rule('/api/v2/auth/login',
