@@ -73,8 +73,8 @@ class TestSaleView(unittest.TestCase):
         """
         self.headers["Authorization"] = "Bearer " + self.access_token
         res = self.app.post("/api/v2/products",
-                      headers=self.headers,
-                      data=json.dumps(self.product))
+                            headers=self.headers,
+                            data=json.dumps(self.product))
         product_id = self.db_conn.get_products()[0]["id"]
         self.cart_item["product_id"] = ""
         self.cart_items = [self.cart_item]
@@ -118,7 +118,8 @@ class TestSaleView(unittest.TestCase):
                             data=json.dumps(self.sale))
         res_data = json.loads(res.data)
         expected_output = {
-            "message": "Sale made successfully"
+            "message": "Sale made successfully",
+            "cart_items": self.cart_items
         }
         self.assertEqual(res.status_code, 201)
         self.assertEqual(res_data, expected_output)

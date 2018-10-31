@@ -57,15 +57,15 @@ class DB:
                                              password="pass1234")
             else:
                 self.conn = psycopg2.connect(host="localhost", 
-                                             database="test_db", 
+                                             database="manager", 
                                              user="postgres", 
                                              password="pass1234")
             self.cur = self.conn.cursor(cursor_factory=RealDictCursor)
             self.conn.autocommit = True
+            for command in commands:
+                self.cur.execute(command)
         except:
             print("Failed to connect")
-        for command in commands:
-            self.cur.execute(command)
     
     def create_admin(self):
         """Function to create an admin"""

@@ -158,6 +158,7 @@ class ProductView(MethodView):
         db_conn.add_product(new_product)
         return jsonify({
             "message": "Product created successfully",
+            "product": new_product.__dict__
             }), 201
 
     @jwt_required
@@ -218,7 +219,12 @@ class ProductView(MethodView):
         # Modify product
         db_conn.update_product(name, unit_cost, quantity, int(product_id))
         return jsonify({
-            "message": "Product updated successfully"
+            "message": "Product updated successfully",
+            "product": {
+                "name": name,
+                "unit_cost": unit_cost,
+                "quantity": quantity
+            }
         })
     
     @jwt_required
@@ -293,7 +299,8 @@ class SaleView(MethodView):
         attendant = db_conn.get_user(current_user)
         db_conn.add_sale(int(attendant["id"]), product_names, total)
         return jsonify({
-            "message": "Sale made successfully"
+            "message": "Sale made successfully",
+            "cart_items": cart_items
         }), 201
 
     @jwt_required
@@ -345,31 +352,45 @@ class SaleView(MethodView):
 
 
 class CategoryView(MethodView):
+    """
+    Handles http methods on category
+    """
 
     @jwt_required
     def post(self):
+        """
+        Function to create category
+        """
+        # Get logged in user
         current_user = get_jwt_identity()
         user = db_conn.get_user(current_user)
+        # Check if it's store attendant
         if not user["is_admin"]:
             return jsonify({
                 "error": "Please login as a store owner"
             }), 403
+        # Get data sent
         data = request.get_json()
         name = data.get("name")
         description = data.get("description")
+        # Check if name is empty
         if not name:
             return jsonify({
                 "error": "The category name is required"
             }), 400
+        # Get a specific category
         category = db_conn.get_category_by_name(name)
+        # Check if the category exists with that name
         if category:
             return jsonify({
                 "error": "Category with this name exists"
             }), 400
         new_category = Category(name, description=description)
+        # Add category to database
         db_conn.add_category(new_category)
         return jsonify({
-            "message": "Successfully created product category"
+            "message": "Successfully created product category",
+            "category": new_category.__dict__
         }), 201
 
     @jwt_required
@@ -405,7 +426,11 @@ class CategoryView(MethodView):
         # Modify category
         db_conn.update_category(name, description, category_id)
         return jsonify({
-            "message": "Category updated successfully"
+            "message": "Category updated successfully",
+            "category": {
+                "name": name,
+                "description": description
+            }
         })
 
     @jwt_required
@@ -455,4 +480,5 @@ app.add_url_rule('/api/v2/categories',
                  view_func=CategoryView.as_view('category_view'),
                  methods=["POST"])
 app.add_url_rule('/api/v2/categories/<category_id>',
-                 view_func=CategoryView.as_view('category_view1'), methods=["PUT", "DELETE"])
+                 view_func=CategoryView.as_view('category_view1'), 
+                 methods=["PUT", "DELETE"])
