@@ -7,78 +7,6 @@ from api.__init__ import app
 from db import DB
 
 
-class TestStoreOwnerAuth(unittest.TestCase):
-    """
-    Test store owner authentication
-    """
-    def create_app(self):
-        app.config.from_object('config.TestConfig')
-        return app
-
-    def setUp(self):
-        self.app = app.test_client()
-        self.login_data = {
-            "email": "admin@email.com",
-            "password": "pass1234"
-        }
-    
-    def test_login_valid_data(self):
-        """
-        Test login with valid data
-        """
-        res = self.app.post("/api/v2/auth/login",
-                            headers={"Content-Type": "application/json"},
-                            data=json.dumps(self.login_data))
-        res_data = json.loads(res.data)
-        self.assertEqual(res.status_code, 200)
-        self.assertIsNotNone(res_data["token"])
-
-    def test_login_with_missing_fields(self):
-        """
-        Test login with some missing fields
-        """
-        self.login_data["password"] = ""
-        res = self.app.post("/api/v2/auth/login",
-                            headers={"Content-Type": "application/json"},
-                            data=json.dumps(self.login_data))
-        res_data = json.loads(res.data)
-        expected_output = {
-            "error": "Email and password is required"
-        }
-        self.assertEqual(res.status_code, 400)
-        self.assertEqual(res_data, expected_output)
-
-    def test_login_invalid_password(self):
-        """
-        Test login with invalid password
-        """
-        self.login_data["password"] = "kjsdvjj"
-        res = self.app.post("/api/v2/auth/login",
-                            headers={"Content-Type": "application/json"},
-                            data=json.dumps(self.login_data))
-        res_data = json.loads(res.data)
-        expected_output = {
-            "error": "Invalid email or password"
-        }
-        self.assertEqual(res.status_code, 401)
-        self.assertEqual(res_data, expected_output)
-
-    def test_login_unregistered_store_owner(self):
-        """
-        Test login with unregistered user
-        """
-        self.login_data["email"] = "admin1234@email.com"
-        res = self.app.post("/api/v2/auth/login",
-                            headers={"Content-Type": "application/json"},
-                            data=json.dumps(self.login_data))
-        res_data = json.loads(res.data)
-        expected_output = {
-            "error": "Please register to login"
-        }
-        self.assertEqual(res.status_code, 401)
-        self.assertEqual(res_data, expected_output)
-
-
 class TestSoreAttendantauth(unittest.TestCase):
     """
     Test store attendant authentication
@@ -269,3 +197,75 @@ class TestSoreAttendantauth(unittest.TestCase):
         res_data = json.loads(res.data)
         self.assertEqual(res.status_code, 200)
         self.assertIsNotNone(res_data["token"])
+
+
+class TestStoreOwnerAuth(unittest.TestCase):
+    """
+    Test store owner authentication
+    """
+    def create_app(self):
+        app.config.from_object('config.TestConfig')
+        return app
+
+    def setUp(self):
+        self.app = app.test_client()
+        self.login_data = {
+            "email": "admin@email.com",
+            "password": "pass1234"
+        }
+    
+    def test_login_valid_data(self):
+        """
+        Test login with valid data
+        """
+        res = self.app.post("/api/v2/auth/login",
+                            headers={"Content-Type": "application/json"},
+                            data=json.dumps(self.login_data))
+        res_data = json.loads(res.data)
+        self.assertEqual(res.status_code, 200)
+        self.assertIsNotNone(res_data["token"])
+
+    def test_login_with_missing_fields(self):
+        """
+        Test login with some missing fields
+        """
+        self.login_data["password"] = ""
+        res = self.app.post("/api/v2/auth/login",
+                            headers={"Content-Type": "application/json"},
+                            data=json.dumps(self.login_data))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Email and password is required"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, expected_output)
+
+    def test_login_invalid_password(self):
+        """
+        Test login with invalid password
+        """
+        self.login_data["password"] = "kjsdvjj"
+        res = self.app.post("/api/v2/auth/login",
+                            headers={"Content-Type": "application/json"},
+                            data=json.dumps(self.login_data))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Invalid email or password"
+        }
+        self.assertEqual(res.status_code, 401)
+        self.assertEqual(res_data, expected_output)
+
+    def test_login_unregistered_store_owner(self):
+        """
+        Test login with unregistered user
+        """
+        self.login_data["email"] = "admin1234@email.com"
+        res = self.app.post("/api/v2/auth/login",
+                            headers={"Content-Type": "application/json"},
+                            data=json.dumps(self.login_data))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Please register to login"
+        }
+        self.assertEqual(res.status_code, 401)
+        self.assertEqual(res_data, expected_output)

@@ -48,7 +48,8 @@ class TestProductView(unittest.TestCase):
                             data=json.dumps(self.category))
         res_data = json.loads(res.data)
         expected_output = {
-            "message": "Successfully created product category"
+            "message": "Successfully created product category",
+            "category": self.category
         }
         self.assertEqual(res.status_code, 201)
         self.assertEqual(res_data, expected_output)
@@ -122,7 +123,8 @@ class TestProductView(unittest.TestCase):
                            data=json.dumps(self.category))
         res_data = json.loads(res.data)
         exepected_output = {
-            "message": "Category updated successfully"
+            "message": "Category updated successfully",
+            "category": self.category
         }
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res_data, exepected_output)
