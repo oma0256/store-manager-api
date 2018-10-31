@@ -7,7 +7,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import (create_access_token, 
                                 jwt_required, 
                                 get_jwt_identity)
-from api.models import Product, Sale, User
+from api.models import Product, Sale, User, Category
 from api.__init__ import app
 from api.utils.validators import (validate_product, 
                                   validate_login_data, 
@@ -34,7 +34,6 @@ class LoginView(MethodView):
         Function to perform user login
         """
         # Get data sent
-        db_conn = DB()
         data = request.get_json()
         # Get attributes of the data sent
         email = data.get("email")
@@ -76,8 +75,6 @@ class RegisterView(MethodView):
         """
         Function to add a store attendant
         """
-        db_conn = DB()
-
         # Get logged in user
         current_user = get_jwt_identity()
         loggedin_user = db_conn.get_user(current_user)
@@ -130,8 +127,6 @@ class ProductView(MethodView):
         """
         Handles creating of a product
         """
-        db_conn = DB()
-
         # Get logged in user
         current_user = get_jwt_identity()
         loggedin_user = db_conn.get_user(current_user)
@@ -170,7 +165,6 @@ class ProductView(MethodView):
         """
         Get all products
         """
-        db_conn = DB()
         # Check if an id has been passed
         if product_id:
             product = db_conn.get_product_by_id(int(product_id))
@@ -180,12 +174,14 @@ class ProductView(MethodView):
                     "error": "This product does not exist"
                 }), 404
             return jsonify({
-                "message": "Product returned successfully"
+                "message": "Product returned successfully",
+                "product": product
                 })
         # Get all products
-        db_conn.get_products()
+        products = db_conn.get_products()
         return jsonify({
-            "message": "Products returned successfully"
+            "message": "Products returned successfully",
+            "products": products
         })
     
     @jwt_required
@@ -193,8 +189,6 @@ class ProductView(MethodView):
         """
         Funtion to modify a product
         """
-        db_conn = DB()
-
         # Get logged in user
         current_user = get_jwt_identity()
         loggedin_user = db_conn.get_user(current_user)
@@ -232,8 +226,6 @@ class ProductView(MethodView):
         """
         Funtion to delete a product
         """
-        db_conn = DB()
-
         # Get logged in user
         current_user = get_jwt_identity()
         loggedin_user = db_conn.get_user(current_user)
@@ -267,8 +259,6 @@ class SaleView(MethodView):
         """
         Method to create a sale record
         """
-        db_conn = DB()
-
         # Get logged in user
         current_user = get_jwt_identity()
         loggedin_user = db_conn.get_user(current_user)
@@ -284,7 +274,7 @@ class SaleView(MethodView):
         total = 0
         product_names = ""
         for cart_item in cart_items:
-            product_id = cart_item.get("product")
+            product_id = cart_item.get("product_id")
             quantity = cart_item.get("quantity")
             # validate each product
             res = validate_cart_item(product_id, quantity)
@@ -311,7 +301,6 @@ class SaleView(MethodView):
         """
         Perform GET on sale records
         """
-        db_conn = DB()
         # Get current user
         current_user = get_jwt_identity()
         user = db_conn.get_user(current_user)
@@ -327,12 +316,14 @@ class SaleView(MethodView):
             # run if it's a store owner
             if user["is_admin"]:
                 return jsonify({
-                    "message": "Sale record returned successfully"
+                    "message": "Sale record returned successfully",
+                    "sale_record": sale_record
                     })
             # run if it's a store attendant
             if sale_record["attendant"] == db_conn.get_user(current_user)["id"]:
                 return jsonify({
-                    "message": "Sale record returned successfully"
+                    "message": "Sale record returned successfully",
+                    "sale_record": sale_record
                     })
             return jsonify({"error": "You didn't make this sale"}), 403
         # run if request is for all sale records and if it's a store
@@ -340,9 +331,108 @@ class SaleView(MethodView):
         if user["is_admin"]:
             sale_records = db_conn.get_sale_records()
             return jsonify({
-                "message": "Sale records returned successfully"
+                "message": "Sale records returned successfully",
+                "sale_records": sale_records
             })
-        return jsonify({"error": "Please login as a store owner"}), 403
+        # run if request is for all sale records and if it's a store
+        # attendant
+        if not user["is_admin"]:
+            sale_records = db_conn.get_sale_records_user(user["id"])
+            return jsonify({
+                "message": "Sale records returned successfully",
+                "sale_records": sale_records
+            })
+
+
+class CategoryView(MethodView):
+
+    @jwt_required
+    def post(self):
+        current_user = get_jwt_identity()
+        user = db_conn.get_user(current_user)
+        if not user["is_admin"]:
+            return jsonify({
+                "error": "Please login as a store owner"
+            }), 403
+        data = request.get_json()
+        name = data.get("name")
+        description = data.get("description")
+        if not name:
+            return jsonify({
+                "error": "The category name is required"
+            }), 400
+        category = db_conn.get_category_by_name(name)
+        if category:
+            return jsonify({
+                "error": "Category with this name exists"
+            }), 400
+        new_category = Category(name, description=description)
+        db_conn.add_category(new_category)
+        return jsonify({
+            "message": "Successfully created product category"
+        }), 201
+
+    @jwt_required
+    def put(self, category_id):
+        """
+        Function to modify a category
+        """
+        # Get logged in user
+        current_user = get_jwt_identity()
+        loggedin_user = db_conn.get_user(current_user)
+        # # Check if it's not store owner
+        if not loggedin_user["is_admin"]:
+            return jsonify({
+                "error": "Please login as a store owner"
+            }), 403
+        
+        # Check if category exists
+        category = db_conn.get_category_by_id(int(category_id))
+        if not category:
+            return jsonify({
+                "error": "The category you're trying to modify doesn't exist"
+            }), 404
+
+        data = request.get_json()
+        # Get the fields which were sent
+        name = data.get("name")
+        description = data.get("description")
+        if not name:
+            return jsonify({
+                "error": "The category name is required"
+            }), 400
+        
+        # Modify category
+        db_conn.update_category(name, description, category_id)
+        return jsonify({
+            "message": "Category updated successfully"
+        })
+
+    @jwt_required
+    def delete(self, category_id):
+        """
+        Funtion to category a product
+        """
+        # Get logged in user
+        current_user = get_jwt_identity()
+        loggedin_user = db_conn.get_user(current_user)
+        # Check if it's not store owner
+        if loggedin_user["is_admin"]:
+            # Check if category exists
+            category = db_conn.get_category_by_id(int(category_id))
+            if not category:
+                return jsonify({
+                    "error": "Category you're trying to delete doesn't exist"
+                }), 404
+
+            # Delete category
+            db_conn.delete_category(int(category_id))
+            return jsonify({
+                "message": "Category has been deleted successfully"
+            })
+        return jsonify({
+            "error": "Please login as a store owner"
+        }), 403
 
 
 # Map urls to view classes
@@ -359,5 +449,10 @@ app.add_url_rule('/api/v2/products/<product_id>',
 app.add_url_rule('/api/v2/sales',
                  view_func=SaleView.as_view('sale_view'),
                  methods=["GET","POST"])
-app.add_url_rule('/api/v1/sales/<sale_id>',
+app.add_url_rule('/api/v2/sales/<sale_id>',
                  view_func=SaleView.as_view('sale_view1'), methods=["GET"])
+app.add_url_rule('/api/v2/categories',
+                 view_func=CategoryView.as_view('category_view'),
+                 methods=["POST"])
+app.add_url_rule('/api/v2/categories/<category_id>',
+                 view_func=CategoryView.as_view('category_view1'), methods=["PUT", "DELETE"])
