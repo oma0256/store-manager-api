@@ -417,7 +417,7 @@ class CategoryView(MethodView):
         current_user = get_jwt_identity()
         loggedin_user = db_conn.get_user(current_user)
         # Check if it's not store owner
-        if not loggedin_user["is_admin"]:
+        if loggedin_user["is_admin"]:
             # Check if category exists
             category = db_conn.get_category_by_id(int(category_id))
             if not category:
