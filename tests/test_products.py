@@ -7,7 +7,7 @@ import json
 from api import views
 from api.__init__ import app
 from db import DB
-app.config.from_object('config.TestConfig')
+
 
 class TestProductView(unittest.TestCase):
     """
@@ -49,6 +49,7 @@ class TestProductView(unittest.TestCase):
     def tearDown(self):
         db_conn = DB()
         db_conn.delete_sales()
+        db_conn.delete_categories()
         db_conn.delete_products()
         db_conn.delete_attendants()
 

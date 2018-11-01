@@ -54,24 +54,21 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from werkzeug.security import generate_password_hash
 from api.__init__ import app
-from config import config_env
 
 
 class DB:
     def __init__(self):
         try:
-            if config_env["testing"]:
-                # print("great")
+            if app.config["TESTING"]:
                 self.conn = psycopg2.connect(host="localhost", 
                                              database="test_db", 
                                              user="postgres", 
                                              password="pass1234")
             else:
-                # print("okay")
-                self.conn = psycopg2.connect(host="localhost", 
-                                             database="manager", 
-                                             user="postgres", 
-                                             password="pass1234")
+                self.conn = psycopg2.connect(host="ec2-107-21-93-132.compute-1.amazonaws.com", 
+                                             database="d5f8cj1fcjbd3r", 
+                                             user="lqrvapuohprshd", 
+                                             password="5663d19e339d24463a34ce0c8016bcadf880621cb80e2754ee677af468dafb3b")
             self.cur = self.conn.cursor(cursor_factory=RealDictCursor)
             self.conn.autocommit = True
             for command in commands:

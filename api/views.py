@@ -18,11 +18,13 @@ from db import DB
 
 db_conn = DB()
 
-# @app.route("/")
-# def home_page():
-#     db_conn = DB()
-#     db_conn.create_admin()
-#     return "Welcome to the store manager"
+@app.route("/")
+def home_page():
+    # db_conn = DB()
+    # db_conn.create_admin()
+    if app.config["TESTING"]:
+        return "Welcome to store"
+    return "You're not welcome"
 
 
 class LoginView(MethodView):

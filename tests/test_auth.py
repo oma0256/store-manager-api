@@ -6,7 +6,6 @@ import json
 from api.__init__ import app
 from db import DB
 
-app.config.from_object('config.TestConfig')
 
 class TestSoreAttendantauth(unittest.TestCase):
     """
