@@ -273,35 +273,31 @@ class SaleView(MethodView):
             return jsonify({
                 "error": "Please login as a store attendant"
             }), 403
-
+        # Get data passed
         data = request.get_json()
-        # get items being sold
-        cart_items = data.get("cart_items")
-        total = 0
-        product_names = ""
-        for cart_item in cart_items:
-            product_id = cart_item.get("product_id")
-            quantity = cart_item.get("quantity")
-            # validate each product
-            res = validate_cart_item(product_id, quantity)
-            if res:
-                return res
-            # Get product
-            product = db_conn.get_product_by_id(product_id)
-            if not product:
-                return jsonify({
-                    "error": "This product doesn't exist"
-                    }), 404
-            product_names += product["name"] + " "
-            total += product["unit_cost"]
-        current_user = get_jwt_identity()
-        # Get attendant
-        attendant = db_conn.get_user(current_user)
-        db_conn.add_sale(int(attendant["id"]), product_names, total)
+        product_id = data.get("product_id")
+        quantity = data.get("quantity")
+        # Validate the data
+        res = validate_cart_item(product_id, quantity)
+        if res:
+            return res
+        # Get the product to from db
+        product = db_conn.get_product_by_id(product_id)
+        if not product:
+            return jsonify({
+                "error": "This product doesn't exist"
+                }), 404
+        # Calculate the total
+        total = product["unit_cost"] * quantity
+        new_quantity = product["quantity"] - quantity
+        # Update the product quantity
+        db_conn.update_product(product["name"], product["unit_cost"],
+                               new_quantity, product_id)
+        # Make the sale
+        db_conn.add_sale(product_id, loggedin_user["id"], quantity, total)
         return jsonify({
-            "message": "Sale made successfully",
-            "cart_items": cart_items
-        }), 201
+            "message": "Sale made successfully"
+            }), 201
 
     @jwt_required
     def get(self, sale_id=None):
@@ -327,7 +323,7 @@ class SaleView(MethodView):
                     "sale_record": sale_record
                     })
             # run if it's a store attendant
-            if sale_record["attendant"] == db_conn.get_user(current_user)["id"]:
+            if sale_record["attendant_id"] == db_conn.get_user(current_user)["id"]:
                 return jsonify({
                     "message": "Sale record returned successfully",
                     "sale_record": sale_record

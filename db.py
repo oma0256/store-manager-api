@@ -21,12 +21,21 @@ commands = (
         quantity INTEGER NOT NULL
     )
     """,
+    # """
+    # CREATE TABLE IF NOT EXISTS public.sales(
+    #     id SERIAL PRIMARY KEY,
+    #     attendant INTEGER REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+    #     cart_items VARCHAR NOT NULL,
+    #     total VARCHAR NOT NULL
+    # )
+    # """,
     """
     CREATE TABLE IF NOT EXISTS public.sales(
         id SERIAL PRIMARY KEY,
-        attendant INTEGER REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
-        cart_items VARCHAR NOT NULL,
-        total VARCHAR NOT NULL
+        attendant_id INTEGER REFERENCES public.users(id) NOT NULL,
+        product_id INTEGER REFERENCES public.products(id) NOT NULL,
+        quantity INTEGER NOT NULL,
+        total INTEGER NOT NULL
     )
     """,
     """
@@ -45,17 +54,20 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from werkzeug.security import generate_password_hash
 from api.__init__ import app
+from config import config_env
 
 
 class DB:
     def __init__(self):
         try:
-            if app.config["TESTING"]:
+            if config_env["testing"]:
+                print("great")
                 self.conn = psycopg2.connect(host="localhost", 
                                              database="test_db", 
                                              user="postgres", 
                                              password="pass1234")
             else:
+                print("okay")
                 self.conn = psycopg2.connect(host="localhost", 
                                              database="manager", 
                                              user="postgres", 
@@ -81,10 +93,10 @@ class DB:
                          (user.first_name, user.last_name, user.email, user.password))
     
     def delete_attendants(self):
-        self.cur.execute("DELETE FROM users WHERE is_admin=%s", (False,))
+        self.cur.execute("DROP TABLE users")
     
     def delete_products(self):
-        self.cur.execute("TRUNCATE products")
+        self.cur.execute("DROP TABLE products")
     
     def add_product(self, product):
         self.cur.execute("INSERT INTO products(name, unit_cost, quantity) VALUES (%s, %s, %s)", 
@@ -110,11 +122,15 @@ class DB:
         self.cur.execute("DELETE FROM products WHERE id=%s", (product_id,))
 
     def delete_sales(self):
-        self.cur.execute("TRUNCATE sales")
+        self.cur.execute("DROP TABLE sales")
 
-    def add_sale(self, attendant, products, total):
-        self.cur.execute("INSERT INTO sales(attendant, cart_items, total) VALUES (%s, %s, %s)",
-                     (attendant, products, total))
+    # def add_sale(self, attendant, products, total):
+    #     self.cur.execute("INSERT INTO sales(attendant, cart_items, total) VALUES (%s, %s, %s)",
+    #                  (attendant, products, total))
+
+    def add_sale(self, product_id, attendant_id, quantity, total):
+        self.cur.execute("INSERT INTO sales(attendant_id, product_id, quantity, total) VALUES (%s, %s, %s, %s)",
+                     (attendant_id, product_id, quantity, total))
 
     def get_sale_records(self):
         self.cur.execute("SELECT * FROM sales")
@@ -124,8 +140,12 @@ class DB:
         self.cur.execute("SELECT * FROM sales WHERE id=%s", (sale_id,))
         return self.cur.fetchone()
 
+    # def get_sale_records_user(self, user_id):
+    #     self.cur.execute("SELECT * FROM sales WHERE attendant=%s", (user_id,))
+    #     return self.cur.fetchall()
+
     def get_sale_records_user(self, user_id):
-        self.cur.execute("SELECT * FROM sales WHERE attendant=%s", (user_id,))
+        self.cur.execute("SELECT * FROM sales WHERE attendant_id=%s", (user_id,))
         return self.cur.fetchall()
 
     def get_category_by_name(self, name):
@@ -137,7 +157,7 @@ class DB:
                          (category.name, category.description))
 
     def delete_categories(self):
-        self.cur.execute("TRUNCATE categories")
+        self.cur.execute("DROP TABLE categories")
 
     def get_category_by_id(self, category_id):
         self.cur.execute("SELECT * FROM categories WHERE id=%s", (category_id,))

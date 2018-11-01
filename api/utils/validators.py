@@ -1,12 +1,13 @@
 """
 File containig validators
 """
-
+import re
 from flask import jsonify
 from validate_email import validate_email
 from db import DB
 
 
+int_partern = r"^[0-9]*$"
 def validate_register_data(**kwargs):
     """
     Function to validate registration data
@@ -61,8 +62,13 @@ def validate_product(name, unit_cost, quantity):
             "error": "Product name, unit_cost and quantity is required"
             }), 400
 
+    if not name.isalpha():
+        return jsonify({
+            "error": "Product name must be a string"
+            })
+
     # Check for valid unit_cost and quantity input
-    if not isinstance(unit_cost, int) or not isinstance(quantity, int):
+    if not re.match(int_partern, str(unit_cost)) or not re.match(int_partern, str(quantity)):
         return jsonify({
             "error": "Product unit_cost and quantity must be integers"
             }), 400
@@ -81,7 +87,7 @@ def validate_cart_item(product_id, quantity):
         }), 400
     
     # Check for valid product id and quantity
-    if type(product_id) is not int or type(quantity) is not int:
+    if not re.match(int_partern, str(product_id)) or not re.match(int_partern, str(quantity)):
         return jsonify({
             "error": "Product id and quantity must be integers"
             }), 400

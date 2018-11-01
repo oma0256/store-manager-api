@@ -3,3 +3,8 @@ class TestConfig:
 
 class DevelopmentConfig:
     TESTING = False
+
+config_env = {
+    "testing": TestConfig,
+    "development": DevelopmentConfig
+}

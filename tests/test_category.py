@@ -3,15 +3,15 @@ import json
 from api import views
 from api.__init__ import app
 from db import DB
-
+app.config.from_object('config.TestConfig')
 
 class TestProductView(unittest.TestCase):
     """
     Class to test product view
     """
-    def create_app(self):
-        app.config.from_object('config.TestConfig')
-        return app
+    # def create_app(self):
+    #     app.config.from_object('config.TestConfig')
+    #     return app
 
     def setUp(self):
         self.app = app.test_client()
@@ -40,6 +40,9 @@ class TestProductView(unittest.TestCase):
             "name": "Tech",
             "description": "This is tech"
         }
+
+    def tearDown(self):
+        self.db_conn.delete_categories()
 
     def test_create_category_with_valid_data(self):
         self.headers["Authorization"] = "Bearer " + self.access_token
