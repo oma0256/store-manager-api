@@ -61,13 +61,13 @@ class DB:
     def __init__(self):
         try:
             if config_env["testing"]:
-                print("great")
+                # print("great")
                 self.conn = psycopg2.connect(host="localhost", 
                                              database="test_db", 
                                              user="postgres", 
                                              password="pass1234")
             else:
-                print("okay")
+                # print("okay")
                 self.conn = psycopg2.connect(host="localhost", 
                                              database="manager", 
                                              user="postgres", 
@@ -93,10 +93,13 @@ class DB:
                          (user.first_name, user.last_name, user.email, user.password))
     
     def delete_attendants(self):
-        self.cur.execute("DROP TABLE users")
+        self.cur.execute("DROP TABLE IF EXISTS users")
+
+    def delete_only_attendants(self):
+        self.cur.execute("DELETE FROM users WHERE is_admin=True")
     
     def delete_products(self):
-        self.cur.execute("DROP TABLE products")
+        self.cur.execute("DROP TABLE IF EXISTS products")
     
     def add_product(self, product):
         self.cur.execute("INSERT INTO products(name, unit_cost, quantity) VALUES (%s, %s, %s)", 
@@ -122,7 +125,7 @@ class DB:
         self.cur.execute("DELETE FROM products WHERE id=%s", (product_id,))
 
     def delete_sales(self):
-        self.cur.execute("DROP TABLE sales")
+        self.cur.execute("DROP TABLE IF EXISTS sales")
 
     # def add_sale(self, attendant, products, total):
     #     self.cur.execute("INSERT INTO sales(attendant, cart_items, total) VALUES (%s, %s, %s)",
@@ -157,7 +160,7 @@ class DB:
                          (category.name, category.description))
 
     def delete_categories(self):
-        self.cur.execute("DROP TABLE categories")
+        self.cur.execute("DROP TABLE IF EXISTS categories")
 
     def get_category_by_id(self, category_id):
         self.cur.execute("SELECT * FROM categories WHERE id=%s", (category_id,))

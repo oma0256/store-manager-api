@@ -40,6 +40,13 @@ class TestSoreAttendantauth(unittest.TestCase):
                                   data=json.dumps(self.admin_login))
         self.access_token = json.loads(response.data)["token"]
 
+    # def tearDown(self):
+    #     db_conn = DB()
+    #     db_conn.delete_sales()
+    #     db_conn.delete_categories()
+    #     db_conn.delete_products()
+    #     db_conn.delete_attendants()
+
     # def test_register_valid_data(self):
     #     """
     #     Test registration with valid data
@@ -201,9 +208,9 @@ class TestStoreOwnerAuth(unittest.TestCase):
     """
     Test store owner authentication
     """
-    def create_app(self):
-        app.config.from_object('config.TestConfig')
-        return app
+    # def create_app(self):
+    #     app.config.from_object('config.TestConfig')
+    #     return app
 
     def setUp(self):
         self.app = app.test_client()
