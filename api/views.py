@@ -12,7 +12,8 @@ from api.__init__ import app
 from api.utils.validators import (validate_product, 
                                   validate_login_data, 
                                   validate_register_data, 
-                                  validate_cart_item)
+                                  validate_cart_item,
+                                  validate_data)
 from db import DB
 
 
@@ -31,6 +32,10 @@ class LoginView(MethodView):
         """
         Function to perform user login
         """
+        res = validate_data(request)
+        if res:
+            return res
+
         # Get data sent
         data = request.get_json()
         # Get attributes of the data sent
@@ -82,6 +87,9 @@ class RegisterView(MethodView):
                 "error": "Please login as store owner to add store attendant"
             }), 403
 
+        res = validate_data(request)
+        if res:
+            return res
         # Get data sent
         data = request.get_json()
         # Get attributes of the data sent
@@ -133,6 +141,10 @@ class ProductView(MethodView):
             return jsonify({
                 "error": "Please login as a store owner"
             }), 403
+
+        res = validate_data(request)
+        if res:
+            return res
         
         data = request.get_json()
         # Get the fields which were sent
@@ -208,6 +220,10 @@ class ProductView(MethodView):
                 "error": "The product you're trying to modify doesn't exist"
             }), 404
 
+        res = validate_data(request)
+        if res:
+            return res
+
         data = request.get_json()
         # Get the fields which were sent
         name = data.get("name")
@@ -275,6 +291,11 @@ class SaleView(MethodView):
             return jsonify({
                 "error": "Please login as a store attendant"
             }), 403
+
+        res = validate_data(request)
+        if res:
+            return res
+
         # Get data passed
         data = request.get_json()
         product_id = data.get("product_id")
@@ -367,6 +388,9 @@ class CategoryView(MethodView):
             return jsonify({
                 "error": "Please login as a store owner"
             }), 403
+        res = validate_data(request)
+        if res:
+            return res
         # Get data sent
         data = request.get_json()
         name = data.get("name")

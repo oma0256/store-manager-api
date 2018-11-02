@@ -113,3 +113,9 @@ def validate_cart_item(product_id, quantity):
         return jsonify({
             "error": "This product has only a quantity of " + str(product["quantity"])
             }), 400
+
+def validate_data(request):
+    try:
+        data = request.get_json()
+    except:
+        return jsonify({"message": "Please check your inputs"}), 400
