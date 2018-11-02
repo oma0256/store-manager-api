@@ -7,7 +7,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import (create_access_token, 
                                 jwt_required, 
                                 get_jwt_identity)
-from api.models import Product, Sale, User, Category
+from api.models import Product, User, Category
 from api.__init__ import app
 from api.utils.validators import (validate_product, 
                                   validate_login_data, 
@@ -296,8 +296,7 @@ class SaleView(MethodView):
         db_conn.update_product(product["name"], product["unit_cost"],
                                new_quantity, product_id)
         # Make the sale
-        sale = Sale(loggedin_user["id"], product_id, quantity, total)
-        db_conn.add_sale(sale)
+        db_conn.add_sale(loggedin_user["id"], product_id, quantity, total)
         return jsonify({
             "message": "Sale made successfully"
             }), 201

@@ -117,9 +117,9 @@ class DB:
     def delete_sales(self):
         self.cur.execute("DROP TABLE IF EXISTS sales")
 
-    def add_sale(self, sale):
+    def add_sale(self, attendant_id, product_id, quantity, total):
         self.cur.execute("INSERT INTO sales(attendant_id, product_id, quantity, total) VALUES (%s, %s, %s, %s)",
-                         (sale.attendant_id, sale.product_id, sale.quantity, sale.total))
+                         (attendant_id, product_id, quantity, total))
 
     def get_sale_records(self):
         self.cur.execute("SELECT * FROM sales")

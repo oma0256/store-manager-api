@@ -96,7 +96,7 @@ def validate_cart_item(product_id, quantity):
         }), 400
     
     # Check for valid product id and quantity
-    if not re.match(int_partern, str(product_id)) or not re.match(int_partern, str(quantity)):
+    if not type(product_id) is int or not type(quantity) is int:
         return jsonify({
             "error": "Product id and quantity must be integers"
             }), 400
