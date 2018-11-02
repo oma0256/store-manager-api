@@ -8,7 +8,7 @@ Store Manager is a web application that helps store owners manage sales and prod
 To get the application up and running on your computer you can run ```git clone https://github.com/oma0256/store-manager.git```.
 
 ### Prerequisites
-You have to have python 3 and pip installed on your computer.
+You have to have python 3.6 and pip installed on your computer.
 
 ### Installing
 Navigate to where you cloned the repository
@@ -41,16 +41,19 @@ The store attendant can perform the following tasks:
 ## Endpoints
 HTTP Method | End point | Action
 -----------|-----------|----------
-POST | api/v1/store-owner/register | Create an a store owner account
-POST | api/v1/store-owner/login | Login a store owner
-POST | api/v1/store-owner/attendant/register | Register a store attendant
-POST | api/v1/store-attendant/login | Login a store attendant
-POST | api/v1/sales | Create a sales record
-GET | api/v1/sales | Retrieve all sales record
-GET | api/v1/sales/sale_id | Retrieve a single sale record
-POST | api/v1/products | Add a product
-GET | api/v1/products | Retrieve all products
-GET | api/v1/products/product_id | Retrieve a single product
+POST | api/v2/auth/login | Login a user
+POST | api/v2/auth/signup | Register a store attendant
+POST | api/v2/sales | Create a sales record
+GET | api/v2/sales | Retrieve all sales record
+GET | api/v2/sales/sale_id | Retrieve a single sale record
+POST | api/v2/products | Add a product
+GET | api/v2/products | Retrieve all products
+GET | api/v2/products/product_id | Retrieve a single product
+PUT | api/v2/products/product_id | Modify a single product
+DELETE | api/v2/products/product_id | Delete a single product
+POST | api/v2/categories | Create a category
+PUT | api/v2/categories/category_id | Modify a single category
+DELETE | api/v2/categories/category_id | Delete a single category
 
 ## Built With
 - Flask python's web framework
