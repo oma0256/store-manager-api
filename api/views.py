@@ -150,12 +150,6 @@ class ProductView(MethodView):
         if res:
             return res
 
-        if category_id:
-            category = db_conn.get_category_by_id(category_id)
-            if not category:
-                return jsonify({
-                    "error": "This category doesn't exist"
-                    }), 404
 
         # create a product object
         new_product = Product(name=name, unit_cost=unit_cost, 
@@ -230,12 +224,6 @@ class ProductView(MethodView):
         if res:
             return res
             
-        if category_id:
-            category = db_conn.get_category_by_id(category_id)
-            if not category:
-                return jsonify({
-                    "error": "This category doesn't exist"
-                    }), 404
         
         # Modify product
         db_conn.update_product(name, unit_cost, quantity, 

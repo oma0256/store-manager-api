@@ -78,6 +78,11 @@ def validate_product(name, unit_cost, quantity, category_id=None):
             return jsonify({
                 "error": "Category id must be an integer"
                 })
+        category = db_conn.get_category_by_id(category_id)
+        if not category:
+            return jsonify({
+                "error": "This category doesn't exist"
+                }), 404
 
 def validate_cart_item(product_id, quantity):
     """
