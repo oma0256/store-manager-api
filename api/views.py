@@ -143,13 +143,23 @@ class ProductView(MethodView):
         name = data.get("name")
         unit_cost = data.get("unit_cost")
         quantity = data.get("quantity")
+        category_id = data.get("category_id")
         # validates product and returns json response and status code
-        res = validate_product(name=name, unit_cost=unit_cost, quantity=quantity)
+        res = validate_product(name=name, unit_cost=unit_cost, 
+                               quantity=quantity, category_id=category_id)
         if res:
             return res
 
+        if category_id:
+            category = db_conn.get_category_by_id(category_id)
+            if not category:
+                return jsonify({
+                    "error": "This category doesn't exist"
+                    }), 404
+
         # create a product object
-        new_product = Product(name=name, unit_cost=unit_cost, quantity=quantity)
+        new_product = Product(name=name, unit_cost=unit_cost, 
+                              quantity=quantity, category_id=category_id)
         # Check if product exists with this name
         product = db_conn.get_product_by_name(name)
         if product:
@@ -160,7 +170,7 @@ class ProductView(MethodView):
         db_conn.add_product(new_product)
         return jsonify({
             "message": "Product created successfully",
-            "product": new_product.__dict__
+            "product": db_conn.get_product_by_name(name)
             }), 201
 
     @jwt_required
@@ -213,20 +223,26 @@ class ProductView(MethodView):
         name = data.get("name")
         unit_cost = data.get("unit_cost")
         quantity = data.get("quantity")
+        category_id = data.get("category_id")
         # validates product and returns json response and status code
-        res = validate_product(name, unit_cost, quantity)
+        res = validate_product(name=name, unit_cost=unit_cost, 
+                               quantity=quantity, category_id=category_id)
         if res:
             return res
+            
+        if category_id:
+            category = db_conn.get_category_by_id(category_id)
+            if not category:
+                return jsonify({
+                    "error": "This category doesn't exist"
+                    }), 404
         
         # Modify product
-        db_conn.update_product(name, unit_cost, quantity, int(product_id))
+        db_conn.update_product(name, unit_cost, quantity, 
+                               int(product_id), category_id=category_id)
         return jsonify({
             "message": "Product updated successfully",
-            "product": {
-                "name": name,
-                "unit_cost": unit_cost,
-                "quantity": quantity
-            }
+            "product": db_conn.get_product_by_id(product_id)
         })
     
     @jwt_required
@@ -388,7 +404,7 @@ class CategoryView(MethodView):
         db_conn.add_category(new_category)
         return jsonify({
             "message": "Successfully created product category",
-            "category": new_category.__dict__
+            "category": db_conn.get_category_by_name(name)
         }), 201
 
     @jwt_required
@@ -425,10 +441,7 @@ class CategoryView(MethodView):
         db_conn.update_category(name, description, category_id)
         return jsonify({
             "message": "Category updated successfully",
-            "category": {
-                "name": name,
-                "description": description
-            }
+            "category": db_conn.get_category_by_id(int(category_id))
         })
 
     @jwt_required

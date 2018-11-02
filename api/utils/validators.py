@@ -52,7 +52,7 @@ def validate_login_data(email, password):
     return None
 
 
-def validate_product(name, unit_cost, quantity):
+def validate_product(name, unit_cost, quantity, category_id=None):
     """
     Funtion to validate product data
     """
@@ -73,7 +73,11 @@ def validate_product(name, unit_cost, quantity):
             "error": "Product unit_cost and quantity must be integers"
             }), 400
 
-    return None
+    if category_id:
+        if not re.match(int_partern, str(category_id)):
+            return jsonify({
+                "error": "Category id must be an integer"
+                })
 
 def validate_cart_item(product_id, quantity):
     """

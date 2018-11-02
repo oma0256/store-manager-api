@@ -23,6 +23,7 @@ class Product:
         self.name = kwargs.get("name")
         self.unit_cost = kwargs.get("unit_cost")
         self.quantity = kwargs.get("quantity")
+        self.category_id = kwargs.get("category_id")
 
 
 class Sale:

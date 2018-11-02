@@ -7,7 +7,7 @@ import json
 from api import views
 from api.__init__ import app
 from db import DB
-
+app.config.from_object('config.TestConfig')
 
 class TestProductView(unittest.TestCase):
     """
@@ -47,11 +47,10 @@ class TestProductView(unittest.TestCase):
         self.access_token = json.loads(response.data)["token"]
 
     def tearDown(self):
-        db_conn = DB()
-        db_conn.delete_sales()
-        db_conn.delete_categories()
-        db_conn.delete_products()
-        db_conn.delete_attendants()
+        self.db_conn = DB()
+        self.db_conn.delete_sales()
+        self.db_conn.delete_products()
+        self.db_conn.delete_attendants()
 
     def test_create_product_with_valid_fields(self):
         """
@@ -64,7 +63,7 @@ class TestProductView(unittest.TestCase):
         res_data = json.loads(res.data)
         expected_output = {
             "message": "Product created successfully",
-            "product": self.product
+            "product": self.db_conn.get_product_by_name(self.product["name"])
         }
         self.assertEqual(res.status_code, 201)
         self.assertEqual(res_data, expected_output)
@@ -148,7 +147,7 @@ class TestProductView(unittest.TestCase):
         res_data = json.loads(res.data)
         exepected_output = {
             "message": "Products returned successfully",
-            "products": [self.product]
+            "products": self.db_conn.get_products()
         }
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res_data, exepected_output)
@@ -177,7 +176,7 @@ class TestProductView(unittest.TestCase):
         res_data = json.loads(res.data)
         exepected_output = {
             "message": "Product returned successfully",
-            "product": self.product
+            "product": self.db_conn.get_products()[0]
         }
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res_data, exepected_output)
@@ -220,7 +219,7 @@ class TestProductView(unittest.TestCase):
         res_data = json.loads(res.data)
         exepected_output = {
             "message": "Product updated successfully",
-            "product": self.product
+            "product": self.db_conn.get_product_by_name(self.product["name"])
         }
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res_data, exepected_output)

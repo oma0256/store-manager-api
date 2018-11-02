@@ -99,8 +99,12 @@ class DB:
         self.cur.execute("DROP TABLE IF EXISTS products")
     
     def add_product(self, product):
-        self.cur.execute("INSERT INTO products(name, unit_cost, quantity) VALUES (%s, %s, %s)", 
-                         (product.name, product.unit_cost, product.quantity))
+        if product.category_id:
+            self.cur.execute("INSERT INTO products(name, unit_cost, quantity, category) VALUES (%s, %s, %s)", 
+                             (product.name, product.unit_cost, product.quantity, product.category_id))
+        else:
+            self.cur.execute("INSERT INTO products(name, unit_cost, quantity) VALUES (%s, %s, %s)", 
+                             (product.name, product.unit_cost, product.quantity))
     
     def get_product_by_name(self, name):
         self.cur.execute("SELECT * FROM products WHERE name=%s", (name,))
@@ -114,9 +118,13 @@ class DB:
         self.cur.execute("SELECT * FROM products WHERE id=%s", (product_id,))
         return self.cur.fetchone()
     
-    def update_product(self, name, unit_cost, quantity, product_id):
-        self.cur.execute("UPDATE products SET name=%s, unit_cost=%s, quantity=%s WHERE id=%s", 
-                         (name, unit_cost, quantity, product_id))
+    def update_product(self, name, unit_cost, quantity, product_id, category_id=None):
+        if category_id is not None:
+            self.cur.execute("UPDATE products SET name=%s, unit_cost=%s, quantity=%s, category=%s WHERE id=%s", 
+                             (name, unit_cost, quantity, category_id, product_id))
+        else:
+            self.cur.execute("UPDATE products SET name=%s, unit_cost=%s, quantity=%s WHERE id=%s", 
+                             (name, unit_cost, quantity, product_id))
     
     def delete_product(self, product_id):
         self.cur.execute("DELETE FROM products WHERE id=%s", (product_id,))
