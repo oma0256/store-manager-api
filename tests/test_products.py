@@ -13,9 +13,6 @@ class TestProductView(unittest.TestCase):
     """
     Class to test product view
     """
-    # def create_app(self):
-    #     app.config.from_object('config.TestConfig')
-    #     return app
 
     def setUp(self):
         self.db_conn = DB()
@@ -40,6 +37,9 @@ class TestProductView(unittest.TestCase):
             "unit_cost": 10000,
             "quantity": 3
         }
+        self.category = {
+            "name": "Tech"
+        }
         self.headers = {"Content-Type": "application/json"}
         response = self.app.post("/api/v2/auth/login",
                                   headers=self.headers,
@@ -50,6 +50,7 @@ class TestProductView(unittest.TestCase):
         self.db_conn = DB()
         self.db_conn.delete_sales()
         self.db_conn.delete_products()
+        self.db_conn.delete_categories()
         self.db_conn.delete_attendants()
 
     def test_create_product_with_valid_fields(self):
@@ -57,6 +58,25 @@ class TestProductView(unittest.TestCase):
         Test to create product with valid fields
         """
         self.headers["Authorization"] = "Bearer " + self.access_token
+        res = self.app.post("/api/v2/products",
+                            headers=self.headers,
+                            data=json.dumps(self.product))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "message": "Product created successfully",
+            "product": self.db_conn.get_product_by_name(self.product["name"])
+        }
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res_data, expected_output)
+
+    def test_create_product_with_category(self):
+        """
+        Test to create product with category
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/categories",
+                      headers=self.headers,
+                      data=json.dumps(self.category))
         res = self.app.post("/api/v2/products",
                             headers=self.headers,
                             data=json.dumps(self.product))
@@ -213,6 +233,31 @@ class TestProductView(unittest.TestCase):
                       data=json.dumps(self.product))
         product_id = self.db_conn.get_products()[0]["id"]
         self.product["name"] = "svdkjsd"
+        res = self.app.put("/api/v2/products/" + str(product_id),
+                           headers=self.headers,
+                           data=json.dumps(self.product))
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "message": "Product updated successfully",
+            "product": self.db_conn.get_product_by_name(self.product["name"])
+        }
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res_data, exepected_output)
+
+    def test_modify_product_using_category(self):
+        """
+        Test modify a product category
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/products",
+                      headers=self.headers,
+                      data=json.dumps(self.product))
+        self.app.post("/api/v2/categories",
+                      headers=self.headers,
+                      data=json.dumps(self.category))
+        product_id = self.db_conn.get_products()[0]["id"]
+        category_id = self.db_conn.get_categories()[0]["id"]
+        self.product["category_id"] = category_id
         res = self.app.put("/api/v2/products/" + str(product_id),
                            headers=self.headers,
                            data=json.dumps(self.product))

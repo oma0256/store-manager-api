@@ -20,11 +20,7 @@ db_conn = DB()
 
 @app.route("/")
 def home_page():
-    # db_conn = DB()
-    # db_conn.create_admin()
-    if app.config["TESTING"]:
-        return "Welcome to store"
-    return "You're not welcome"
+    return "Welcome to store"
 
 
 class LoginView(MethodView):
@@ -300,7 +296,8 @@ class SaleView(MethodView):
         db_conn.update_product(product["name"], product["unit_cost"],
                                new_quantity, product_id)
         # Make the sale
-        db_conn.add_sale(product_id, loggedin_user["id"], quantity, total)
+        sale = Sale(loggedin_user["id"], product_id, quantity, total)
+        db_conn.add_sale(sale)
         return jsonify({
             "message": "Sale made successfully"
             }), 201

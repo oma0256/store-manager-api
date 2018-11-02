@@ -14,21 +14,21 @@ commands = (
     )
     """,
     """
+    CREATE TABLE IF NOT EXISTS public.categories(
+        id SERIAL PRIMARY KEY,
+        name VARCHAR NOT NULL,
+        description VARCHAR NULL
+    )
+    """,
+    """
     CREATE TABLE IF NOT EXISTS public.products(
         id SERIAL PRIMARY KEY,
         name VARCHAR UNIQUE NOT NULL,
         unit_cost INTEGER NOT NULL,
-        quantity INTEGER NOT NULL
+        quantity INTEGER NOT NULL,
+        category INTEGER REFERENCES public.categories(id) NULL
     )
     """,
-    # """
-    # CREATE TABLE IF NOT EXISTS public.sales(
-    #     id SERIAL PRIMARY KEY,
-    #     attendant INTEGER REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
-    #     cart_items VARCHAR NOT NULL,
-    #     total VARCHAR NOT NULL
-    # )
-    # """,
     """
     CREATE TABLE IF NOT EXISTS public.sales(
         id SERIAL PRIMARY KEY,
@@ -36,13 +36,6 @@ commands = (
         product_id INTEGER REFERENCES public.products(id) NOT NULL,
         quantity INTEGER NOT NULL,
         total INTEGER NOT NULL
-    )
-    """,
-    """
-    CREATE TABLE IF NOT EXISTS public.categories(
-        id SERIAL PRIMARY KEY,
-        name VARCHAR NOT NULL,
-        description VARCHAR NULL
     )
     """,
     """
@@ -76,11 +69,6 @@ class DB:
         except:
             print("Failed to connect")
     
-    def create_admin(self):
-        """Function to create an admin"""
-        self.cur.execute("INSERT INTO users(first_name, last_name, email, password, is_admin) VALUES (%s, %s, %s, %s, %s)",
-                         ("admin", "owner", "admin@email.com", generate_password_hash("pass1234"), True))
-    
     def get_user(self, email):
         self.cur.execute("SELECT * FROM users WHERE email=%s", (email,))
         return self.cur.fetchone()
@@ -91,9 +79,6 @@ class DB:
     
     def delete_attendants(self):
         self.cur.execute("DROP TABLE IF EXISTS users")
-
-    def delete_only_attendants(self):
-        self.cur.execute("DELETE FROM users WHERE is_admin=True")
     
     def delete_products(self):
         self.cur.execute("DROP TABLE IF EXISTS products")
@@ -132,13 +117,9 @@ class DB:
     def delete_sales(self):
         self.cur.execute("DROP TABLE IF EXISTS sales")
 
-    # def add_sale(self, attendant, products, total):
-    #     self.cur.execute("INSERT INTO sales(attendant, cart_items, total) VALUES (%s, %s, %s)",
-    #                  (attendant, products, total))
-
-    def add_sale(self, product_id, attendant_id, quantity, total):
+    def add_sale(self, sale):
         self.cur.execute("INSERT INTO sales(attendant_id, product_id, quantity, total) VALUES (%s, %s, %s, %s)",
-                     (attendant_id, product_id, quantity, total))
+                         (sale.attendant_id, sale.product_id, sale.quantity, sale.total))
 
     def get_sale_records(self):
         self.cur.execute("SELECT * FROM sales")
@@ -147,10 +128,6 @@ class DB:
     def get_single_sale(self, sale_id):
         self.cur.execute("SELECT * FROM sales WHERE id=%s", (sale_id,))
         return self.cur.fetchone()
-
-    # def get_sale_records_user(self, user_id):
-    #     self.cur.execute("SELECT * FROM sales WHERE attendant=%s", (user_id,))
-    #     return self.cur.fetchall()
 
     def get_sale_records_user(self, user_id):
         self.cur.execute("SELECT * FROM sales WHERE attendant_id=%s", (user_id,))

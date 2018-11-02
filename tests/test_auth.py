@@ -11,9 +11,6 @@ class TestSoreAttendantauth(unittest.TestCase):
     """
     Test store attendant authentication
     """
-    # def create_app(self):
-    #     app.config.from_object('config.TestConfig')
-    #     return app
 
     def setUp(self):
         self.db_conn = DB()

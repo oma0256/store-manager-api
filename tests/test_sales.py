@@ -12,9 +12,6 @@ class TestSaleView(unittest.TestCase):
     """
     Class to test sale view
     """
-    # def create_app(self):
-    #     app.config.from_object('config.TestConfig')
-    #     return app
     
     def setUp(self):
         self.app = app.test_client()
@@ -43,9 +40,6 @@ class TestSaleView(unittest.TestCase):
             "product_id": 1,
             "quantity": 1
         }
-        # self.sale = {
-        #     "cart_items": self.cart_item
-        # }
         self.headers = {"Content-Type": "application/json"}
         response = self.app.post("/api/v2/auth/login",
                                   headers=self.headers,
@@ -55,9 +49,9 @@ class TestSaleView(unittest.TestCase):
     def tearDown(self):
         db_conn = DB()
         db_conn.delete_sales()
+        db_conn.delete_products()
         db_conn.delete_categories()
         db_conn.delete_attendants()
-        db_conn.delete_products()
 
     def test_create_sale_record_as_unauthenticated(self):
         """
@@ -202,32 +196,37 @@ class TestSaleView(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res_data, exepected_output)
 
-    # def test_get_all_sale_records_authenticated_as_store_attendant(self):
-    #     """
-    #     Test getting all sale records logged in as store owner
-    #     """
-    #     self.headers["Authorization"] = "Bearer " + self.access_token
-    #     self.app.post("/api/v2/products",
-    #                   headers=self.headers,
-    #                   data=json.dumps(self.product))
-    #     self.app.post("/api/v2/auth/signup",
-    #                   headers=self.headers,
-    #                   data=json.dumps(self.reg_data))
-    #     res = self.app.post("/api/v2/auth/login",
-    #                         headers=self.headers,
-    #                         data=json.dumps(self.login_data))
-    #     self.headers["Authorization"] = "Bearer " + json.loads(res.data)["token"]
-    #     self.app.post("/api/v2/sales",
-    #                   headers=self.headers,
-    #                   data=json.dumps(self.sale))
-    #     res = self.app.get("/api/v2/sales",
-    #                        headers=self.headers)
-    #     res_data = json.loads(res.data)
-    #     exepected_output = {
-    #         "error": "Please login as a store owner"
-    #     }
-    #     self.assertEqual(res.status_code, 403)
-    #     self.assertEqual(res_data, exepected_output)
+    def test_get_sale_records_as_store_attendant(self):
+        """
+        Test getting a sale records as a store attendant if made it
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/products",
+                      headers=self.headers,
+                      data=json.dumps(self.product))
+        product_id = self.db_conn.get_products()[0]["id"]
+        self.sale["product_id"] = product_id
+        self.app.post("/api/v2/auth/signup",
+                      headers=self.headers,
+                      data=json.dumps(self.reg_data))
+        res = self.app.post("/api/v2/auth/login",
+                            headers=self.headers,
+                            data=json.dumps(self.login_data))
+        self.headers["Authorization"] = "Bearer " + json.loads(res.data)["token"]
+        res = self.app.post("/api/v2/sales",
+                            headers=self.headers,
+                            data=json.dumps(self.sale))
+        sale_record = self.db_conn.get_sale_records()[0]
+        attendant_id = sale_record["attendant_id"]
+        res = self.app.get("/api/v2/sales",
+                           headers=self.headers)
+        res_data = json.loads(res.data)
+        expected_output = {
+            "message": "Sale records returned successfully",
+            "sale_records": self.db_conn.get_sale_records_user(attendant_id)
+        }
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res_data, expected_output)
 
     def test_get_all_sale_records_unauthenticated_user(self):
         """

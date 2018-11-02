@@ -7,6 +7,7 @@ from validate_email import validate_email
 from db import DB
 
 
+db_conn = DB()
 int_partern = r"^[0-9]*$"
 def validate_register_data(**kwargs):
     """
@@ -88,7 +89,6 @@ def validate_cart_item(product_id, quantity):
     """
     Function to validate cart item
     """
-    db_conn = DB()
     # Check if fields are empty
     if not product_id or not quantity:
         return jsonify({

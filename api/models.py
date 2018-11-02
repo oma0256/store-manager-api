@@ -30,10 +30,10 @@ class Sale:
     """
     Define sale structure
     """
-    def __init__(self, cart_items,
-                 attendannt, total):
-        self.cart_items = cart_items
-        self.attendant = attendannt
+    def __init__(self, attendant_id, product_id, quantity, total):
+        self.attendant_id = attendant_id
+        self.product_id = product_id
+        self.quantity = quantity
         self.total = total
 
 class Category:

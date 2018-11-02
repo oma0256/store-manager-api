@@ -9,9 +9,6 @@ class TestProductView(unittest.TestCase):
     """
     Class to test product view
     """
-    # def create_app(self):
-    #     app.config.from_object('config.TestConfig')
-    #     return app
 
     def setUp(self):
         self.app = app.test_client()
@@ -42,6 +39,8 @@ class TestProductView(unittest.TestCase):
         }
 
     def tearDown(self):
+        self.db_conn.delete_sales()
+        self.db_conn.delete_products()
         self.db_conn.delete_categories()
 
     def test_create_category_with_valid_data(self):
