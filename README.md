@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/oma0256/store-manager-api.svg?branch=challenge3)](https://travis-ci.org/oma0256/store-manager-api)
-<!-- [![Coverage Status](https://coveralls.io/repos/github/oma0256/store-manager-api/badge.svg?branch=challenge3)](https://coveralls.io/github/oma0256/store-manager-api?branch=challenge3) -->
+[![Coverage Status](https://coveralls.io/repos/github/oma0256/store-manager-api/badge.svg?branch=challenge3)](https://coveralls.io/github/oma0256/store-manager-api?branch=challenge3)
 [![Maintainability](https://api.codeclimate.com/v1/badges/3303ae1c369c0bd693df/maintainability)](https://codeclimate.com/github/oma0256/store-manager-api/maintainability)
 # Store Manager Api
 Store Manager is a web application that helps store owners manage sales and product inventory records. This application is meant for use in a single store.
