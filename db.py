@@ -68,7 +68,7 @@ class DB:
                 self.cur.execute(command)
         except:
             print("Failed to connect")
-
+    
     def drop_tables(self):
         self.cur.execute("DROP TABLE IF EXISTS sales")
         self.cur.execute("DROP TABLE IF EXISTS products")
@@ -118,10 +118,6 @@ class DB:
     
     def delete_product(self, product_id):
         self.cur.execute("DELETE FROM products WHERE id=%s", (product_id,))
-
-    def add_sale(self, attendant_id, product_id, quantity, total):
-        self.cur.execute("INSERT INTO sales(attendant_id, product_id, quantity, total) VALUES (%s, %s, %s, %s)",
-                         (attendant_id, product_id, quantity, total))
 
     def add_sale(self, attendant_id, product_id, quantity, total):
         self.cur.execute("INSERT INTO sales(attendant_id, product_id, quantity, total) VALUES (%s, %s, %s, %s)",
