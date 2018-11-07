@@ -128,6 +128,27 @@ def validate_cart_item(request):
     if error_msg:
         return jsonify(error_msg), status_code
 
+def validate_category(request):
+    res = validate_data(request)
+    if res:
+        return res
+    # Get data sent
+    data = request.get_json()
+    name = data.get("name")
+    description = data.get("description")
+    # Check if name is empty
+    if not name:
+        return jsonify({
+            "error": "The category name is required"
+        }), 400
+    # Get a specific category
+    category = db_conn.get_category_by_name(name)
+    # Check if the category exists with that name
+    if category:
+        return jsonify({
+            "error": "Category with this name exists"
+        }), 400
+
 def validate_data(request):
     try:
         data = request.get_json()

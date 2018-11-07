@@ -13,7 +13,7 @@ from api.utils.validators import (validate_product,
                                   validate_login_data, 
                                   validate_register_data, 
                                   validate_cart_item,
-                                  # validate_category,
+                                  validate_category,
                                   validate_data)
 from db import DB
 from db import DB
@@ -345,25 +345,15 @@ class CategoryView(MethodView):
             return jsonify({
                 "error": "Please login as a store owner"
             }), 403
-        res = validate_data(request)
+        res = validate_category(request)
         if res:
             return res
         # Get data sent
         data = request.get_json()
         name = data.get("name")
         description = data.get("description")
-        # Check if name is empty
-        if not name:
-            return jsonify({
-                "error": "The category name is required"
-            }), 400
         # Get a specific category
         category = db_conn.get_category_by_name(name)
-        # Check if the category exists with that name
-        if category:
-            return jsonify({
-                "error": "Category with this name exists"
-            }), 400
         new_category = Category(name, description=description)
         # Add category to database
         db_conn.add_category(new_category)
