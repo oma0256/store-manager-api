@@ -68,6 +68,12 @@ class DB:
                 self.cur.execute(command)
         except:
             print("Failed to connect")
+
+    def drop_tables(self):
+        self.cur.execute("DROP TABLE IF EXISTS sales")
+        self.cur.execute("DROP TABLE IF EXISTS products")
+        self.cur.execute("DROP TABLE IF EXISTS categories")
+        self.cur.execute("DROP TABLE IF EXISTS users")
     
     def get_user(self, email):
         self.cur.execute("SELECT * FROM users WHERE email=%s", (email,))
@@ -76,12 +82,6 @@ class DB:
     def create_user(self, user):
         self.cur.execute("INSERT INTO users(first_name, last_name, email, password) VALUES (%s, %s, %s, %s)", 
                          (user.first_name, user.last_name, user.email, user.password))
-    
-    def delete_attendants(self):
-        self.cur.execute("DROP TABLE IF EXISTS users")
-    
-    def delete_products(self):
-        self.cur.execute("DROP TABLE IF EXISTS products")
     
     def add_product(self, product):
         if product.category_id:
@@ -114,9 +114,6 @@ class DB:
     def delete_product(self, product_id):
         self.cur.execute("DELETE FROM products WHERE id=%s", (product_id,))
 
-    def delete_sales(self):
-        self.cur.execute("DROP TABLE IF EXISTS sales")
-
     def add_sale(self, attendant_id, product_id, quantity, total):
         self.cur.execute("INSERT INTO sales(attendant_id, product_id, quantity, total) VALUES (%s, %s, %s, %s)",
                          (attendant_id, product_id, quantity, total))
@@ -140,9 +137,6 @@ class DB:
     def add_category(self, category):
         self.cur.execute("INSERT INTO categories(name, description) VALUES (%s, %s)", 
                          (category.name, category.description))
-
-    def delete_categories(self):
-        self.cur.execute("DROP TABLE IF EXISTS categories")
 
     def get_category_by_id(self, category_id):
         self.cur.execute("SELECT * FROM categories WHERE id=%s", (category_id,))

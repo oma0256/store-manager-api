@@ -39,9 +39,7 @@ class TestProductView(unittest.TestCase):
         }
 
     def tearDown(self):
-        self.db_conn.delete_sales()
-        self.db_conn.delete_products()
-        self.db_conn.delete_categories()
+        self.db_conn.drop_tables()
 
     def test_create_category_with_valid_data(self):
         self.headers["Authorization"] = "Bearer " + self.access_token

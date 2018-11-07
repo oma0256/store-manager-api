@@ -47,11 +47,7 @@ class TestProductView(unittest.TestCase):
         self.access_token = json.loads(response.data)["token"]
 
     def tearDown(self):
-        self.db_conn = DB()
-        self.db_conn.delete_sales()
-        self.db_conn.delete_products()
-        self.db_conn.delete_categories()
-        self.db_conn.delete_attendants()
+        self.db_conn.drop_tables()
 
     def test_create_product_with_valid_fields(self):
         """

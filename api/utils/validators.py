@@ -7,42 +7,47 @@ from db import DB
 
 
 db_conn = DB()
-def validate_register_data(**kwargs):
+def validate_register_data(request):
     """
     Function to validate registration data
     """
-    first_name = kwargs.get("first_name")
-    last_name = kwargs.get("last_name")
-    email = kwargs.get("email")
-    password = kwargs.get("password")
-    confirm_password = kwargs.get("confirm_password")
+    res = validate_data(request)
+    if res:
+        return res
+    data = request.get_json()
+    first_name = data.get("first_name")
+    last_name = data.get("last_name")
+    email = data.get("email")
+    password = data.get("password")
+    confirm_password = data.get("confirm_password")
     # Check for empty fields
-    if not first_name or not last_name or not email or not password or not confirm_password:
+    if not first_name or not last_name or not first_name.isalpha() or not last_name.isalpha():
         return jsonify({
-            "error": "First name, last name, email, password and confirm password fields are required"
+            "error": "First name and last name are required and must be alphabets"
             }), 400
     # Check if email is valid
     is_valid = validate_email(email)
-    if not is_valid:
+    if not email or not is_valid:
         return jsonify({
             "error": "Please use a valid email address"
         }), 400
-    # Check if first and last name are alphabets only
-    if not first_name.isalpha() or not last_name.isalpha():
-        return jsonify({
-            "error": "First and last name should only be alphabets"
-        }), 400
     # Check if password and confirm password are equal
-    if password != confirm_password:
+    if not password or not confirm_password or password != confirm_password:
         return jsonify({
-            "error": "Passwords must match"
+            "error": "Passwords are required and must match"
         }), 400
 
 
-def validate_login_data(email, password):
+def validate_login_data(request):
     """
     Funtion to validate data to login a user
     """
+    res = validate_data(request)
+    if res:
+        return res
+    data = request.get_json()
+    email = data.get("email")
+    password = data.get("password")
     # Check for empty fields
     if not email or not password:
         return jsonify({

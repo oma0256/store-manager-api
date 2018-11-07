@@ -47,11 +47,7 @@ class TestSaleView(unittest.TestCase):
         self.access_token = json.loads(response.data)["token"]
 
     def tearDown(self):
-        db_conn = DB()
-        db_conn.delete_sales()
-        db_conn.delete_products()
-        db_conn.delete_categories()
-        db_conn.delete_attendants()
+        self.db_conn.drop_tables()
 
     def test_create_sale_record_as_unauthenticated(self):
         """

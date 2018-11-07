@@ -1,7 +1,7 @@
 """
 File to handle application views
 """
-from flask import jsonify, request, session
+from flask import jsonify, request
 from flask.views import MethodView
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import (create_access_token, 
@@ -13,7 +13,9 @@ from api.utils.validators import (validate_product,
                                   validate_login_data, 
                                   validate_register_data, 
                                   validate_cart_item,
+                                  # validate_category,
                                   validate_data)
+from db import DB
 from db import DB
 
 
@@ -32,41 +34,31 @@ class LoginView(MethodView):
         """
         Function to perform user login
         """
-        res = validate_data(request)
+        # Validate the data
+        res = validate_login_data(request)
         if res:
             return res
-
-        # Get data sent
         data = request.get_json()
-        # Get attributes of the data sent
         email = data.get("email")
         password = data.get("password")
-
-        # Validate the data
-        res = validate_login_data(email, password)
-        if res:
-            return res
 
         # Check if user already registered
         user = db_conn.get_user(email)
         if not user:
             return jsonify({"error": "Please register to login"}), 401
-
+        msg = None
         # Check if it's a store owner and the password is theirs
         if user["is_admin"] and check_password_hash(user["password"], password):
             access_token = create_access_token(identity=email)
-            return jsonify({
-                "message": "Store owner logged in successfully",
-                "token": access_token
-                })
+            msg = {"message": "Store owner logged in successfully", "token": access_token}
         # Check if it's a store attendant and the password is theirs
-        if not user["is_admin"] and check_password_hash(user["password"], password):
+        elif not user["is_admin"] and check_password_hash(user["password"], password):
             access_token = create_access_token(identity=email)
-            return jsonify({
-                "message": "Store attendant logged in successfully",
-                "token": access_token
-                })
-        return jsonify({"error": "Invalid email or password"}), 401
+            msg = {"message": "Store attendant logged in successfully", "token": access_token}
+        else:
+            return jsonify({"error": "Invalid email or password"}), 401
+        if msg:
+            return jsonify(msg)
 
 
 class RegisterView(MethodView):
@@ -87,10 +79,10 @@ class RegisterView(MethodView):
                 "error": "Please login as store owner to add store attendant"
             }), 403
 
-        res = validate_data(request)
+        # Validate the data
+        res = validate_register_data(request)
         if res:
             return res
-        # Get data sent
         data = request.get_json()
         # Get attributes of the data sent
         first_name = data.get("first_name")
@@ -98,15 +90,6 @@ class RegisterView(MethodView):
         email = data.get("email")
         password = data.get("password")
         confirm_password = data.get("confirm_password")
-
-        # Validate the data
-        res = validate_register_data(first_name=first_name, 
-                                     last_name=last_name, 
-                                     email=email, 
-                                     password=password, 
-                                     confirm_password=confirm_password)
-        if res:
-            return res
         
         # Check if user is already registered
         user_exists = db_conn.get_user(email)

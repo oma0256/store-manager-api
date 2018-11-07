@@ -1,20 +1,22 @@
-"""
-File to test authentication for the application
-"""
 import unittest
 import json
+from api import views
 from api.__init__ import app
 from db import DB
 
 
-class TestSoreAttendantauth(unittest.TestCase):
+class TestProductView(unittest.TestCase):
     """
-    Test store attendant authentication
+    Class to test product view
     """
 
     def setUp(self):
-        self.db_conn = DB()
         self.app = app.test_client()
+        self.db_conn = DB()
+        self.admin_login = {
+            "email": "admin@email.com",
+            "password": "pass1234"
+        }
         self.reg_data = {
             "first_name": "joe",
             "last_name": "doe",
@@ -26,223 +28,231 @@ class TestSoreAttendantauth(unittest.TestCase):
             "email": "joe@email.com",
             "password": "pass1234"
         }
-        self.admin_login = {
-            "email": "admin@email.com",
-            "password": "pass1234"
-        }
         self.headers = {"Content-Type": "application/json"}
         response = self.app.post("/api/v2/auth/login",
                                   headers=self.headers,
                                   data=json.dumps(self.admin_login))
         self.access_token = json.loads(response.data)["token"]
+        self.category = {
+            "name": "Tech",
+            "description": "This is tech"
+        }
 
-    
-    def test_register_with_unathenticated_user(self):
-        """
-        Test registration with unathenticated user
-        """
-        res = self.app.post("/api/v2/auth/signup",
-                            headers=self.headers,
-                            data=json.dumps(self.reg_data))
-        res_data = json.loads(res.data)
-        self.assertEqual(res.status_code, 401)
-        self.assertIsNone(res_data.get("token"))
+    def tearDown(self):
+        self.db_conn.drop_tables()
 
-    def test_register_invalid_email(self):
-        """
-        Test registration with invalid email
-        """
+    def test_create_category_with_valid_data(self):
         self.headers["Authorization"] = "Bearer " + self.access_token
-        self.reg_data["email"] = "ashga"
-        res = self.app.post("/api/v2/auth/signup",
+        res = self.app.post("/api/v2/categories",
                             headers=self.headers,
-                            data=json.dumps(self.reg_data))
+                            data=json.dumps(self.category))
         res_data = json.loads(res.data)
         expected_output = {
-            "error": "Please use a valid email address"
+            "message": "Successfully created product category",
+            "category": self.db_conn.get_category_by_name(self.category["name"])
+        }
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res_data, expected_output)
+
+    def test_create_category_with_missing_fields(self):
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.category["name"] = ""
+        res = self.app.post("/api/v2/categories",
+                            headers=self.headers,
+                            data=json.dumps(self.category))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "The category name is required"
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
 
-    def test_register_invalid_first_name(self):
-        """
-        Test registration with invalid first name
-        """
+    def test_create_duplicate_category(self):
         self.headers["Authorization"] = "Bearer " + self.access_token
-        self.reg_data["first_name"] = "sbfsb4124324"
-        res = self.app.post("/api/v2/auth/signup",
+        self.app.post("/api/v2/categories",
+                      headers=self.headers,
+                      data=json.dumps(self.category))
+        res = self.app.post("/api/v2/categories",
                             headers=self.headers,
-                            data=json.dumps(self.reg_data))
+                            data=json.dumps(self.category))
         res_data = json.loads(res.data)
         expected_output = {
-            "error": "First and last name should only be alphabets"
+            "error": "Category with this name exists"
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
 
-    def test_register_with_unmatching_password(self):
-        """
-        Test registration with unmatching passwords
-        """
-        self.headers["Authorization"] = "Bearer " + self.access_token
-        self.reg_data["password"] = "123"
-        res = self.app.post("/api/v2/auth/signup",
-                            headers=self.headers,
-                            data=json.dumps(self.reg_data))
-        res_data = json.loads(res.data)
-        expected_output = {
-            "error": "Passwords must match"
-        }
-        self.assertEqual(res.status_code, 400)
-        self.assertEqual(res_data, expected_output)
-
-    def test_register_missing_fields(self):
-        """
-        Test registration with missing fields
-        """
-        self.headers["Authorization"] = "Bearer " + self.access_token
-        self.reg_data["email"] = ""
-        res = self.app.post("/api/v2/auth/signup",
-                            headers=self.headers,
-                            data=json.dumps(self.reg_data))
-        res_data = json.loads(res.data)
-        expected_output = {
-            "error": "First name, last name, email, password and confirm password fields are required"
-        }
-        self.assertEqual(res.status_code, 400)
-        self.assertEqual(res_data, expected_output)
-
-    def test_register_duplicate_user(self):
-        """
-        Test register already registered store attendant
-        """
+    def test_create_category_authenticated_as_store_attendant(self):
         self.headers["Authorization"] = "Bearer " + self.access_token
         self.app.post("/api/v2/auth/signup",
                       headers=self.headers,
                       data=json.dumps(self.reg_data))
-        res = self.app.post("/api/v2/auth/signup",
+        res = self.app.post("/api/v2/auth/login",
                             headers=self.headers,
-                            data=json.dumps(self.reg_data))
+                            data=json.dumps(self.login_data))
+        self.headers["Authorization"] = "Bearer " + json.loads(res.data)["token"]
+        res = self.app.post("/api/v2/categories",
+                            headers=self.headers,
+                            data=json.dumps(self.category))
         res_data = json.loads(res.data)
         expected_output = {
-            "error": "User with this email already exists"
-        }
-        self.assertEqual(res.status_code, 400)
-        self.assertEqual(res_data, expected_output)
-
-    def test_register_using_store_attendant(self):
-        """
-        Test register as a store attendant
-        """
-        self.headers["Authorization"] = "Bearer " + self.access_token
-        self.app.post("/api/v2/auth/signup",
-                      headers=self.headers,
-                      data=json.dumps(self.reg_data))
-        auth_res = self.app.post("/api/v2/auth/login",
-                                 headers=self.headers,
-                                 data=json.dumps(self.login_data))
-        self.headers["Authorization"] = "Bearer " + json.loads(auth_res.data)["token"]
-        self.reg_data["email"] = "email@email.com"
-        res = self.app.post("/api/v2/auth/signup",
-                            headers=self.headers,
-                            data=json.dumps(self.reg_data))
-        res_data = json.loads(res.data)
-        expected_output = {
-            "error": "Please login as store owner to add store attendant"
+            "error": "Please login as a store owner"
         }
         self.assertEqual(res.status_code, 403)
         self.assertEqual(res_data, expected_output)
 
-    def test_register_using_unauthenticated_user(self):
-        """
-        Test register as unauthenticated user
-        """
-        res = self.app.post("/api/v2/auth/signup",
+    def test_create_category_unauthenticated(self):
+        res = self.app.post("/api/v2/categories",
                             headers=self.headers,
-                            data=json.dumps(self.reg_data))
+                            data=json.dumps(self.category))
         res_data = json.loads(res.data)
         self.assertEqual(res.status_code, 401)
 
-    def test_login_valid_data(self):
+    def test_modify_category_as_store_owner(self):
         """
-        Test login with valid data
+        Test modify a category with valid data
         """
         self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/categories",
+                      headers=self.headers,
+                      data=json.dumps(self.category))
+        category_id = self.db_conn.get_categories()[0]["id"]
+        self.category["name"] = "svdkjsd"
+        res = self.app.put("/api/v2/categories/" + str(category_id),
+                           headers=self.headers,
+                           data=json.dumps(self.category))
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "message": "Category updated successfully",
+            "category": self.db_conn.get_category_by_name(self.category["name"])
+        }
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res_data, exepected_output)
+    
+    def test_modify_category_as_store_attendant(self):
+        """
+        Test modify a category as store attendant
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/categories",
+                      headers=self.headers,
+                      data=json.dumps(self.category))
+        category_id = self.db_conn.get_categories()[0]["id"]
+        self.category["name"] = "svdkjsd"
+        self.app.post("/api/v2/auth/signup",
+                      headers=self.headers,
+                      data=json.dumps(self.reg_data))
+        res = self.app.post("/api/v2/auth/login",
+                      headers=self.headers,
+                      data=json.dumps(self.login_data))
+        self.headers["Authorization"] = "Bearer " + json.loads(res.data)["token"]
+        res = self.app.put("/api/v2/categories/" + str(category_id),
+                           headers=self.headers,
+                           data=json.dumps(self.category))
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "error": "Please login as a store owner"
+        }
+        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res_data, exepected_output)
+    
+    def test_modify_category_non_existant(self):
+        """
+        Test modify a category which doesn't exist
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/categories",
+                      headers=self.headers,
+                      data=json.dumps(self.category))
+        self.category["name"] = "svdkjsd"
+        res = self.app.put("/api/v2/categories/553445354665789",
+                           headers=self.headers,
+                           data=json.dumps(self.category))
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "error": "The category you're trying to modify doesn't exist"
+        }
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res_data, exepected_output)
+
+    def test_modify_category_with_empty_value(self):
+        """
+        Test modify a category with empty value
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/categories",
+                      headers=self.headers,
+                      data=json.dumps(self.category))
+        category_id = self.db_conn.get_categories()[0]["id"]
+        self.category["name"] = ""
+        res = self.app.put("/api/v2/categories/" + str(category_id),
+                           headers=self.headers,
+                           data=json.dumps(self.category))
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "error": "The category name is required"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, exepected_output)
+
+    def test_delete_category_store_owner(self):
+        """
+        Test delete a category as store owner
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/categories",
+                      headers=self.headers,
+                      data=json.dumps(self.category))
+        category_id = self.db_conn.get_categories()[0]["id"]
+        res = self.app.delete("/api/v2/categories/" + str(category_id),
+                           headers=self.headers,
+                           data=json.dumps(self.category))
+        res_data = json.loads(res.data)
+        exepected_output = {
+            "message": "Category has been deleted successfully"
+        }
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res_data, exepected_output)
+    
+    def test_delete_category_store_attendant(self):
+        """
+        Test delete a product as store attendant
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/categories",
+                      headers=self.headers,
+                      data=json.dumps(self.category))
+        category_id = self.db_conn.get_categories()[0]["id"]
         self.app.post("/api/v2/auth/signup",
                       headers=self.headers,
                       data=json.dumps(self.reg_data))
         res = self.app.post("/api/v2/auth/login",
                             headers=self.headers,
                             data=json.dumps(self.login_data))
+        self.headers["Authorization"] = "Bearer " + json.loads(res.data)["token"]
+        res = self.app.delete("/api/v2/categories/" + str(category_id),
+                              headers=self.headers)
         res_data = json.loads(res.data)
-        self.assertEqual(res.status_code, 200)
-        self.assertIsNotNone(res_data["token"])
-
-
-class TestStoreOwnerAuth(unittest.TestCase):
-    """
-    Test store owner authentication
-    """
-
-    def setUp(self):
-        self.app = app.test_client()
-        self.login_data = {
-            "email": "admin@email.com",
-            "password": "pass1234"
+        exepected_output = {
+            "error": "Please login as a store owner"
         }
+        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res_data, exepected_output)
     
-    def test_login_valid_data(self):
+    def test_delete_category_non_existance(self):
         """
-        Test login with valid data
+        Test delete a category as store owner
         """
-        res = self.app.post("/api/v2/auth/login",
-                            headers={"Content-Type": "application/json"},
-                            data=json.dumps(self.login_data))
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.app.post("/api/v2/categories",
+                      headers=self.headers,
+                      data=json.dumps(self.category))
+        res = self.app.delete("/api/v2/categories/142556789068970",
+                           headers=self.headers,
+                           data=json.dumps(self.category))
         res_data = json.loads(res.data)
-        self.assertEqual(res.status_code, 200)
-        self.assertIsNotNone(res_data["token"])
-
-    def test_login_with_missing_fields(self):
-        """
-        Test login with some missing fields
-        """
-        self.login_data["password"] = ""
-        res = self.app.post("/api/v2/auth/login",
-                            headers={"Content-Type": "application/json"},
-                            data=json.dumps(self.login_data))
-        res_data = json.loads(res.data)
-        expected_output = {
-            "error": "Email and password is required"
+        exepected_output = {
+            "error": "Category you're trying to delete doesn't exist"
         }
-        self.assertEqual(res.status_code, 400)
-        self.assertEqual(res_data, expected_output)
-
-    def test_login_invalid_password(self):
-        """
-        Test login with invalid password
-        """
-        self.login_data["password"] = "kjsdvjj"
-        res = self.app.post("/api/v2/auth/login",
-                            headers={"Content-Type": "application/json"},
-                            data=json.dumps(self.login_data))
-        res_data = json.loads(res.data)
-        expected_output = {
-            "error": "Invalid email or password"
-        }
-        self.assertEqual(res.status_code, 401)
-        self.assertEqual(res_data, expected_output)
-
-    def test_login_unregistered_store_owner(self):
-        """
-        Test login with unregistered user
-        """
-        self.login_data["email"] = "admin1234@email.com"
-        res = self.app.post("/api/v2/auth/login",
-                            headers={"Content-Type": "application/json"},
-                            data=json.dumps(self.login_data))
-        res_data = json.loads(res.data)
-        expected_output = {
-            "error": "Please register to login"
-        }
-        self.assertEqual(res.status_code, 401)
-        self.assertEqual(res_data, expected_output)
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res_data, exepected_output)
