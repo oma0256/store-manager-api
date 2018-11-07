@@ -93,34 +93,40 @@ def validate_product(request):
         if error_msg:
             return jsonify(error_msg), status_code
 
-def validate_cart_item(product_id, quantity):
+def validate_cart_item(request):
     """
     Function to validate cart item
     """
+    res = validate_data(request)
+    if res:
+        return res
+    
+    data = request.get_json()
+    product_id = data.get("product_id")
+    quantity = data.get("quantity")
+    error_msg = None
+    status_code = 200
     # Check if fields are empty
     if not product_id or not quantity:
-        return jsonify({
-            "error": "Product id and quantity is required"
-        }), 400
+        error_msg = {"error": "Product id and quantity is required"}
+        status_code = 400
     
     # Check for valid product id and quantity
-    if not type(product_id) is int or not type(quantity) is int:
-        return jsonify({
-            "error": "Product id and quantity must be integers"
-            }), 400
+    elif not type(product_id) is int or product_id <= 0 or not type(quantity) is int or quantity <= 0:
+        error_msg = {"error": "Product id and quantity must be positive integers"}
+        status_code = 400
     
     # Check if product exists in database
-    product = db_conn.get_product_by_id(product_id)
-    if not product:
-        return jsonify({
-            "error": "This product doesn't exist"
-        }), 404
+    elif not db_conn.get_product_by_id(int(product_id)):
+        error_msg = {"error": "This product doesn't exist"}
+        status_code = 404
     
     # Check if quantity is more than product quantity in database
-    if quantity > product["quantity"]:
-        return jsonify({
-            "error": "This product has only a quantity of " + str(product["quantity"])
-            }), 400
+    elif quantity > db_conn.get_product_by_id(int(product_id))["quantity"]:
+        error_msg = {"error": "This product has only a quantity of " + str(product["quantity"])}
+        status_code = 400
+    if error_msg:
+        return jsonify(error_msg), status_code
 
 def validate_data(request):
     try:

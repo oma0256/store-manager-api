@@ -245,7 +245,6 @@ class ProductView(MethodView):
         })
 
 
-
 class SaleView(MethodView):
     """
     Class to perform http methods on sales
@@ -264,24 +263,15 @@ class SaleView(MethodView):
                 "error": "Please login as a store attendant"
             }), 403
 
-        res = validate_data(request)
+        # Validate the data
+        res = validate_cart_item(request)
         if res:
             return res
-
-        # Get data passed
         data = request.get_json()
         product_id = data.get("product_id")
-        quantity = data.get("quantity")
-        # Validate the data
-        res = validate_cart_item(product_id, quantity)
-        if res:
-            return res
         # Get the product to from db
         product = db_conn.get_product_by_id(product_id)
-        if not product:
-            return jsonify({
-                "error": "This product doesn't exist"
-                }), 404
+        quantity = data.get("quantity")
         # Calculate the total
         total = product["unit_cost"] * quantity
         new_quantity = product["quantity"] - quantity
@@ -302,44 +292,39 @@ class SaleView(MethodView):
         # Get current user
         current_user = get_jwt_identity()
         user = db_conn.get_user(current_user)
+        msg = None
         # run if request is for a single sale record
         if sale_id:
             # Get a single sale record
             sale_record = db_conn.get_single_sale(int(sale_id))
+            status_code = 200
             # # Check if sale doesn't exist
             if not sale_record:
-                return jsonify({
-                    "error": "Sale record with this id doesn't exist"
-                }), 404
+                msg = {"error": "Sale record with this id doesn't exist"}
+                status_code = 404
             # run if it's a store owner
-            if user["is_admin"]:
-                return jsonify({
-                    "message": "Sale record returned successfully",
-                    "sale_record": sale_record
-                    })
+            elif user["is_admin"]:
+                msg = {"message": "Sale record returned successfully", "sale_record": sale_record}
             # run if it's a store attendant
-            if sale_record["attendant_id"] == db_conn.get_user(current_user)["id"]:
-                return jsonify({
-                    "message": "Sale record returned successfully",
-                    "sale_record": sale_record
-                    })
-            return jsonify({"error": "You didn't make this sale"}), 403
+            elif sale_record["attendant_id"] == db_conn.get_user(current_user)["id"]:
+                msg = {"message": "Sale record returned successfully", "sale_record": sale_record}
+            else:
+                msg = {"error": "You didn't make this sale"}
+                status_code = 403
+            if msg:
+                return jsonify(msg), status_code
         # run if request is for all sale records and if it's a store
         # owner
         if user["is_admin"]:
             sale_records = db_conn.get_sale_records()
-            return jsonify({
-                "message": "Sale records returned successfully",
-                "sale_records": sale_records
-            })
+            msg = {"message": "Sale records returned successfully", "sale_records": sale_records}
         # run if request is for all sale records and if it's a store
         # attendant
-        if not user["is_admin"]:
+        elif not user["is_admin"]:
             sale_records = db_conn.get_sale_records_user(user["id"])
-            return jsonify({
-                "message": "Sale records returned successfully",
-                "sale_records": sale_records
-            })
+            msg = {"message": "Sale records returned successfully", "sale_records": sale_records}
+        if msg:
+            return jsonify(msg)
 
 
 class CategoryView(MethodView):

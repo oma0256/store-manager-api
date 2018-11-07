@@ -123,6 +123,10 @@ class DB:
         self.cur.execute("INSERT INTO sales(attendant_id, product_id, quantity, total) VALUES (%s, %s, %s, %s)",
                          (attendant_id, product_id, quantity, total))
 
+    def add_sale(self, attendant_id, product_id, quantity, total):
+        self.cur.execute("INSERT INTO sales(attendant_id, product_id, quantity, total) VALUES (%s, %s, %s, %s)",
+                         (attendant_id, product_id, quantity, total))
+
     def get_sale_records(self):
         self.cur.execute("SELECT * FROM sales")
         return self.cur.fetchall()
