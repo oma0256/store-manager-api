@@ -103,7 +103,12 @@ class DB:
         self.cur.execute("SELECT * FROM products WHERE id=%s", (product_id,))
         return self.cur.fetchone()
     
-    def update_product(self, name, unit_cost, quantity, product_id, category_id=None):
+    def update_product(self, **kwargs):
+        name = kwargs.get("name")
+        unit_cost = kwargs.get("unit_cost")
+        quantity = kwargs.get("quantity")
+        category_id = kwargs.get("category_id")
+        product_id = kwargs.get("product_id")
         if category_id is not None:
             self.cur.execute("UPDATE products SET name=%s, unit_cost=%s, quantity=%s, category=%s WHERE id=%s", 
                              (name, unit_cost, quantity, category_id, product_id))

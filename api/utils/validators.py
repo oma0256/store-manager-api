@@ -56,37 +56,42 @@ def validate_login_data(request):
     return None
 
 
-def validate_product(name, unit_cost, quantity, category_id=None):
+def validate_product(request):
     """
     Funtion to validate product data
     """
-    # Check if fields are empty
-    if not name or not unit_cost or not quantity:
+    data = request.get_json()
+    # Get the fields which were sent
+    name = data.get("name")
+    unit_cost = data.get("unit_cost")
+    quantity = data.get("quantity")
+    category_id = data.get("category_id")
+    if not name or not name.isalpha():
         return jsonify({
-            "error": "Product name, unit_cost and quantity is required"
+            "error": "Product name is required and must be alphabets"
             }), 400
 
-    if not name.isalpha():
-        return jsonify({
-            "error": "Product name must be a string"
-            })
-
     # Check for valid unit_cost and quantity input
-    if not isinstance(unit_cost, int) or not isinstance(quantity, int):
+    if not unit_cost or not isinstance(unit_cost, int) or unit_cost <= 0:
         return jsonify({
-            "error": "Product unit_cost and quantity must be integers"
+            "error": "Product unit cost is required and must be a positive integer"
+            }), 400
+    
+    if not quantity or not type(quantity) is int or quantity <= 0:
+        return jsonify({
+            "error": "Product quantity is required and must be a positive integer"
             }), 400
 
     if category_id:
-        if not isinstance(category_id, int):
-            return jsonify({
-                "error": "Category id must be an integer"
-                })
-        category = db_conn.get_category_by_id(category_id)
-        if not category:
-            return jsonify({
-                "error": "This category doesn't exist"
-                }), 404
+        error_msg = None
+        if not isinstance(category_id, int) or category_id <= 0:
+            error_msg = {"error": "Category id must be a positive integer"}
+            status_code = 400
+        elif not db_conn.get_category_by_id(int(category_id)):
+            error_msg = {"error": "This category doesn't exist"}
+            status_code = 404
+        if error_msg:
+            return jsonify(error_msg), status_code
 
 def validate_cart_item(product_id, quantity):
     """

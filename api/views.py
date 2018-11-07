@@ -125,7 +125,7 @@ class ProductView(MethodView):
                 "error": "Please login as a store owner"
             }), 403
 
-        res = validate_data(request)
+        res = validate_product(request)
         if res:
             return res
         
@@ -135,11 +135,6 @@ class ProductView(MethodView):
         unit_cost = data.get("unit_cost")
         quantity = data.get("quantity")
         category_id = data.get("category_id")
-        # validates product and returns json response and status code
-        res = validate_product(name=name, unit_cost=unit_cost, 
-                               quantity=quantity, category_id=category_id)
-        if res:
-            return res
 
 
         # create a product object
@@ -196,6 +191,10 @@ class ProductView(MethodView):
                 "error": "Please login as a store owner"
             }), 403
         
+        res = validate_product(request)
+        if res:
+            return res
+        
         # Check if product exists
         product = db_conn.get_product_by_id(int(product_id))
         if not product:
@@ -203,26 +202,16 @@ class ProductView(MethodView):
                 "error": "The product you're trying to modify doesn't exist"
             }), 404
 
-        res = validate_data(request)
-        if res:
-            return res
-
         data = request.get_json()
         # Get the fields which were sent
         name = data.get("name")
         unit_cost = data.get("unit_cost")
         quantity = data.get("quantity")
-        category_id = data.get("category_id")
-        # validates product and returns json response and status code
-        res = validate_product(name=name, unit_cost=unit_cost, 
-                               quantity=quantity, category_id=category_id)
-        if res:
-            return res
-            
+        category_id = data.get("category_id")            
         
         # Modify product
-        db_conn.update_product(name, unit_cost, quantity, 
-                               int(product_id), category_id=category_id)
+        db_conn.update_product(name=name, unit_cost=unit_cost, quantity=quantity, 
+                               product_id=int(product_id), category_id=category_id)
         return jsonify({
             "message": "Product updated successfully",
             "product": db_conn.get_product_by_id(product_id)
@@ -297,8 +286,8 @@ class SaleView(MethodView):
         total = product["unit_cost"] * quantity
         new_quantity = product["quantity"] - quantity
         # Update the product quantity
-        db_conn.update_product(product["name"], product["unit_cost"],
-                               new_quantity, product_id)
+        db_conn.update_product(name=product["name"], unit_cost=product["unit_cost"],
+                               quantity=new_quantity, product_id=product_id)
         # Make the sale
         db_conn.add_sale(loggedin_user["id"], product_id, quantity, total)
         return jsonify({

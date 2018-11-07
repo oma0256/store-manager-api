@@ -95,7 +95,7 @@ class TestProductView(unittest.TestCase):
                             data=json.dumps(self.product))
         res_data = json.loads(res.data)
         expected_output = {
-            "error": "Product name, unit_cost and quantity is required"
+            "error": "Product name is required and must be alphabets"
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
@@ -104,14 +104,14 @@ class TestProductView(unittest.TestCase):
         """
         Test to create product with invalid data
         """
-        self.product["unit_cost"] = "zjsvgjs"
+        self.product["quantity"] = "zjsvgjs"
         self.headers["Authorization"] = "Bearer " + self.access_token
         res = self.app.post("/api/v2/products",
                             headers=self.headers,
                             data=json.dumps(self.product))
         res_data = json.loads(res.data)
         expected_output = {
-            "error": "Product unit_cost and quantity must be integers"
+            "error": "Product quantity is required and must be a positive integer"
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
@@ -326,7 +326,7 @@ class TestProductView(unittest.TestCase):
                            data=json.dumps(self.product))
         res_data = json.loads(res.data)
         exepected_output = {
-            "error": "Product unit_cost and quantity must be integers"
+            "error": "Product unit cost is required and must be a positive integer"
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, exepected_output)
@@ -346,7 +346,7 @@ class TestProductView(unittest.TestCase):
                            data=json.dumps(self.product))
         res_data = json.loads(res.data)
         exepected_output = {
-            "error": "Product name, unit_cost and quantity is required"
+            "error": "Product unit cost is required and must be a positive integer"
         }
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, exepected_output)
