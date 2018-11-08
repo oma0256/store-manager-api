@@ -119,9 +119,9 @@ class DB:
     def delete_product(self, product_id):
         self.cur.execute("DELETE FROM products WHERE id=%s", (product_id,))
 
-    def add_sale(self, attendant_id, product_id, quantity, total):
+    def add_sale(self, sale):
         self.cur.execute("INSERT INTO sales(attendant_id, product_id, quantity, total) VALUES (%s, %s, %s, %s)",
-                         (attendant_id, product_id, quantity, total))
+                         (sale.attendant_id, sale.product_id, sale.quantity, sale.total))
 
     def get_sale_records(self):
         self.cur.execute("SELECT * FROM sales")
