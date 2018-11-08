@@ -16,7 +16,6 @@ from api.utils.validators import (validate_product,
                                   validate_category,
                                   validate_data)
 from db import DB
-from db import DB
 
 
 db_conn = DB()

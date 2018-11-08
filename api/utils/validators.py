@@ -153,4 +153,4 @@ def validate_data(request):
     try:
         data = request.get_json()
     except:
-        return jsonify({"message": "Please check your inputs"}), 400
+        return jsonify({"error": "Please check your inputs"}), 400
