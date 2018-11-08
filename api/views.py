@@ -279,7 +279,7 @@ class SaleView(MethodView):
                                quantity=new_quantity, product_id=product_id)
         # Make the sale
         new_sale = Sale(loggedin_user["id"], product_id, quantity, total)
-        db_conn.add_sale(new_sale)
+        db_conn.add_sale(sale=new_sale)
         return jsonify({
             "message": "Sale made successfully"
             }), 201

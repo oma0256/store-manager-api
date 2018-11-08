@@ -123,7 +123,7 @@ def validate_cart_item(request):
     
     # Check if quantity is more than product quantity in database
     elif quantity > db_conn.get_product_by_id(int(product_id))["quantity"]:
-        error_msg = {"error": "This product has only a quantity of " + str(product["quantity"])}
+        error_msg = {"error": "This product has only a quantity of " + str(db_conn.get_product_by_id(int(product_id))["quantity"])}
         status_code = 400
     if error_msg:
         return jsonify(error_msg), status_code

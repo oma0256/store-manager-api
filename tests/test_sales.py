@@ -86,6 +86,60 @@ class TestSaleView(unittest.TestCase):
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
 
+    def test_create_sale_with_negative_quantity(self):
+        """
+        Test creating sale with missing fields
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        res = self.app.post("/api/v2/products",
+                            headers=self.headers,
+                            data=json.dumps(self.product))
+        product_id = self.db_conn.get_products()[0]["id"]
+        self.sale["quantity"] = -1
+        self.app.post("/api/v2/auth/signup",
+                      headers=self.headers,
+                      data=json.dumps(self.reg_data))
+        res = self.app.post("/api/v2/auth/login",
+                            headers=self.headers,
+                            data=json.dumps(self.login_data))
+        self.headers["Authorization"] = "Bearer " + json.loads(res.data)["token"]
+        res = self.app.post("/api/v2/sales",
+                            headers=self.headers,
+                            data=json.dumps(self.sale))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Product id and quantity must be positive integers"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, expected_output)
+
+    def test_create_sale_with_quantity_more_than_in_db(self):
+        """
+        Test creating sale with missing fields
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        res = self.app.post("/api/v2/products",
+                            headers=self.headers,
+                            data=json.dumps(self.product))
+        product_id = self.db_conn.get_products()[0]["id"]
+        self.sale["quantity"] = 15
+        self.app.post("/api/v2/auth/signup",
+                      headers=self.headers,
+                      data=json.dumps(self.reg_data))
+        res = self.app.post("/api/v2/auth/login",
+                            headers=self.headers,
+                            data=json.dumps(self.login_data))
+        self.headers["Authorization"] = "Bearer " + json.loads(res.data)["token"]
+        res = self.app.post("/api/v2/sales",
+                            headers=self.headers,
+                            data=json.dumps(self.sale))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "This product has only a quantity of 3"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, expected_output)
+
     def test_create_sale_with_valid_data(self):
         """
         Test creating sale with valid data
