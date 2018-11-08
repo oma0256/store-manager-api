@@ -85,7 +85,7 @@ class DB:
     
     def add_product(self, product):
         if product.category_id:
-            self.cur.execute("INSERT INTO products(name, unit_cost, quantity, category) VALUES (%s, %s, %s)", 
+            self.cur.execute("INSERT INTO products(name, unit_cost, quantity, category) VALUES (%s, %s, %s, %s)", 
                              (product.name, product.unit_cost, product.quantity, product.category_id))
         else:
             self.cur.execute("INSERT INTO products(name, unit_cost, quantity) VALUES (%s, %s, %s)", 

@@ -70,9 +70,11 @@ class TestProductView(unittest.TestCase):
         Test to create product with category
         """
         self.headers["Authorization"] = "Bearer " + self.access_token
-        self.app.post("/api/v2/categories",
-                      headers=self.headers,
-                      data=json.dumps(self.category))
+        res = self.app.post("/api/v2/categories",
+                            headers=self.headers,
+                            data=json.dumps(self.category))
+        category_id = json.loads(res.data)["category"]["id"]
+        self.product["category_id"] = int(category_id)
         res = self.app.post("/api/v2/products",
                             headers=self.headers,
                             data=json.dumps(self.product))
@@ -82,6 +84,38 @@ class TestProductView(unittest.TestCase):
             "product": self.db_conn.get_product_by_name(self.product["name"])
         }
         self.assertEqual(res.status_code, 201)
+        self.assertEqual(res_data, expected_output)
+
+    def test_create_product_with_invalid_category(self):
+        """
+        Test to create product with category
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.product["category_id"] = "jsdfjbs"
+        res = self.app.post("/api/v2/products",
+                            headers=self.headers,
+                            data=json.dumps(self.product))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "Category id must be a positive integer"
+        }
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data, expected_output)
+
+    def test_create_product_with_non_existance_category(self):
+        """
+        Test to create product with category
+        """
+        self.headers["Authorization"] = "Bearer " + self.access_token
+        self.product["category_id"] = 1
+        res = self.app.post("/api/v2/products",
+                            headers=self.headers,
+                            data=json.dumps(self.product))
+        res_data = json.loads(res.data)
+        expected_output = {
+            "error": "This category doesn't exist"
+        }
+        self.assertEqual(res.status_code, 404)
         self.assertEqual(res_data, expected_output)
 
     def test_create_product_with_missing_fields(self):
