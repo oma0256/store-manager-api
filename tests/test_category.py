@@ -1,6 +1,5 @@
 import unittest
 import json
-from api import views
 from api.__init__ import app
 from db import DB
 

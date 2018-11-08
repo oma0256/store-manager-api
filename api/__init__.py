@@ -18,4 +18,4 @@ def create_app(config_name):
 app = create_app('config.TestConfig')
 
 
-from api import views
+from api import auth_views, products_views, category_views, sales_views

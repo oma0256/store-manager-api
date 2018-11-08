@@ -4,7 +4,6 @@ File to test product view
 
 import unittest
 import json
-from api import views
 from api.__init__ import app
 from db import DB
 app.config.from_object('config.TestConfig')
