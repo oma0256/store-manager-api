@@ -79,6 +79,20 @@ class DB:
         self.cur.execute("SELECT * FROM users WHERE email=%s", (email,))
         return self.cur.fetchone()
     
+    def update_user_rights(self, user_id, is_admin):
+        if is_admin:
+            self.cur.execute("UPDATE users SET is_admin=%s WHERE id=%s", (False, user_id))
+        else:
+            self.cur.execute("UPDATE users SET is_admin=%s WHERE id=%s", (True, user_id))
+    
+    def get_user_by_id(self, user_id):
+        self.cur.execute("SELECT * FROM users WHERE id=%s", (user_id,))
+        return self.cur.fetchone()
+    
+    def get_users(self):
+        self.cur.execute("SELECT * FROM users")
+        return self.cur.fetchall()
+    
     def create_user(self, user):
         self.cur.execute("INSERT INTO users(first_name, last_name, email, password) VALUES (%s, %s, %s, %s)", 
                          (user.first_name, user.last_name, user.email, user.password))

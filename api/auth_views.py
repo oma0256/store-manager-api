@@ -1,7 +1,7 @@
 """
 File to handle application views
 """
-from flask import jsonify, request
+from flask import jsonify, request, render_template
 from flask.views import MethodView
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import (create_access_token, 
@@ -9,7 +9,9 @@ from flask_jwt_extended import (create_access_token,
                                 get_jwt_identity)
 from api.models import User
 from api.__init__ import app
-from api.utils.validators import validate_login_data, validate_register_data
+from api.utils.validators import (validate_login_data, 
+                                  validate_register_data,
+                                  validate_rights_data)
 from db import DB
 
 
@@ -101,8 +103,34 @@ class RegisterView(MethodView):
         }), 201
 
 
+class ToggleView(MethodView):
+    @jwt_required
+    def get(self, user_id):
+        current_user = get_jwt_identity()
+        loggedin_user = db_conn.get_user(current_user)
+        msg = None
+        status_code = 200
+        res = validate_rights_data(loggedin_user, user_id)
+        if res:
+            return res
+        user = db_conn.get_user_by_id(int(user_id))
+        if not user:
+            msg = {"error": "User with this id doesn't exist"}
+            status_code = 404
+        elif user["is_admin"]:
+            db_conn.update_user_rights(int(user_id), True)
+            msg = {"message": "Admin rights revoked"}
+        elif not user["is_admin"]:
+            db_conn.update_user_rights(int(user_id), False)
+            msg = {"message": "Assigned admin rights"}
+        if msg:
+            return jsonify(msg), status_code
+
+
 # Map urls to view classes
 app.add_url_rule('/api/v2/auth/login',
                  view_func=LoginView.as_view('login_view'))
 app.add_url_rule('/api/v2/auth/signup',
                  view_func=RegisterView.as_view('register_view'))
+app.add_url_rule('/api/v2/user/<user_id>/toggle-rights',
+                 view_func=ToggleView.as_view('toggle_view'))

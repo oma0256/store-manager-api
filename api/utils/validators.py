@@ -149,6 +149,19 @@ def validate_category(request):
             "error": "Category with this name exists"
         }), 400
 
+def validate_rights_data(loggedin_user, user_id):
+    error_msg = None
+    status_code = 400
+    if loggedin_user["id"] != 1:
+        error_msg = {"error": "Please login as the store owner"}
+        status_code = 403
+    elif not isinstance(int(user_id), int):
+        error_msg = {"error": "User id must be an integer"}
+    elif int(user_id) == 1:
+        error_msg = {"error": "You can't change store owner's rights"}
+    if error_msg:
+        return jsonify(error_msg), status_code
+
 def validate_data(request):
     try:
         data = request.get_json()
