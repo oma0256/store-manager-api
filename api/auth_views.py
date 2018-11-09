@@ -19,7 +19,7 @@ db_conn = DB()
 
 @app.route("/")
 def home_page():
-    return "Welcome to store"
+    return render_template("index.html")
 
 
 class LoginView(MethodView):

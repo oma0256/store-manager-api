@@ -1,0 +1,557 @@
+{
+  "openapi" : "3.0.0",
+  "info" : {
+    "version" : "v2",
+    "title" : "Store Manager",
+    "description" : "Store Manager is a web application that helps store owners manage sales and product inventory records. This application is meant for use in a single store."
+  },
+  "servers" : [ {
+    "url" : "http://127.0.0.1:5000/",
+    "description" : "Development server"
+  }, {
+    "url" : "https://oma-store-manager-api.herokuapp.com/",
+    "description" : "Production server"
+  } ],
+  "components" : {
+    "securitySchemes" : {
+      "bearerAuth" : {
+        "type" : "http",
+        "scheme" : "bearer",
+        "bearerFormat" : "JWT"
+      }
+    }
+  },
+  "paths" : {
+    "/api/v2/auth/signup" : {
+      "post" : {
+        "tags" : [ "Authentication" ],
+        "summary" : "Add a new store attendant",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "first_name" : {
+                    "type" : "string",
+                    "example" : "store"
+                  },
+                  "last_name" : {
+                    "type" : "string",
+                    "example" : "attendant"
+                  },
+                  "email" : {
+                    "type" : "string",
+                    "example" : "attendant@email.com"
+                  },
+                  "password" : {
+                    "type" : "string",
+                    "example" : "pass1234"
+                  },
+                  "confirm_password" : {
+                    "type" : "string",
+                    "example" : "pass1234"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Successfully add a new store attendant"
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "401" : {
+            "description" : "Unauthorized access must be logged in as store owner"
+          },
+          "403" : {
+            "description" : "Forbidden access should be a store owner"
+          }
+        }
+      }
+    },
+    "/api/v2/auth/login" : {
+      "post" : {
+        "tags" : [ "Authentication" ],
+        "summary" : "login a user",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "email" : {
+                    "type" : "string",
+                    "example" : "attendant@email.com"
+                  },
+                  "password" : {
+                    "type" : "string",
+                    "example" : "pass1234"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Successfully logged in"
+          },
+          "400" : {
+            "description" : "Bad request"
+          }
+        }
+      }
+    },
+    "/api/v2/user/{user_id}/toggle-rights" : {
+      "get" : {
+        "tags" : [ "Authentication" ],
+        "summary" : "Toggle's rights of a store attendant",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "user_id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "description" : "This is the id of a store attendant"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successfully changed a store attendant role"
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "401" : {
+            "description" : "Unauthorized access must be logged in"
+          },
+          "403" : {
+            "description" : "Forbbiden access must be logged in as store owner"
+          },
+          "404" : {
+            "description" : "User with that id does not exist"
+          }
+        }
+      }
+    },
+    "/api/v2/products" : {
+      "get" : {
+        "tags" : [ "Products" ],
+        "summary" : "Returns all the products available",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successfully returned the products"
+          },
+          "401" : {
+            "description" : "Unauthorized access must be logged in"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Products" ],
+        "summary" : "Adds a new product to store optionally include category_id if category exists",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "name" : {
+                    "type" : "string",
+                    "example" : "Belt"
+                  },
+                  "unit_cost" : {
+                    "type" : "integer",
+                    "example" : 10000
+                  },
+                  "quantity" : {
+                    "type" : "integer",
+                    "example" : 3
+                  },
+                  "category_id" : {
+                    "type" : "integer",
+                    "example" : 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Successfully added a product"
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "401" : {
+            "description" : "Unauthorized access must be logged in as store owner"
+          },
+          "403" : {
+            "description" : "Forbidden access should be a store owner"
+          }
+        }
+      }
+    },
+    "/api/v2/products/{product_id}" : {
+      "get" : {
+        "tags" : [ "Products" ],
+        "summary" : "Returns a specific product",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "product_id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "description" : "This is the id of a specific product"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successfully returned the product"
+          },
+          "401" : {
+            "description" : "Unauthorized access must be logged in"
+          },
+          "404" : {
+            "description" : "Product with that id does not exist"
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Products" ],
+        "summary" : "Modifies a specific product",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "product_id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "description" : "This is the id of a specific product"
+          }
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "name" : {
+                    "type" : "string",
+                    "example" : "Belt"
+                  },
+                  "unit_cost" : {
+                    "type" : "integer",
+                    "example" : 10000
+                  },
+                  "quantity" : {
+                    "type" : "integer",
+                    "example" : 3
+                  },
+                  "category_id" : {
+                    "type" : "integer",
+                    "example" : 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Successfully modified a product"
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "401" : {
+            "description" : "Unauthorized access must be logged in as store owner"
+          },
+          "403" : {
+            "description" : "Forbidden access should be a store owner"
+          },
+          "404" : {
+            "description" : "Product with that id does not exist"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Products" ],
+        "summary" : "Deletes a specific product",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "product_id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "description" : "This is the id of a specific product"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successfully deleted the product"
+          },
+          "401" : {
+            "description" : "Unauthorized access must be logged in as store owner"
+          },
+          "403" : {
+            "description" : "Forbidden access should be a store owner"
+          },
+          "404" : {
+            "description" : "Product with that id does not exist"
+          }
+        }
+      }
+    },
+    "/api/v2/sales" : {
+      "get" : {
+        "tags" : [ "Sales" ],
+        "summary" : "Returns all the sale records",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successfully returned the sale records"
+          },
+          "401" : {
+            "description" : "Unauthorized access must be logged in"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Sales" ],
+        "summary" : "Makes a sale record",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "product_id" : {
+                    "type" : "integer",
+                    "example" : 1
+                  },
+                  "quantity" : {
+                    "type" : "integer",
+                    "example" : 2
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Successfully made a sale"
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "401" : {
+            "description" : "Unauthorized access must be logged in as store attendant"
+          },
+          "403" : {
+            "description" : "Forbidden access should be a store attendant"
+          }
+        }
+      }
+    },
+    "/api/v2/sales/{sale_id}" : {
+      "get" : {
+        "tags" : [ "Sales" ],
+        "summary" : "Returns a specific sale record",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "sale_id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "description" : "This is the id of a specific sale record"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successfully returned the sale record"
+          },
+          "401" : {
+            "description" : "Unauthorized access must be logged in"
+          },
+          "403" : {
+            "description" : "You didn't make this sale"
+          },
+          "404" : {
+            "description" : "Sale record with that id does not exist"
+          }
+        }
+      }
+    },
+    "/api/v2/categories" : {
+      "post" : {
+        "tags" : [ "Categories" ],
+        "summary" : "Creates a new category",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "name" : {
+                    "type" : "string",
+                    "example" : "Clothing"
+                  },
+                  "description" : {
+                    "type" : "string",
+                    "example" : "These are clothes"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Successfully created a category"
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "401" : {
+            "description" : "Unauthorized access must be logged in as store owner"
+          },
+          "403" : {
+            "description" : "Forbidden access should be a store owner"
+          }
+        }
+      }
+    },
+    "/api/v2/categories/{category_id}" : {
+      "put" : {
+        "tags" : [ "Categories" ],
+        "summary" : "Modifies a specific category",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "category_id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "description" : "This is the id of a specific category"
+          }
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "name" : {
+                    "type" : "string",
+                    "example" : "Cloths"
+                  },
+                  "description" : {
+                    "type" : "string",
+                    "example" : "This is a cloth"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Successfully modified a category"
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "401" : {
+            "description" : "Unauthorized access must be logged in as store owner"
+          },
+          "403" : {
+            "description" : "Forbidden access should be a store owner"
+          },
+          "404" : {
+            "description" : "Category with that id does not exist"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Categories" ],
+        "summary" : "Deletes a specific category",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "category_id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "description" : "This is the id of a specific category"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successfully deleted the category"
+          },
+          "401" : {
+            "description" : "Unauthorized access must be logged in as store owner"
+          },
+          "403" : {
+            "description" : "Forbidden access should be a store owner"
+          },
+          "404" : {
+            "description" : "Category with that id does not exist"
+          }
+        }
+      }
+    }
+  }
+}
