@@ -26,14 +26,14 @@ commands = (
         name VARCHAR UNIQUE NOT NULL,
         unit_cost INTEGER NOT NULL,
         quantity INTEGER NOT NULL,
-        category INTEGER REFERENCES public.categories(id) NULL
+        category INTEGER REFERENCES public.categories(id) NULL ON DELETE CASCADE
     )
     """,
     """
     CREATE TABLE IF NOT EXISTS public.sales(
         id SERIAL PRIMARY KEY,
-        attendant_id INTEGER REFERENCES public.users(id) NOT NULL,
-        product_id INTEGER REFERENCES public.products(id) NOT NULL,
+        attendant_id INTEGER REFERENCES public.users(id) NOT NULL ON DELETE CASCADE,
+        product_id INTEGER REFERENCES public.products(id) NOT NULL ON DELETE CASCADE,
         quantity INTEGER NOT NULL,
         total INTEGER NOT NULL
     )
@@ -58,16 +58,13 @@ class DB:
                                              user="postgres", 
                                              password="pass1234")
             else:
-                self.conn = psycopg2.connect(host="ec2-107-21-93-132.compute-1.amazonaws.com", 
-                                             database="d5f8cj1fcjbd3r", 
-                                             user="lqrvapuohprshd", 
-                                             password="5663d19e339d24463a34ce0c8016bcadf880621cb80e2754ee677af468dafb3b")
+                self.conn = psycopg2.connect("postgres://lqrvapuohprshd:5663d19e339d24463a34ce0c8016bcadf880621cb80e2754ee677af468dafb3b@ec2-107-21-93-132.compute-1.amazonaws.com:5432/d5f8cj1fcjbd3r")
             self.cur = self.conn.cursor(cursor_factory=RealDictCursor)
             self.conn.autocommit = True
             for command in commands:
                 self.cur.execute(command)
-        except:
-            print("Failed to connect")
+        except psycopg2.OperationalError as e:
+            print("Failed to connect" + e)
     
     def drop_tables(self):
         self.cur.execute("DROP TABLE IF EXISTS sales")
@@ -91,6 +88,10 @@ class DB:
     
     def get_users(self):
         self.cur.execute("SELECT * FROM users")
+        return self.cur.fetchall()
+    
+    def get_attendants(self):
+        self.cur.execute("SELECT * FROM users WHERE is_admin=%s", (False,))
         return self.cur.fetchall()
     
     def create_user(self, user):

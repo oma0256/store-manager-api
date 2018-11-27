@@ -10,6 +10,13 @@ from db import DB
 
 db_conn = DB()
 
+def formart_sale(sale_record):
+    product = db_conn.get_product_by_id(int(sale_record["product_id"]))
+    attendant = db_conn.get_user_by_id(int(sale_record["attendant_id"]))
+    sale_record["product_name"] = product["name"]
+    sale_record["attendant"] = attendant["first_name"] + " " + attendant["last_name"]
+    return sale_record
+
 
 class SaleView(MethodView):
     """
@@ -70,11 +77,9 @@ class SaleView(MethodView):
                 msg = {"error": "Sale record with this id doesn't exist"}
                 status_code = 404
             # run if it's a store owner
-            elif user["is_admin"]:
-                msg = {"message": "Sale record returned successfully", "sale_record": sale_record}
-            # run if it's a store attendant
-            elif sale_record["attendant_id"] == db_conn.get_user(current_user)["id"]:
-                msg = {"message": "Sale record returned successfully", "sale_record": sale_record}
+            elif user["is_admin"] or sale_record["attendant_id"] == db_conn.get_user(current_user)["id"]:
+                sale = formart_sale(sale_record)
+                msg = {"message": "Sale record returned successfully", "sale_record": sale}
             else:
                 msg = {"error": "You didn't make this sale"}
                 status_code = 403
@@ -82,14 +87,17 @@ class SaleView(MethodView):
                 return jsonify(msg), status_code
         # run if request is for all sale records and if it's a store
         # owner
+        sales = []
+        msg = {"message": "Sale records returned successfully", "sale_records": sales}
         if user["is_admin"]:
             sale_records = db_conn.get_sale_records()
-            msg = {"message": "Sale records returned successfully", "sale_records": sale_records}
         # run if request is for all sale records and if it's a store
         # attendant
         elif not user["is_admin"]:
             sale_records = db_conn.get_sale_records_user(user["id"])
-            msg = {"message": "Sale records returned successfully", "sale_records": sale_records}
+        for sale_record in sale_records:
+            sale = formart_sale(sale_record)
+            sales.append(sale)
         if msg:
             return jsonify(msg)
 

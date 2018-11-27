@@ -13,6 +13,7 @@ from api.utils.validators import (validate_login_data,
                                   validate_register_data,
                                   validate_rights_data)
 from db import DB
+from api.sales_views import formart_sale
 
 
 db_conn = DB()
@@ -46,11 +47,18 @@ class LoginView(MethodView):
         # Check if it's a store owner and the password is theirs
         if user["is_admin"] and check_password_hash(user["password"], password):
             access_token = create_access_token(identity=email)
-            msg = {"message": "Store owner logged in successfully", "token": access_token}
+            msg = {
+                "message": "Store owner logged in successfully", 
+                "token": access_token
+                }
         # Check if it's a store attendant and the password is theirs
         elif not user["is_admin"] and check_password_hash(user["password"], password):
             access_token = create_access_token(identity=email)
-            msg = {"message": "Store attendant logged in successfully", "token": access_token}
+            msg = {
+                "message": "Store attendant logged in successfully",
+                "attendant_id": user["id"],
+                "token": access_token
+                }
         else:
             return jsonify({"error": "Invalid email or password"}), 401
         if msg:
@@ -126,11 +134,48 @@ class ToggleView(MethodView):
         if msg:
             return jsonify(msg), status_code
 
+class AttendantView(MethodView):
+    @jwt_required
+    def get(self, user_id=None):
+        current_user = get_jwt_identity()
+        loggedin_user = db_conn.get_user(current_user)
+        if user_id:
+            attendant = db_conn.get_user_by_id(int(user_id))
+            if not attendant:
+                return jsonify({
+                    "error": "User with this id doesn't exist"
+                }), 404
+            sale_records = db_conn.get_sale_records_user(int(attendant["id"]))
+            sales = []
+            for sale_record in sale_records:
+                sale = formart_sale(sale_record)
+                sales.append(sale)
+            return jsonify({
+                "message": "Attendant returned successfully",
+                "attendant": attendant,
+                "sale_records": sales
+            })
+        if not loggedin_user["is_admin"]:
+            return jsonify({
+                "error": "Please login as a store owner"
+            }), 403
+        attendants = db_conn.get_attendants()
+        return jsonify({
+            "message": "Attendants returned successfully",
+            "attendants": attendants
+        })
+
 
 # Map urls to view classes
 app.add_url_rule('/api/v2/auth/login',
                  view_func=LoginView.as_view('login_view'))
 app.add_url_rule('/api/v2/auth/signup',
                  view_func=RegisterView.as_view('register_view'))
+app.add_url_rule('/api/v2/users',
+                 view_func=AttendantView.as_view('attendant_view'),
+                 methods=["GET"])
+app.add_url_rule('/api/v2/users/<user_id>',
+                 view_func=AttendantView.as_view('attendant_view1'),
+                 methods=["GET"])
 app.add_url_rule('/api/v2/user/<user_id>/toggle-rights',
                  view_func=ToggleView.as_view('toggle_view'))
