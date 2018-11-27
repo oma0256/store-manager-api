@@ -26,14 +26,14 @@ commands = (
         name VARCHAR UNIQUE NOT NULL,
         unit_cost INTEGER NOT NULL,
         quantity INTEGER NOT NULL,
-        category INTEGER REFERENCES public.categories(id) NULL ON DELETE CASCADE
+        category INTEGER REFERENCES public.categories(id) ON DELETE CASCADE NULL
     )
     """,
     """
     CREATE TABLE IF NOT EXISTS public.sales(
         id SERIAL PRIMARY KEY,
-        attendant_id INTEGER REFERENCES public.users(id) NOT NULL ON DELETE CASCADE,
-        product_id INTEGER REFERENCES public.products(id) NOT NULL ON DELETE CASCADE,
+        attendant_id INTEGER REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+        product_id INTEGER REFERENCES public.products(id) ON DELETE CASCADE NOT NULL,
         quantity INTEGER NOT NULL,
         total INTEGER NOT NULL
     )
