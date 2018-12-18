@@ -91,7 +91,7 @@ class DB:
         return self.cur.fetchall()
     
     def get_attendants(self):
-        self.cur.execute("SELECT * FROM users WHERE is_admin=%s", (False,))
+        self.cur.execute("SELECT * FROM users WHERE id!=%s", (1,))
         return self.cur.fetchall()
     
     def create_user(self, user):
