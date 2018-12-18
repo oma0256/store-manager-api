@@ -51,6 +51,11 @@ class LoginView(MethodView):
                 "message": "Store owner logged in successfully", 
                 "token": access_token
                 }
+            if user["id"] != 1:
+                msg = {
+                    "message": "Store attendant with admin rights logged in successfully",
+                    "token": access_token
+                }
         # Check if it's a store attendant and the password is theirs
         elif not user["is_admin"] and check_password_hash(user["password"], password):
             access_token = create_access_token(identity=email)
