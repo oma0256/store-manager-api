@@ -88,22 +88,54 @@ class SaleView(MethodView):
         # run if request is for all sale records and if it's a store
         # owner
         sales = []
-        msg = {"message": "Sale records returned successfully", "sale_records": sales}
+        sales_reverted = []
         if user["is_admin"]:
             sale_records = db_conn.get_sale_records()
+            sale_records_reverted = db_conn.get_reverted_sale_records()
         # run if request is for all sale records and if it's a store
         # attendant
         elif not user["is_admin"]:
             sale_records = db_conn.get_sale_records_user(user["id"])
+            sale_records_reverted = db_conn.get_sale_records_user_reverted(user["id"])
         for sale_record in sale_records:
             sale = formart_sale(sale_record)
             sales.append(sale)
+        for reverted_sale_record in sale_records_reverted:
+            sale = formart_sale(reverted_sale_record)
+            sales_reverted.append(sale)
+        msg = {
+            "message": "Sale records returned successfully", 
+            "sale_records": sales, 
+            "sale_records_reverted": sales_reverted
+            }
         if msg:
             return jsonify(msg)
+    
+    @jwt_required
+    def put(self, sale_id):
+        """
+        Perform PUT on sale records
+        """
+        # Get current user
+        current_user = get_jwt_identity()
+        user = db_conn.get_user(current_user)
+        if not user["is_admin"]:
+            return jsonify({
+                "error": "Please login as a store owner"
+            }), 403
+        sale_record = db_conn.get_single_sale(int(sale_id))
+        if not sale_record:
+            return jsonify({
+                "error": "This sale record doesn't exist"
+            }), 404
+        db_conn.revert_sale_record(sale_record)
+        return jsonify({
+            "message": "Sale record has been successfully reverted"
+        }), 200
 
 
 app.add_url_rule('/api/v2/sales',
                  view_func=SaleView.as_view('sale_view'),
                  methods=["GET","POST"])
 app.add_url_rule('/api/v2/sales/<sale_id>',
-                 view_func=SaleView.as_view('sale_view1'), methods=["GET"])
+                 view_func=SaleView.as_view('sale_view1'), methods=["GET", "PUT"])

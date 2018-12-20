@@ -36,7 +36,8 @@ commands = (
         attendant_id INTEGER REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
         product_id INTEGER REFERENCES public.products(id) ON DELETE CASCADE NOT NULL,
         quantity INTEGER NOT NULL,
-        total INTEGER NOT NULL
+        total INTEGER NOT NULL,
+        revert BOOLEAN DEFAULT FALSE NOT NULL
     )
     """,
     """
@@ -145,7 +146,11 @@ class DB:
                          (sale.attendant_id, sale.product_id, sale.quantity, sale.total))
 
     def get_sale_records(self):
-        self.cur.execute("SELECT * FROM sales")
+        self.cur.execute("SELECT * FROM sales WHERE revert=%s", (False,))
+        return self.cur.fetchall()
+    
+    def get_reverted_sale_records(self):
+        self.cur.execute("SELECT * FROM sales WHERE revert=%s", (True,))
         return self.cur.fetchall()
 
     def get_single_sale(self, sale_id):
@@ -153,8 +158,15 @@ class DB:
         return self.cur.fetchone()
 
     def get_sale_records_user(self, user_id):
-        self.cur.execute("SELECT * FROM sales WHERE attendant_id=%s", (user_id,))
+        self.cur.execute("SELECT * FROM sales WHERE attendant_id=%s AND revert=%s", (user_id, False))
         return self.cur.fetchall()
+
+    def get_sale_records_user_reverted(self, user_id):
+        self.cur.execute("SELECT * FROM sales WHERE attendant_id=%s AND revert=%s", (user_id, True))
+        return self.cur.fetchall()
+    
+    def revert_sale_record(self, sale_record):
+        self.cur.execute("UPDATE sale SET attendant_id=%s product_id=%s quantity=%s total=%s revert=%s", (sale_record.attendant_id, sale_record.product_id, sale_record.quantity, sale_record.total, True))
 
     def get_category_by_name(self, name):
         self.cur.execute("SELECT * FROM categories WHERE name=%s", (name,))
