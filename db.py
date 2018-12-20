@@ -26,7 +26,8 @@ commands = (
         name VARCHAR UNIQUE NOT NULL,
         unit_cost INTEGER NOT NULL,
         quantity INTEGER NOT NULL,
-        category INTEGER REFERENCES public.categories(id) ON DELETE CASCADE NULL
+        category INTEGER REFERENCES public.categories(id) ON DELETE CASCADE NULL,
+        deleted BOOLEAN DEFAULT FALSE NOT NULL
     )
     """,
     """
@@ -111,7 +112,11 @@ class DB:
         return self.cur.fetchone()
     
     def get_products(self):
-        self.cur.execute("SELECT * FROM products")
+        self.cur.execute("SELECT * FROM products WHERE deleted=%s", (False,))
+        return self.cur.fetchall()
+    
+    def get_deleted_products(self):
+        self.cur.execute("SELECT * FROM products WHERE deleted=%s", (True,))
         return self.cur.fetchall()
     
     def get_product_by_id(self, product_id):
@@ -132,7 +137,7 @@ class DB:
                              (name, unit_cost, quantity, product_id))
     
     def delete_product(self, product_id):
-        self.cur.execute("DELETE FROM products WHERE id=%s", (product_id,))
+        self.cur.execute("UPDATE products SET deleted=%s WHERE id=%s", (True, product_id,))
 
     def add_sale(self, **kwargs):
         sale = kwargs.get("sale")

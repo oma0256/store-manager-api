@@ -76,9 +76,11 @@ class ProductView(MethodView):
                 })
         # Get all products
         products = db_conn.get_products()
+        products_deleted = db_conn.get_deleted_products()
         return jsonify({
             "message": "Products returned successfully",
-            "products": products
+            "products": products,
+            "products_deleted": products_deleted
         })
     
     @jwt_required
@@ -105,6 +107,11 @@ class ProductView(MethodView):
             return jsonify({
                 "error": "The product you're trying to modify doesn't exist"
             }), 404
+        
+        if product["deleted"]:
+            return jsonify({
+                "error": "Cannot modify a product that has been deleted"
+            })
 
         data = request.get_json()
         # Get the fields which were sent
@@ -141,6 +148,11 @@ class ProductView(MethodView):
             return jsonify({
                 "error": "Product you're trying to delete doesn't exist"
             }), 404
+        
+        if product["deleted"]:
+            return jsonify({
+                "error": "Cannot deleted product already deleted"
+            }), 400
 
         # Delete product
         db_conn.delete_product(int(product_id))
