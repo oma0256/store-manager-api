@@ -42,19 +42,21 @@ class LoginView(MethodView):
         # Check if user already registered
         user = db_conn.get_user(email)
         if not user:
-            return jsonify({"error": "Please register to login"}), 401
+            return jsonify({"error": "Please register to login"}), 400
         msg = None
         # Check if it's a store owner and the password is theirs
         if user["is_admin"] and check_password_hash(user["password"], password):
             access_token = create_access_token(identity=email)
             msg = {
                 "message": "Store owner logged in successfully", 
-                "token": access_token
+                "token": access_token,
+                "user": user
                 }
             if user["id"] != 1:
                 msg = {
                     "message": "Store attendant with admin rights logged in successfully",
-                    "token": access_token
+                    "token": access_token,
+                    "user": user
                 }
         # Check if it's a store attendant and the password is theirs
         elif not user["is_admin"] and check_password_hash(user["password"], password):
@@ -62,10 +64,11 @@ class LoginView(MethodView):
             msg = {
                 "message": "Store attendant logged in successfully",
                 "attendant_id": user["id"],
-                "token": access_token
+                "token": access_token,
+                "user": user
                 }
         else:
-            return jsonify({"error": "Invalid email or password"}), 401
+            return jsonify({"error": "Invalid email or password"}), 400
         if msg:
             return jsonify(msg)
 

@@ -236,7 +236,7 @@ class TestStoreOwnerAuth(unittest.TestCase):
         expected_output = {
             "error": "Invalid email or password"
         }
-        self.assertEqual(res.status_code, 401)
+        self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
 
     def test_login_unregistered_store_owner(self):
@@ -251,7 +251,7 @@ class TestStoreOwnerAuth(unittest.TestCase):
         expected_output = {
             "error": "Please register to login"
         }
-        self.assertEqual(res.status_code, 401)
+        self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data, expected_output)
 
 
